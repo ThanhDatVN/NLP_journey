@@ -1,0 +1,535 @@
+@@@ md
+# Bài 11 · Gán nhãn chuỗi: nhận diện thực thể (NER) với PhoBERT
+
+**Thời lượng gợi ý:** 240 phút · **Cần:** Bài 9, Bài 10 · **Nên có GPU** · **Cần Internet** lần đầu
+
+## Mục tiêu
+
+1. Hiểu bài toán **gán nhãn chuỗi** và các lược đồ nhãn **BIO/IOB2**.
+2. Cài đặt độ đo **mức thực thể** (precision/recall/F1 theo từng loại) và hiểu vì sao accuracy theo token gây hiểu lầm.
+3. Xử lý vấn đề đặc thù của Transformer: **căn chỉnh nhãn từ → subword**.
+4. Tinh chỉnh PhoBERT cho **token classification** trên dữ liệu NER tiếng Việt thật.
+5. **Giải mã có ràng buộc** (Viterbi) để loại các chuỗi nhãn vô lý (`O I-LOC`); phân tích lỗi theo loại: sai loại, sai ranh giới, bỏ sót, thừa.
+6. Chạy mô hình trên văn bản thô và kiểm tra khi **đổi miền**.
+
+> Bài này tương ứng **Chương 7, mục "Phân loại token"** của [khóa Hugging Face (tiếng Việt)](https://huggingface.co/docs/course/vi/chapter7/2).
+
+@@@ code
+import sys, pathlib
+
+ROOT = pathlib.Path.cwd()
+if ROOT.name == "notebooks":
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import warnings
+warnings.filterwarnings("ignore")
+
+import os
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+
+import re, time
+from collections import Counter, defaultdict
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+import torch
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+import transformers
+from transformers import AutoTokenizer, AutoModelForTokenClassification, get_linear_schedule_with_warmup
+transformers.logging.set_verbosity_error()
+
+from nlpvi import DATA_DIR, normalize_unicode, set_seed
+from nlpvi.segment import ViSegmenter
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+SEED = 42
+set_seed(SEED)
+device = "cuda" if torch.cuda.is_available() else "cpu"
+print("Thiết bị:", device)
+
+@@@ md
+## 1. Gán nhãn chuỗi và lược đồ BIO
+
+Ở các bài trước, mỗi *văn bản* có **một** nhãn. Với **gán nhãn chuỗi**, mỗi *từ* có một nhãn. **NER (Named Entity Recognition)** tìm và phân loại các cụm từ chỉ tên riêng, thời gian...
+
+Một thực thể có thể gồm nhiều từ, nên ta dùng lược đồ **BIO**:
+
+- `B-X`: từ **B**ắt đầu thực thể loại X
+- `I-X`: từ **B**ên trong (tiếp nối) thực thể loại X
+- `O`: **O**utside — không thuộc thực thể nào
+
+Ví dụ: *"Bà [Trần Thị Mai] sống ở [Huế]"* → `O B-PER I-PER I-PER O O B-LOC`.
+
+Ta bắt đầu với bộ nhỏ viết tay `data/ner_mini.txt` (38 câu, 4 loại: PER, LOC, ORG, DATE) để hiểu cách biểu diễn và độ đo; sau đó mới dùng dữ liệu thật.
+
+@@@ code
+PAT = re.compile(r"\[([^|\]]+)\|([A-Z]+)\]")
+
+def doc_dong(dong):
+    """'Ông [Nguyễn Văn An|PER] ở [Hà Nội|LOC] .' -> (tokens, tags) theo BIO, mức âm tiết."""
+    tokens, tags, pos = [], [], 0
+    for m in PAT.finditer(dong):
+        truoc = dong[pos:m.start()].split()
+        tokens += truoc; tags += ["O"] * len(truoc)
+        ent = m.group(1).split()
+        tokens += ent; tags += ["B-" + m.group(2)] + ["I-" + m.group(2)] * (len(ent) - 1)
+        pos = m.end()
+    sau = dong[pos:].split()
+    tokens += sau; tags += ["O"] * len(sau)
+    return tokens, tags
+
+mini = [doc_dong(l) for l in (DATA_DIR / "ner_mini.txt").read_text(encoding="utf-8").splitlines() if l.strip()]
+print(len(mini), "câu |", sum(len(t) for t, _ in mini), "token |", Counter(t[2:] for _, ts in mini for t in ts if t.startswith("B-")))
+toks, tags = mini[0]
+print(pd.DataFrame({"token": toks, "nhãn": tags}).T.to_string(header=False))
+
+@@@ md
+## 2. Độ đo mức thực thể
+
+Nếu chấm theo **token**, một mô hình *luôn đoán `O`* đạt accuracy rất cao vì phần lớn token là `O`, nhưng không tìm được thực thể nào. Độ đo đúng là **mức thực thể**: một thực thể dự đoán chỉ tính là đúng nếu **đúng cả ranh giới lẫn loại** (khớp chính xác).
+
+- **Precision** = (thực thể đoán đúng) / (thực thể đã đoán)
+- **Recall** = (thực thể đoán đúng) / (thực thể thật)
+- **F1** = trung bình điều hòa
+
+@@@ code
+def lay_thuc_the(tags):
+    """Trả về danh sách (loại, bắt đầu, kết thúc) từ chuỗi nhãn BIO.
+    Một 'I-X' đứng lạc (sau O hoặc sau loại khác) được coi là bắt đầu một thực thể mới (cách của seqeval mặc định)."""
+    ents, start, typ = [], None, None
+    for i, t in enumerate(list(tags) + ["O"]):
+        bat_dau_moi = t.startswith("B-") or (t.startswith("I-") and t[2:] != typ)
+        if t == "O" or bat_dau_moi:
+            if typ is not None:
+                ents.append((typ, start, i - 1)); typ = None
+            if t != "O":
+                start, typ = i, t[2:]
+    return ents
+
+def prf_thuc_the(gold_seqs, pred_seqs):
+    """Độ đo mức thực thể theo từng loại và tổng (micro)."""
+    tp, fp, fn = Counter(), Counter(), Counter()
+    for g, p in zip(gold_seqs, pred_seqs):
+        G, P = set(lay_thuc_the(g)), set(lay_thuc_the(p))
+        for e in G & P: tp[e[0]] += 1
+        for e in P - G: fp[e[0]] += 1
+        for e in G - P: fn[e[0]] += 1
+    rows = {}
+    for typ in sorted(set(tp) | set(fp) | set(fn)):
+        pr = tp[typ] / max(tp[typ] + fp[typ], 1); rc = tp[typ] / max(tp[typ] + fn[typ], 1)
+        rows[typ] = {"precision": pr, "recall": rc, "f1": 2 * pr * rc / max(pr + rc, 1e-12), "số thực thể": tp[typ] + fn[typ]}
+    T, FP, FN = sum(tp.values()), sum(fp.values()), sum(fn.values())
+    pr, rc = T / max(T + FP, 1), T / max(T + FN, 1)
+    rows["TỔNG (micro)"] = {"precision": pr, "recall": rc, "f1": 2 * pr * rc / max(pr + rc, 1e-12), "số thực thể": T + FN}
+    return pd.DataFrame(rows).T
+
+# kiểm tra hàm bằng ví dụ tay
+vd = ["O", "B-PER", "I-PER", "O", "B-LOC", "I-LOC"]
+print(lay_thuc_the(vd), "(mong đợi: PER 1–2, LOC 4–5)")
+print(lay_thuc_the(["O", "I-PER", "I-PER", "B-PER"]), "(I- lạc loài mở thực thể mới)")
+
+@@@ code
+gold = [t for _, t in mini]
+tat_ca_O = [["O"] * len(t) for t in gold]
+tok_acc = np.mean([a == "O" for ts in gold for a in ts])
+print(f"Mô hình luôn đoán 'O': accuracy theo token = {tok_acc:.1%}")
+display(prf_thuc_the(gold, tat_ca_O).round(3))
+
+@@@ md
+Trên bộ nhỏ này accuracy theo token chỉ ≈55% (ta chọn toàn câu giàu thực thể), nhưng trên văn bản báo chí thật phần lớn token là `O` — ở bộ dữ liệu thật của mục 3 con số đó là ≈79% — trong khi mức thực thể F1 vẫn bằng 0. Đây là lý do luôn dùng độ đo mức thực thể (thư viện `seqeval` tính theo cùng cách).
+
+### Baseline luật: chuỗi từ viết hoa
+
+Baseline đơn giản: mọi **cụm từ viết hoa liên tiếp**, trừ chức danh ở đầu câu, là thực thể (chưa phân loại). Ta chỉ chấm *ranh giới* (bỏ qua loại) để có mốc so sánh.
+
+@@@ code
+CHUC_DANH = {"Ông", "Bà", "Anh", "Chị", "Cô", "Thầy", "Em", "Bạn", "Chủ", "Giáo", "Sinh", "Thủ", "Nhà", "Tôi", "Hôm", "Món", "Chiếc", "Cuốn", "Phiên", "Dự", "Cơn", "Hội", "Chuyến", "Đoàn", "Nhà_hàng", "Sinh_viên", "Giáo_sư", "Chủ_tịch", "Thủ_khoa"}
+
+def luat_viet_hoa(tokens):
+    out, i = ["O"] * len(tokens), 0
+    while i < len(tokens):
+        t = tokens[i]
+        if t[:1].isupper() and t not in CHUC_DANH:
+            j = i
+            while j + 1 < len(tokens) and tokens[j + 1][:1].isupper():
+                j += 1
+            out[i] = "B-X"
+            for k in range(i + 1, j + 1): out[k] = "I-X"
+            i = j + 1
+        else:
+            i += 1
+    return out
+
+bo_loai = lambda tags: [t[:2] + "X" if t != "O" else "O" for t in tags]
+res = prf_thuc_the([bo_loai(t) for t in gold], [luat_viet_hoa(tk) for tk, _ in mini])
+display(res.round(3))
+
+@@@ md
+Luật viết hoa cho F1 ≈0,51: nó bỏ sót những thực thể viết thường (cụm thời gian như "năm ngoái", "6 giờ sáng", "thứ Bảy"), cắt sai ranh giới ở các tên có từ như "Đại học", và hoàn toàn **không phân loại được**. Mốc này cho ta biết một mô hình học máy đáng giá phải làm tốt hơn thế nào.
+
+@@@ md
+## 3. Dữ liệu thật: PhoNER COVID-19
+
+Ta dùng bản sao trên Hugging Face Hub của **PhoNER_COVID19** (VinAI): câu về dịch COVID-19 trong báo chí Việt, đã **tách từ** sẵn, với 10 loại thực thể (`PATIENT_ID`, `NAME`, `GENDER`, `AGE`, `JOB`, `LOCATION`, `ORGANIZATION`, `SYMPTOM_AND_DISEASE`, `TRANSPORTATION`, `DATE`).
+
+> ⚠️ Bản sao trên Hub (`truongpdd/NER-covid-vietnamese-word`) không ghi giấy phép; dữ liệu gốc là của VinAI Research. Hãy kiểm tra điều khoản của tác giả gốc trước khi dùng cho mục đích khác ngoài học tập. Bản sao chỉ có hai tập (`train`, `validation`), nên ta chia **train → train/dev** để chọn epoch, và dùng `validation` làm tập **test** của ta. Điểm của ta **không so sánh trực tiếp** được với con số công bố trên tập test chính thức.
+
+@@@ code
+from datasets import load_dataset
+
+ds = load_dataset("truongpdd/NER-covid-vietnamese-word")
+rng = np.random.default_rng(SEED)
+perm = rng.permutation(len(ds["train"]))
+n_dev = len(perm) // 10
+dev_idx, tr_idx = set(perm[:n_dev].tolist()), perm[n_dev:].tolist()
+
+def to_list(split, idx=None):
+    d = ds[split]
+    idx = range(len(d)) if idx is None else idx
+    return [(d[i]["tokens"], d[i]["ner_tags"]) for i in idx]
+
+train_ner = to_list("train", tr_idx)
+dev_ner = to_list("train", sorted(dev_idx))
+test_ner = to_list("validation")
+NHAN = sorted({t for _, ts in train_ner for t in ts}, key=lambda t: (t != "O", t))
+label2id = {t: i for i, t in enumerate(NHAN)}; id2label = {i: t for t, i in label2id.items()}
+print("train/dev/test:", len(train_ner), len(dev_ner), len(test_ner), "| số nhãn:", len(NHAN))
+tong_tok = sum(len(ts) for _, ts in train_ner)
+print(f"Tỉ lệ token 'O' trong train: {sum(t == 'O' for _, ts in train_ner for t in ts) / tong_tok:.1%}  → mô hình luôn đoán O đã đạt accuracy này mà F1 = 0")
+print(Counter(t[2:] for _, ts in train_ner for t in ts if t.startswith("B-")).most_common())
+toks, tags = train_ner[3]
+print(pd.DataFrame({"từ": toks, "nhãn": tags}).T.to_string(header=False))
+
+@@@ md
+## 4. Căn chỉnh nhãn: từ → subword
+
+PhoBERT cắt mỗi *từ* thành một hoặc nhiều **mảnh BPE** (Bài 9). Nhưng nhãn NER gắn với *từ*. Ta cần một quy ước:
+
+- Mảnh **đầu tiên** của mỗi từ mang nhãn của từ đó.
+- Các mảnh còn lại và các token đặc biệt (`<s>`, `</s>`) có nhãn **−100** — giá trị mà hàm loss bỏ qua (`ignore_index`).
+
+Khi suy luận, ta đọc dự đoán tại mảnh đầu tiên của mỗi từ để có nhãn mức từ.
+
+> Tokenizer của PhoBERT là bản "chậm", không có `word_ids()` như tokenizer nhanh. Nên ta tự căn chỉnh bằng cách tokenize **từng từ riêng** (có bộ nhớ đệm để nhanh).
+
+@@@ code
+tok = AutoTokenizer.from_pretrained("vinai/phobert-base")
+_cache = {}
+def manh(word):
+    if word not in _cache:
+        _cache[word] = tok.convert_tokens_to_ids(tok.tokenize(word)) or [tok.unk_token_id]
+    return _cache[word]
+
+MAX_LEN = 192        # đủ cho mọi câu của tập này (dài nhất ≈ 177 mảnh)
+
+def ma_hoa(words, tags=None):
+    ids, lab, first = [tok.cls_token_id], [-100], []
+    for i, w in enumerate(words):
+        p = manh(w)
+        if len(ids) + len(p) >= MAX_LEN - 1:
+            break                                   # cắt: các từ còn lại sẽ nhận nhãn O khi suy luận
+        first.append(len(ids))
+        ids += p
+        lab += [label2id[tags[i]] if tags else -100] + [-100] * (len(p) - 1)
+    ids.append(tok.sep_token_id); lab.append(-100)
+    return ids, lab, first
+
+ids, lab, first = ma_hoa(*train_ner[3])
+print(pd.DataFrame({"mảnh": tok.convert_ids_to_tokens(ids), "nhãn": [id2label[l] if l >= 0 else "−100 (bỏ qua)" for l in lab]}).head(18).T.to_string(header=False))
+
+@@@ code
+class NERDS(torch.utils.data.Dataset):
+    def __init__(self, data):
+        self.items = [ma_hoa(w, t) for w, t in data]
+        self.raw = data
+    def __len__(self): return len(self.items)
+    def __getitem__(self, i): return self.items[i][0], self.items[i][1]
+
+def collate(batch):
+    L = max(len(x) for x, _ in batch)
+    ids = torch.full((len(batch), L), tok.pad_token_id, dtype=torch.long)
+    lab = torch.full((len(batch), L), -100, dtype=torch.long)
+    m = torch.zeros((len(batch), L), dtype=torch.long)
+    for i, (x, y) in enumerate(batch):
+        ids[i, :len(x)] = torch.tensor(x); lab[i, :len(y)] = torch.tensor(y); m[i, :len(x)] = 1
+    return ids, m, lab
+
+t0 = time.time()
+ds_tr, ds_dev, ds_te = NERDS(train_ner), NERDS(dev_ner), NERDS(test_ner)
+print(f"Mã hóa xong trong {time.time() - t0:.0f}s | số câu bị cắt: {sum(len(f[2]) < len(w) for f, (w, _) in zip(ds_te.items, test_ner))} / {len(test_ner)} (test)")
+
+@@@ md
+## 5. Mô hình và huấn luyện
+
+`AutoModelForTokenClassification` = PhoBERT + **một lớp tuyến tính trên mỗi token** (vector 768 → số nhãn). Loss = cross-entropy trung bình trên các vị trí có nhãn (≠ −100). Phần còn lại giống Bài 10.
+
+@@@ code
+set_seed(SEED)
+model = AutoModelForTokenClassification.from_pretrained("vinai/phobert-base", num_labels=len(NHAN), id2label=id2label, label2id=label2id).to(device)
+
+EPOCHS, BATCH, LR, WARMUP = 3, 16, 5e-5, 0.1
+
+@torch.no_grad()
+def log_xac_suat_tu(model, ds, bs=64):
+    """Trả về, cho mỗi câu, ma trận log-xác-suất (số từ × số nhãn) tại mảnh đầu của từng từ."""
+    model.eval()
+    out = []
+    for s in range(0, len(ds), bs):
+        batch = [ds.items[i] for i in range(s, min(s + bs, len(ds)))]
+        L = max(len(x) for x, _, _ in batch)
+        ids = torch.full((len(batch), L), tok.pad_token_id, dtype=torch.long)
+        m = torch.zeros((len(batch), L), dtype=torch.long)
+        for i, (x, _, _) in enumerate(batch):
+            ids[i, :len(x)] = torch.tensor(x); m[i, :len(x)] = 1
+        with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=(device == "cuda")):
+            lp = model(input_ids=ids.to(device), attention_mask=m.to(device)).logits.float().log_softmax(-1).cpu().numpy()
+        for i, (_, _, first) in enumerate(batch):
+            out.append(lp[i, first])
+    return out
+
+def tu_log_xs_sang_nhan(ds, lps):
+    """argmax theo từ; các từ bị cắt nhận 'O'."""
+    res = []
+    for (words, _), lp in zip(ds.raw, lps):
+        tags = [id2label[int(k)] for k in lp.argmax(1)]
+        res.append(tags + ["O"] * (len(words) - len(tags)))
+    return res
+
+def danh_gia(model, ds):
+    return prf_thuc_the([t for _, t in ds.raw], tu_log_xs_sang_nhan(ds, log_xac_suat_tu(model, ds))).loc["TỔNG (micro)"]
+
+dl = DataLoader(ds_tr, batch_size=BATCH, shuffle=True, collate_fn=collate)
+tong = EPOCHS * len(dl)
+opt = torch.optim.AdamW(model.parameters(), lr=LR, weight_decay=0.01)
+sched = get_linear_schedule_with_warmup(opt, int(WARMUP * tong), tong)
+scaler = torch.amp.GradScaler("cuda", enabled=(device == "cuda"))
+
+best, best_state, t_all = -1, None, time.time()
+for ep in range(1, EPOCHS + 1):
+    model.train(); tl, t0 = 0.0, time.time()
+    for ids, m, lab in dl:
+        ids, m, lab = ids.to(device), m.to(device), lab.to(device)
+        with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=(device == "cuda")):
+            logits = model(input_ids=ids, attention_mask=m).logits.float()
+        loss = F.cross_entropy(logits.view(-1, logits.size(-1)), lab.view(-1), ignore_index=-100)
+        opt.zero_grad(set_to_none=True); scaler.scale(loss).backward(); scaler.unscale_(opt)
+        torch.nn.utils.clip_grad_norm_(model.parameters(), 1.0)
+        scaler.step(opt); scaler.update(); sched.step(); tl += loss.item()
+    r = danh_gia(model, ds_dev)
+    print(f"epoch {ep}: loss={tl / len(dl):.4f} | dev entity-F1={r['f1']:.3f} (P={r['precision']:.3f}, R={r['recall']:.3f}) | {time.time() - t0:.0f}s")
+    if r["f1"] > best:
+        best, best_state = r["f1"], {k: v.detach().cpu().clone() for k, v in model.state_dict().items()}
+model.load_state_dict(best_state)
+print(f"Tổng: {(time.time() - t_all) / 60:.1f} phút | dev entity-F1 tốt nhất = {best:.3f}")
+
+@@@ md
+## 6. Đánh giá trên tập test
+
+@@@ code
+lps_te = log_xac_suat_tu(model, ds_te)
+pred_argmax = tu_log_xs_sang_nhan(ds_te, lps_te)
+gold_te = [t for _, t in test_ner]
+res_te = prf_thuc_the(gold_te, pred_argmax)
+display(res_te.round(3))
+
+@@@ md
+Đọc bảng (số từ một lần chạy trên máy biên soạn): micro-F1 ≈0,95. Loại có **hình thức rõ** (`PATIENT_ID`, `AGE`, `DATE`, `GENDER`) đạt F1 ≈0,97–0,99. **`JOB` thấp nhất (≈0,65)**: nghề nghiệp là cụm từ tự do, ranh giới mơ hồ ("nhân viên giao bánh" là một nghề hay hai?). `SYMPTOM_AND_DISEASE` và `ORGANIZATION` quanh ≈0,89–0,90 vì ranh giới dài và dễ nhầm với `LOCATION`. Chú ý cột "số thực thể": `TRANSPORTATION` đạt 1,0 nhưng chỉ có 87 thực thể — F1 của loại ít mẫu rất **nhiễu**, đừng kết luận quá mạnh.
+
+@@@ md
+## 7. Giải mã có ràng buộc (Viterbi)
+
+Mô hình dự đoán nhãn của mỗi từ **độc lập**, nên có thể sinh chuỗi vô lý như `O I-LOCATION` (thực thể "bên trong" mà không có "bắt đầu") hay `B-DATE I-LOCATION`. Mô hình cổ điển dùng lớp **CRF** để học điều này; cách đơn giản không cần huấn luyện thêm: **Viterbi với các chuyển tiếp bị cấm**. Ta tìm chuỗi nhãn có tổng log-xác-suất lớn nhất *trong số những chuỗi hợp lệ*.
+
+@@@ code
+def hop_le(prev, cur):
+    """Chuyển tiếp prev -> cur có hợp lệ theo BIO không?"""
+    if cur.startswith("I-"):
+        return prev != "O" and prev[2:] == cur[2:]
+    return True
+
+C = len(NHAN)
+CHO_PHEP = np.array([[hop_le(id2label[a], id2label[b]) for b in range(C)] for a in range(C)])
+BAT_DAU = np.array([not id2label[b].startswith("I-") for b in range(C)])
+
+def viterbi(lp):
+    n = lp.shape[0]
+    if n == 0:
+        return []
+    NEG = -1e9
+    diem = np.full((n, C), NEG); lui = np.zeros((n, C), dtype=int)
+    diem[0] = np.where(BAT_DAU, lp[0], NEG)
+    for t in range(1, n):
+        tm = diem[t - 1][:, None] + np.where(CHO_PHEP, 0.0, NEG)       # (trước, sau)
+        lui[t] = tm.argmax(0)
+        diem[t] = tm.max(0) + lp[t]
+    path = [int(diem[-1].argmax())]
+    for t in range(n - 1, 0, -1):
+        path.append(int(lui[t][path[-1]]))
+    return path[::-1]
+
+def giai_ma_viterbi(ds, lps):
+    res = []
+    for (words, _), lp in zip(ds.raw, lps):
+        tags = [id2label[k] for k in viterbi(lp)]
+        res.append(tags + ["O"] * (len(words) - len(tags)))
+    return res
+
+pred_vit = giai_ma_viterbi(ds_te, lps_te)
+
+def dem_chuyen_tiep_sai(preds):
+    return sum(not hop_le(a, b) for p in preds for a, b in zip(["O"] + p[:-1], p))
+
+so = pd.DataFrame({
+    "argmax": prf_thuc_the(gold_te, pred_argmax).loc["TỔNG (micro)"],
+    "Viterbi có ràng buộc": prf_thuc_the(gold_te, pred_vit).loc["TỔNG (micro)"]}).T.round(4)
+so["chuyển tiếp BIO sai"] = [dem_chuyen_tiep_sai(pred_argmax), dem_chuyen_tiep_sai(pred_vit)]
+so
+
+@@@ md
+Với PhoBERT đã tinh chỉnh, mô hình tự học được phần lớn cấu trúc BIO (khoảng 70 chuyển tiếp sai trên ~50 nghìn token), nên F1 chỉ nhích lên khoảng 0,002. Giá trị của Viterbi là **đảm bảo** đầu ra hợp lệ (số chuyển tiếp sai về 0) — điều các hệ thống phía sau cần — và sửa được vài lỗi ranh giới; với mô hình nhỏ hơn hay ít dữ liệu hơn, lợi ích lớn hơn.
+
+@@@ md
+## 8. Phân tích lỗi theo loại
+
+Mỗi thực thể thật bị bỏ lỡ thuộc một trong các dạng: **sai loại** (đúng ranh giới, sai nhãn), **sai ranh giới** (chồng lấn nhưng không khớp), **bỏ sót**. Mỗi thực thể dự đoán sai còn lại là **thừa** (không chồng lấn với thực thể thật nào).
+
+@@@ code
+def phan_loai_loi(gold_seqs, pred_seqs):
+    c = Counter(); vd = defaultdict(list)
+    for si, (g, p) in enumerate(zip(gold_seqs, pred_seqs)):
+        G, P = lay_thuc_the(g), lay_thuc_the(p)
+        Gs, Ps = set(G), set(P)
+        for e in G:
+            if e in Ps: c["đúng"] += 1; continue
+            cung_span = [q for q in P if q[1:] == e[1:]]
+            chong = [q for q in P if q[1] <= e[2] and e[1] <= q[2]]
+            k = "sai loại" if cung_span else ("sai ranh giới" if chong else "bỏ sót")
+            c[k] += 1; vd[k].append((si, e, cung_span or chong))
+        for q in P:
+            if q not in Gs and not any(q[1] <= e[2] and e[1] <= q[2] for e in G):
+                c["thừa"] += 1; vd["thừa"].append((si, q, None))
+    return c, vd
+
+loi, vd_loi = phan_loai_loi(gold_te, pred_vit)
+tong_g = sum(loi[k] for k in ["đúng", "sai loại", "sai ranh giới", "bỏ sót"])
+print({k: f"{v} ({v / tong_g:.1%} thực thể thật)" for k, v in loi.items() if k != "thừa"}, "| thừa:", loi["thừa"])
+
+for k in ["sai ranh giới", "sai loại"]:
+    print(f"\n--- ví dụ '{k}' ---")
+    for si, e, p in vd_loi[k][:4]:
+        words = test_ner[si][0]
+        print(f"thật: [{e[0]}] «{' '.join(words[e[1]:e[2] + 1])}»", "| đoán:", [(q[0], " ".join(words[q[1]:q[2] + 1])) for q in p])
+
+@@@ md
+Lỗi nhiều nhất là **sai ranh giới** (~2,3% thực thể), tiếp theo là **thừa** và **bỏ sót**; **sai loại** hiếm nhất (~0,5%) và chủ yếu là nhầm `ORGANIZATION` ↔ `LOCATION` ("Bệnh viện Chợ Rẫy" là tổ chức hay địa điểm?). Các lỗi ranh giới thường do quy ước khó của dữ liệu (có gộp "khoa", "quận"... vào tên không) — chính con người cũng không nhất quán. Đây là lý do độ đo "khớp chính xác" khắt khe; một số báo cáo thêm độ đo *khớp một phần* để thấy bức tranh đầy đủ.
+
+@@@ md
+## 9. Từ văn bản thô đến thực thể
+
+Trong ứng dụng, đầu vào là **văn bản thô** (không tách từ, không gán nhãn). Quy trình: chuẩn hóa → tách từ → tokenizer → mô hình → giải mã Viterbi → ghép các từ thành thực thể.
+
+@@@ code
+seg = ViSegmenter.from_file()
+tach_tu_moi = lambda toks: seg.segment_tokens(toks)             # từ các âm tiết -> các từ (có '_')
+
+@torch.no_grad()
+def ner_tu_tach(words):
+    ids, _, first = ma_hoa(words)
+    x = torch.tensor([ids]).to(device)
+    with torch.autocast(device_type="cuda", dtype=torch.float16, enabled=(device == "cuda")):
+        lp = model.eval()(input_ids=x).logits.float().log_softmax(-1)[0, first].cpu().numpy()
+    tags = [id2label[k] for k in viterbi(lp)]
+    return tags + ["O"] * (len(words) - len(tags))
+
+def nhan_dien(van_ban):
+    """Văn bản thô -> list (cụm thực thể, loại)."""
+    sylls = re.findall(r"\w+|[^\w\s]", normalize_unicode(van_ban))
+    words = tach_tu_moi(sylls)
+    tags = ner_tu_tach(words)
+    return [(" ".join(words[s:e + 1]).replace("_", " "), typ) for typ, s, e in lay_thuc_the(tags)]
+
+for c in ["Bệnh nhân 1234 là nam, 45 tuổi, làm nghề lái xe, đã đến Bệnh viện Chợ Rẫy ngày 15/3.",
+          "Sở Y tế Hà Nội ghi nhận thêm 3 ca nhiễm tại quận Cầu Giấy.",
+          "Cô Mai ở Huế thích ăn bún bò vào buổi sáng."]:
+    print(c, "\n   →", nhan_dien(c))
+
+@@@ md
+Chú ý kết quả `('15 / 3', 'DATE')` có khoảng trắng quanh dấu `/`: tách bằng biểu thức chính quy biến "15/3" thành ba token (`15`, `/`, `3`), trong khi dữ liệu huấn luyện giữ "15/3" là **một** token. Đó là một sai lệch nữa giữa lúc huấn luyện và lúc suy luận — ở sản phẩm thật, hãy dùng đúng quy trình tiền xử lý của dữ liệu huấn luyện.
+
+@@@ md
+### Thử khi đổi miền: bộ `ner_mini` (tên người, địa danh, tổ chức, thời gian)
+
+Mô hình học từ tin COVID nên **chưa thấy** nhiều câu đời thường. Ta đối chiếu các loại tương ứng: `NAME→PER`, `LOCATION→LOC`, `ORGANIZATION→ORG`, `DATE→DATE`, các loại COVID khác bỏ qua. Chấm ở **mức âm tiết** (khớp với `ner_mini.txt`) bằng cách chuyển ngược từ nhãn mức từ.
+
+@@@ code
+MAP = {"NAME": "PER", "LOCATION": "LOC", "ORGANIZATION": "ORG", "DATE": "DATE"}
+
+def du_doan_mini(tokens):
+    words = tach_tu_moi(tokens)
+    tags = ner_tu_tach(words)
+    out = []
+    for w, t in zip(words, tags):
+        n_am_tiet = w.count("_") + 1
+        loai = MAP.get(t[2:]) if t != "O" else None
+        if loai is None:
+            out += ["O"] * n_am_tiet
+        else:
+            pre = t[:2]
+            out += [pre + loai] + ["I-" + loai] * (n_am_tiet - 1)
+    return out
+
+pred_mini = [du_doan_mini(t) for t, _ in mini]
+assert all(len(p) == len(g) for p, g in zip(pred_mini, gold)), "độ dài không khớp"
+display(prf_thuc_the(gold, pred_mini).round(3))
+
+@@@ code
+for (t, g), p in list(zip(mini, pred_mini))[:6]:
+    gs = [(typ, " ".join(t[s:e + 1])) for typ, s, e in lay_thuc_the(g)]
+    ps = [(typ, " ".join(t[s:e + 1])) for typ, s, e in lay_thuc_the(p)]
+    print("thật:", gs, "\nđoán:", ps, "\n")
+
+@@@ md
+**Đọc kết quả khác miền.** Micro-F1 chỉ còn ≈0,59 (so với ≈0,95 trong miền), với bức tranh theo loại rất khác nhau (số từ một lần chạy):
+
+- **`LOC` ≈0,92 và `ORG` ≈0,81**: địa danh và tổ chức quen thuộc, mô hình khái quát tốt.
+- **`DATE` ≈0**: không phải mô hình không thấy ngày tháng, mà **ranh giới khác quy ước**. Ví dụ ở trên: đoán "15 tháng 3" trong khi nhãn thật là "ngày 15 tháng 3"; đoán "tháng 9" trong khi nhãn thật là "tháng 9 năm 2024". Độ đo khớp chính xác không cho điểm một phần.
+- **`PER` ≈0,34**: có một nguyên nhân rất cụ thể. Trong dữ liệu huấn luyện, gần như mọi thực thể `NAME` chỉ là **một từ** (≈350 nhãn `B-NAME` so với chỉ 13 nhãn `I-NAME`), vì bộ tách từ gốc (RDRSegmenter) ghép nguyên cả họ tên thành một từ kiểu `Nguyễn_Văn_A`. Bộ tách từ từ điển của ta không làm vậy, nên "Lê Hoàng Nam" thành hai từ và mô hình báo **hai** thực thể liền nhau.
+
+Hai bài học: (1) điểm trong miền *không* dự đoán được điểm ngoài miền; (2) **bộ tách từ định nghĩa luôn đơn vị của thực thể** — đổi bộ tách từ giữa huấn luyện và suy luận có thể phá hỏng kết quả mà không báo lỗi nào. Muốn dùng cho văn bản tổng quát cần dữ liệu NER tổng quát hơn (ví dụ VLSP 2016, nếu có giấy phép) và dùng *đúng* bộ tách từ của dữ liệu huấn luyện.
+
+@@@ md
+## 10. Tổng kết
+
+- NER là gán nhãn chuỗi; dùng **BIO**. Độ đo đúng là **mức thực thể** (khớp chính xác ranh giới + loại); accuracy theo token gây hiểu lầm.
+- Với Transformer: **căn chỉnh từ → subword** (mảnh đầu mang nhãn, còn lại −100); suy luận đọc tại mảnh đầu.
+- Viterbi có ràng buộc đảm bảo chuỗi BIO hợp lệ.
+- Phân tích lỗi theo dạng (sai loại / ranh giới / bỏ sót / thừa) chỉ ra việc cần cải thiện.
+- **Điểm trong miền không dự đoán điểm ngoài miền**; luôn thử trên dữ liệu giống thực tế.
+
+## Bài tập
+
+1. **(Dễ)** Cài lược đồ **BIOES** (thêm `E-`, `S-`): viết hàm chuyển BIO → BIOES và ngược lại. Lợi ích khi huấn luyện?
+2. **(Dễ)** Đo F1 mức thực thể của mô hình nếu bạn chấm theo *khớp một phần* (chỉ cần chồng lấn và cùng loại).
+3. **(Vừa)** Thay vì nhãn ở mảnh đầu, thử gán nhãn cho **mọi** mảnh (với `I-` cho mảnh sau). Kết quả khác thế nào?
+4. **(Vừa)** Thử `lr` ∈ {2e-5, 5e-5, 1e-4} và 2 vs 5 epoch. Loại thực thể nào nhạy nhất với siêu tham số?
+5. **(Khó)** Thêm **lớp CRF** (có thể tự cài Viterbi + forward algorithm, hoặc dùng `pytorch-crf`). So với Viterbi có ràng buộc sau-hậu-xử-lý.
+
+@@@ md
+<details>
+<summary><b>Gợi ý đáp án</b></summary>
+
+1. BIOES giúp mô hình biết rõ chỗ kết thúc (`E-`) và thực thể một từ (`S-`); thường tăng nhẹ F1 ở nhiều dữ liệu.
+2. Khớp một phần: coi thực thể dự đoán đúng nếu cùng loại và `[s,e]` chồng lấn thực thể thật; F1 luôn ≥ khớp chính xác.
+3. Gán nhãn cho mọi mảnh làm loss dày hơn nhưng giải mã phải gộp mảnh về từ; thường tương đương.
+4. Loại hiếm (`JOB`, `NAME`) dao động nhiều nhất; lr quá lớn làm hỏng cả loại phổ biến.
+5. CRF học ma trận chuyển tiếp trong lúc huấn luyện (tối ưu chuỗi nhãn chung thay vì từng nhãn độc lập).
+</details>
+
+**Tiếp theo → Bài 12:** embedding câu và tìm kiếm ngữ nghĩa.
+
+**Đọc thêm:** [HF NLP Course (vi), Chương 7: Phân loại token](https://huggingface.co/docs/course/vi/chapter7/2) · [PhoNER_COVID19 (VinAI)](https://github.com/VinAIResearch/PhoNER_COVID19) · Lample và cộng sự, *Neural Architectures for Named Entity Recognition* (2016)

@@ -1,0 +1,129 @@
+@@@ md
+# Đáp án mã · Bài 2 — Biểu diễn văn bản
+
+Giải **các bài tập của Bài 2** bằng mã chạy được. Hãy tự làm trước, rồi đối chiếu.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import numpy as np
+import pandas as pd
+
+from sklearn.decomposition import NMF
+from sklearn.feature_extraction.text import CountVectorizer, TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score
+from sklearn.metrics.pairwise import cosine_similarity
+
+from nlpvi import load_splits, normalize, set_seed
+
+set_seed(42)
+train, valid, test = load_splits()
+for d in (train, valid, test):
+    d["clean"] = d["text"].map(normalize)
+TP = r"(?u)\b\w+\b"
+print(len(train), len(valid))
+
+@@@ md
+## Bài tập 1 — `CountVectorizer(binary=True)` so với đếm thô
+
+@@@ code
+def macro_f1_lr(vec):
+    Xtr = vec.fit_transform(train["clean"])
+    clf = LogisticRegression(C=1.0, max_iter=3000).fit(Xtr, train["label"])
+    return f1_score(valid["label"], clf.predict(vec.transform(valid["clean"])), average="macro")
+
+kq = {"đếm thô": macro_f1_lr(CountVectorizer(token_pattern=TP, ngram_range=(1, 2), min_df=2)),
+      "binary": macro_f1_lr(CountVectorizer(token_pattern=TP, ngram_range=(1, 2), min_df=2, binary=True))}
+print({k: round(v, 3) for k, v in kq.items()})
+
+# Mức độ khác nhau: bao nhiêu ô trong ma trận có giá trị > 1?
+X = CountVectorizer(token_pattern=TP).fit_transform(train["clean"])
+print(f"Tỉ lệ ô khác 0 có giá trị > 1 (từ lặp trong một câu): {(X.data > 1).mean():.2%}")
+
+@@@ md
+**Đọc kết quả.** *Binary* chỉ ghi "có/không xuất hiện". Ở đây chỉ một tỉ lệ rất nhỏ ô có giá trị > 1 (đánh giá ngắn hầu như không lặp từ), nên hai cách cho kết quả **gần như giống nhau**. Binary hữu ích hơn khi văn bản dài và tần suất lặp có thể bị một vài từ chi phối; đếm thô (và TF-IDF `sublinear_tf`) giữ thêm thông tin cường độ. Hãy đo trên dữ liệu của bạn thay vì đoán.
+
+@@@ md
+## Bài tập 2 — 10 từ có idf cao nhất và thấp nhất
+
+@@@ code
+tv = TfidfVectorizer(ngram_range=(1, 2), min_df=2, token_pattern=TP).fit(train["clean"])
+idf = pd.Series(tv.idf_, index=tv.get_feature_names_out()).sort_values()
+pd.DataFrame({"idf THẤP nhất (phổ biến)": [f"{w} ({v:.2f})" for w, v in idf.head(10).items()],
+              "idf CAO nhất (hiếm)": [f"{w} ({v:.2f})" for w, v in idf.tail(10)[::-1].items()]})
+
+@@@ md
+**Đọc kết quả.** idf **thấp** (≈2,6–3,2) là các từ chức năng và từ nhấn mạnh xuất hiện ở rất nhiều câu: "quá", "mình", "rất", "khá", "nhưng", "không" — nên ít sức phân biệt giữa các văn bản (dấu câu không có mặt vì `token_pattern` ở đây bỏ chúng). idf **cao nhất** (7,04: mức tối đa khi chỉ xuất hiện ở 2 câu, đúng `min_df = 2`) là các bigram hiếm như "ồn nhưng", "độ mượt"; phần lớn là *ghép ngẫu nhiên* của khuôn câu, không hẳn lỗi gõ. Đó là lý do `min_df` có hai mặt: loại nhiễu nhưng cũng loại tín hiệu hiếm hợp lệ.
+
+@@@ md
+## Bài tập 3 — `cosine(a, b)` thuần NumPy
+
+@@@ code
+def cosine(a, b):
+    a, b = np.asarray(a, dtype=float), np.asarray(b, dtype=float)
+    return float(a @ b / (np.linalg.norm(a) * np.linalg.norm(b)))
+
+Xt = tv.transform(train["clean"].head(40)).toarray()
+S = cosine_similarity(Xt); np.fill_diagonal(S, 0)
+i, j = np.unravel_index(S.argmax(), S.shape)                      # cặp câu giống nhau nhất trong 40 câu đầu
+print("cặp:", train["text"].iloc[i], "|", train["text"].iloc[j])
+print("tự cài   :", round(cosine(Xt[i], Xt[j]), 6))
+print("sklearn  :", round(float(S[i, j]), 6))
+print("giống hệt nhau :", cosine(Xt[0], Xt[0]), "| không chung từ nào (trực giao):", cosine([1, 0, 0], [0, 1, 1]))
+
+@@@ md
+**Vì sao.** cosine = tích vô hướng chia tích độ dài. Hai văn bản **giống hệt** có cùng hướng ⇒ cosine = 1. Hai văn bản **không chung từ nào** có các chiều khác 0 *không chồng nhau* ⇒ tích vô hướng bằng 0 ⇒ cosine = 0 (trực giao). Với TF-IDF (không âm) cosine nằm trong [0, 1].
+
+@@@ md
+## Bài tập 4 — NMF với 3, 5, 8 chủ đề
+
+@@@ code
+tv_u = TfidfVectorizer(min_df=3, max_df=0.5, token_pattern=r"(?u)\b[^\W\d_]{2,}\b")
+Xu = tv_u.fit_transform(train["clean"])
+terms = tv_u.get_feature_names_out()
+
+for k in [3, 5, 8]:
+    nmf = NMF(n_components=k, init="nndsvda", random_state=0, max_iter=500)
+    W = nmf.fit_transform(Xu)
+    pur = pd.crosstab(W.argmax(1), train["domain"]).max(axis=1).sum() / len(train)
+    print(f"\n=== {k} chủ đề | độ tinh khiết so với miền thật = {pur:.1%}")
+    for i, comp in enumerate(nmf.components_):
+        print(f"  chủ đề {i}: " + ", ".join(terms[comp.argsort()[::-1][:7]]))
+
+@@@ md
+**Đọc kết quả.** Với **3** chủ đề (độ tinh khiết ≈55%) các miền bị gộp: mỗi chủ đề trộn nhiều miền. Với **5** (đúng số miền thật, ≈74%) các chủ đề bám khá sát miền nhưng không hoàn hảo. Với **8** độ tinh khiết gần như không tăng (≈75%) vì các chủ đề mới **không còn theo miền**: chủ đề 7 ("điểm, ưu, nhược, thủ, tục") bắt **khuôn câu** "Ưu điểm: … Nhược điểm: …", chủ đề 5 ("học, mình, được, một, buổi") bắt **câu mở đầu** ("Mình học online được một tháng"), trong khi miền *ẩm thực* và *sản phẩm* được tách thành nhiều chủ đề nhỏ. Số chủ đề tốt nhất không có công thức; hãy đọc từ khóa **và mẫu văn bản** của từng chủ đề.
+
+@@@ md
+## Bài tập 5 (khó) — N-gram ký tự và tìm kiếm chịu được lỗi gõ
+
+@@@ code
+tv_w = TfidfVectorizer(ngram_range=(1, 2), min_df=2, token_pattern=TP).fit(train["clean"])
+tv_c = TfidfVectorizer(analyzer="char_wb", ngram_range=(2, 4), min_df=2).fit(train["clean"])
+Xw, Xc = tv_w.transform(train["clean"]), tv_c.transform(train["clean"])
+
+def top(q, vec, X, k=3):
+    s = cosine_similarity(vec.transform([normalize(q)]), X).ravel()
+    i = s.argsort()[::-1][:k]
+    return [(round(float(s[j]), 2), train["text"].iloc[j][:48]) for j in i]
+
+for q in ["giao hàng chậm quá", "giao hang cham qua", "giao hnag chậm", "shipper tới trễ nhiều ngày"]:
+    print(f"\nTruy vấn: {q!r}")
+    print("   từ     :", top(q, tv_w, Xw)[0])
+    print("   ký tự  :", top(q, tv_c, Xc)[0])
+
+@@@ md
+**Đọc kết quả (cẩn thận, có chỗ ngược dự đoán).**
+
+- "giao hàng chậm quá" — cả hai tìm đúng "giao hàng chậm." (từ: 0,96 · ký tự: 0,71): với truy vấn sạch, n-gram từ cho điểm cao hơn.
+- **Lỗi gõ** ("giao hnag chậm"): n-gram ký tự nhỉnh hơn (0,56 so với 0,53) — đây là ưu điểm thật của n-gram ký tự, nhưng chênh lệch nhỏ.
+- **Không dấu** ("giao hang cham qua"): *không* thấy lợi thế rõ ràng. Cả hai trả về câu **không dấu** trong dữ liệu huấn luyện (vì tập có sẵn ~6% dòng không dấu): khớp ở mức *bề mặt*, không phải vì chịu được lỗi.
+- **Khác chữ nhưng cùng nghĩa** ("shipper tới trễ nhiều ngày"): n-gram từ trả về "Giao hàng trễ hẹn." (khớp nhờ "trễ", điểm 0,23), còn n-gram ký tự trả về "Thực đơn khá nhiều món!!!" (0,30) — một **khớp giả** do trùng mảnh ký tự ("nhiều"). Đây là cái giá của n-gram ký tự: dễ khớp nhầm giữa các từ có mảnh giống nhau; ma trận đặc trưng cũng lớn hơn nhiều.
+
+Kết luận: n-gram ký tự giúp một chút với lỗi gõ nhưng **không giải quyết được vấn đề khác từ-cùng-nghĩa**. Muốn khớp *nghĩa* cần embedding câu (Bài 12).

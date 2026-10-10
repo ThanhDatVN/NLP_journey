@@ -1,0 +1,2 @@
+# Luôn dùng LF khi checkout (test độ tái lập so sánh từng byte với data/reviews_vi.csv)
+* text=auto eol=lf

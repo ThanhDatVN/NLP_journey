@@ -1,0 +1,212 @@
+@@@ md
+# Đáp án mã · Bài 14 — Triển khai, đạo đức, đồ án
+
+Giải **các bài tập của Bài 14** bằng mã chạy được. Bài tập 3 dùng mô hình PhoBERT đã lưu ở Bài 10 (`outputs/phobert-cam-xuc`); nếu chưa chạy Bài 10 phần đó tự bỏ qua. Chạy được trên CPU.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT)); sys.path.insert(0, str(ROOT / "tools"))
+
+import os, re, time
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+
+import numpy as np
+import pandas as pd
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.pipeline import Pipeline
+
+from make_data import ASPECTS
+from nlpvi import load_splits, normalize, set_seed
+
+set_seed(42)
+train, valid, test = load_splits()
+mo_hinh = Pipeline([("tfidf", TfidfVectorizer(preprocessor=normalize, ngram_range=(1, 2), min_df=2, sublinear_tf=True, token_pattern=r"(?u)\b\w+\b")),
+                    ("clf", LogisticRegression(C=10, max_iter=3000))]).fit(train["text"], train["label"])
+cls = list(mo_hinh.classes_)
+nhan = lambda t: mo_hinh.predict(t)
+cap = [(s, pa, na) for dom in ASPECTS.values() for s, pa, na in dom]
+khen = [f"{s} {a}" for s, pa, _ in cap for a in pa]; che = [f"{s} {a}" for s, _, na in cap for a in na]
+print(len(khen), "câu khen,", len(che), "câu chê")
+
+@@@ md
+## Bài tập 1 — Che họ tên: quy tắc đơn giản và đo precision/recall
+
+*Chuỗi 2–4 từ viết hoa sau "Ông/Bà/Anh/Chị".*
+
+@@@ code
+CHUC_DANH = {"Ông", "Bà", "Anh", "Chị", "Cô", "Thầy"}
+
+def che_ten(text):
+    """Sau một chức danh, nếu có 2–4 từ viết hoa liên tiếp thì thay bằng <TEN>.
+    Dùng str.isupper() trên chữ cái đầu; KHÔNG dùng lớp ký tự [A-ZÀ-Ỵ] vì dải Unicode À–Ỵ chứa cả chữ thường có dấu."""
+    toks, out, i = text.split(" "), [], 0
+    while i < len(toks):
+        out.append(toks[i])
+        if toks[i] in CHUC_DANH:
+            j, ten = i + 1, []
+            while j < len(toks) and len(ten) < 4 and toks[j][:1].isupper():
+                ten.append(toks[j]); j += 1
+            if len(ten) >= 2:
+                out.append("<TEN>"); i = j; continue
+        i += 1
+    return " ".join(out)
+
+# (văn bản, có tên người thật sự không)
+THU = [
+    ("Anh Nguyễn Văn An đã đến cửa hàng", True), ("Chị Trần Thị Mai gọi hỏi bảo hành", True), ("Bà Lê Thị Hoa mua hai cái", True),
+    ("Ông Phạm Quang Huy nhận hàng sáng nay", True), ("Cô Ngô Thanh Vân phản ánh giao chậm", True),
+    ("Anh Nam đến sau", True),                                    # tên chỉ một từ: quy tắc 2–4 từ sẽ BỎ SÓT
+    ("Giao hàng nhanh, đóng gói đẹp", False), ("Ông Trời cũng chịu", False), ("Chị Hằng Nga trên cung trăng", False),   # bẫy: không phải người dùng thật
+    ("Anh Em Nhà Bông là một cửa hàng", False),                  # bẫy: chữ hoa nhưng là tên cửa hàng
+    ("Thầy cô dạy rất tận tình", False), ("Hôm Nay Trời Đẹp", False),
+]
+tp = fp = fn = 0
+loi = []
+for text, co_ten in THU:
+    pred = che_ten(text) != text
+    tp += pred and co_ten; fp += pred and not co_ten; fn += (not pred) and co_ten
+    if pred != co_ten: loi.append((text, "thật có tên" if co_ten else "thật KHÔNG có tên", "quy tắc che" if pred else "quy tắc không che"))
+P, R = tp / max(tp + fp, 1), tp / max(tp + fn, 1)
+print(f"precision = {P:.2f} | recall = {R:.2f} | số ca sai: {len(loi)}/{len(THU)}")
+for l in loi: print("   SAI:", l)
+print("ví dụ che:", che_ten("Chị Trần Thị Mai gọi hỏi bảo hành"))
+
+@@@ md
+**Đọc kết quả.** Trên 12 ca thử, quy tắc đạt precision 0,71 và recall 0,83: nó **bỏ sót** tên một từ ("Anh Nam", vì quy tắc đòi 2–4 từ viết hoa) và **che nhầm** các cụm viết hoa không phải tên người dùng ("Chị Hằng Nga", "Anh Em Nhà Bông"). Đây là điển hình: quy tắc hình thức không phân biệt *chữ hoa thông thường* với *tên riêng của người*. Muốn tốt hơn cần mô hình **NER** (Bài 11) kết hợp quy tắc, và cần bộ thử **lớn, có nhãn tay** để đo — một bộ che PII chưa đo là mối nguy do tự tin sai. Với PII, ưu tiên **recall** (bỏ sót = rò rỉ); chấp nhận che dư một ít.
+
+@@@ md
+## Bài tập 2 — Ba ca kiểm thử mới cho mô hình
+
+@@@ code
+goc = khen + che
+def ty_le_doi(bien_doi):
+    return np.mean(nhan(goc) != nhan([bien_doi(x) for x in goc]))
+
+rows = [
+    {"loại": "INV", "kiểm thử": "VIẾT HOA toàn bộ → không đổi nhãn", "tỉ lệ thất bại": ty_le_doi(str.upper)},
+    {"loại": "INV", "kiểm thử": "lặp dấu chấm than '!!!' → không đổi nhãn", "tỉ lệ thất bại": ty_le_doi(lambda x: x + "!!!")},
+    {"loại": "INV", "kiểm thử": "thêm emoji '🙂' cuối câu → không đổi nhãn", "tỉ lệ thất bại": ty_le_doi(lambda x: x + " 🙂")},
+    {"loại": "INV", "kiểm thử": "thêm emoji '😡' cuối câu → không đổi nhãn", "tỉ lệ thất bại": ty_le_doi(lambda x: x + " 😡")},
+    {"loại": "INV", "kiểm thử": "thêm khoảng trắng thừa → không đổi nhãn", "tỉ lệ thất bại": ty_le_doi(lambda x: "  " + x.replace(" ", "   ") + "  ")},
+]
+pd.DataFrame(rows).round(3).set_index(["loại", "kiểm thử"])
+
+@@@ md
+**Đọc kết quả.** Viết hoa và khoảng trắng thừa **không** làm hỏng gì vì `normalize` đã hạ chữ thường và gộp khoảng trắng (đây là *lợi ích của tiền xử lý*). `!!!` cũng được `normalize` gộp. **Emoji** là điểm yếu tiềm tàng: nếu dữ liệu huấn luyện có tương quan giữa emoji và nhãn (ở bộ tổng hợp ta cố ý gieo emoji, đôi khi ngược nghĩa), mô hình có thể dùng emoji như lối tắt và đổi nhãn khi ta chỉ thêm emoji vào câu có sẵn. Hãy so tỉ lệ đổi nhãn giữa '🙂' và '😡' — chênh lệch lớn là dấu hiệu mô hình *đọc emoji* chứ không chỉ đọc chữ.
+
+@@@ md
+## Bài tập 3 — Phản thực tế giới tính ("Thầy" / "Cô") với PhoBERT, 20 mẫu câu, bootstrap
+
+@@@ code
+PHOBERT_DIR = ROOT / "outputs" / "phobert-cam-xuc"
+if not PHOBERT_DIR.exists():
+    print("Chưa có outputs/phobert-cam-xuc — hãy chạy Bài 10 để thử bài tập này.")
+else:
+    import torch, transformers
+    transformers.logging.set_verbosity_error()
+    from transformers import AutoModelForSequenceClassification, AutoTokenizer
+    from nlpvi import segment
+    tk = AutoTokenizer.from_pretrained(PHOBERT_DIR)
+    pm = AutoModelForSequenceClassification.from_pretrained(PHOBERT_DIR).eval()
+    i_pos = pm.config.label2id["tích cực"]
+
+    MAU = [  # 7 khen, 7 chê, 6 mơ hồ (nơi mô hình dễ dùng lối tắt hơn)
+        "{} dạy rất dễ hiểu.", "{} giảng bài nhiệt tình và tận tâm.", "{} luôn hỗ trợ sinh viên rất tốt.", "{} truyền đạt hay và cuốn hút.",
+        "{} chấm bài công bằng và rõ ràng.", "{} chuẩn bị bài giảng rất chu đáo.", "{} trả lời thắc mắc nhanh chóng.",
+        "{} giảng bài khó hiểu.", "{} thiếu nhiệt tình với sinh viên.", "{} dạy quá nhanh, không ai theo kịp.", "{} hay đến lớp muộn.",
+        "{} chấm điểm thiếu công bằng.", "{} ít khi trả lời câu hỏi.", "{} bài giảng nhàm chán.",
+        "{} dạy môn xác suất thống kê.", "{} thường kiểm tra bài đầu giờ.", "{} có nhiều năm kinh nghiệm.", "{} yêu cầu nộp bài đúng hạn.",
+        "{} hay cho bài tập về nhà.", "{} sử dụng slide trong giờ học.",
+    ]
+
+    @torch.no_grad()
+    def p_tich_cuc(cau):
+        enc = tk([segment(c) for c in cau], padding=True, return_tensors="pt")
+        return pm(**enc).logits.softmax(-1)[:, i_pos].numpy()
+
+    p_thay = p_tich_cuc([m.format("Thầy") for m in MAU]); p_co = p_tich_cuc([m.format("Cô") for m in MAU])
+    d = p_thay - p_co
+    rng = np.random.default_rng(0)
+    bs = [rng.choice(d, len(d)).mean() for _ in range(2000)]
+    lo, hi = np.percentile(bs, [2.5, 97.5])
+    nhom = ["khen"] * 7 + ["chê"] * 7 + ["mơ hồ"] * 6
+    display(pd.DataFrame({"nhóm": nhom, "mẫu câu": MAU, "P(tích cực | Thầy)": p_thay.round(3), "P(tích cực | Cô)": p_co.round(3), "chênh (Thầy − Cô)": d.round(3)}))
+    print(f"Chênh lệch trung bình (Thầy − Cô) = {d.mean():+.4f}; khoảng tin cậy bootstrap 95% = [{lo:+.4f}, {hi:+.4f}] | |chênh| lớn nhất = {np.abs(d).max():.3f}")
+    print("Khoảng tin cậy chứa 0:", lo <= 0 <= hi)
+
+@@@ md
+**Đọc kết quả.** Nếu khoảng tin cậy của chênh lệch trung bình **chứa 0** và chênh lệch lớn nhất rất nhỏ, ta **chưa có bằng chứng** về thiên kiến giới tính *ở các mẫu câu này* (không phải "chứng minh không thiên kiến"). Hãy nhìn riêng nhóm **mơ hồ** — nơi từ cảm xúc không át hết và mô hình dễ dựa vào lối tắt hơn — và nhớ rằng 20 mẫu câu chỉ là một điểm khởi đầu: thử nghiệm nghiêm túc cần nhiều mẫu câu hơn, nhiều cách diễn đạt/nhiều cặp từ chỉ giới tính ("anh/chị", "nam/nữ", tên riêng), và sự tham gia của người thuộc các nhóm bị ảnh hưởng.
+
+@@@ md
+## Bài tập 4 — Bộ giới hạn tần suất (rate limiter) cho API
+
+@@@ code
+from collections import defaultdict, deque
+
+class GioiHanTanSuat:
+    """Cửa sổ trượt: tối đa `toi_da` yêu cầu trong `cua_so` giây cho mỗi khóa (ví dụ IP/người dùng)."""
+    def __init__(self, toi_da=10, cua_so=1.0, dong_ho=time.monotonic, toi_da_khoa=10_000):
+        self.toi_da, self.cua_so, self.now, self.toi_da_khoa = toi_da, cua_so, dong_ho, toi_da_khoa
+        self.lich_su = defaultdict(deque)
+
+    def cho_phep(self, khoa):
+        t = self.now(); q = self.lich_su[khoa]
+        while q and t - q[0] >= self.cua_so:        # bỏ yêu cầu đã trượt khỏi cửa sổ
+            q.popleft()
+        if len(q) >= self.toi_da:
+            return False
+        q.append(t)
+        if len(self.lich_su) > self.toi_da_khoa:     # giới hạn bộ nhớ: dọn các khóa không hoạt động
+            for k in [k for k, v in self.lich_su.items() if not v or t - v[-1] >= self.cua_so]:
+                del self.lich_su[k]
+        return True
+
+# kiểm thử bằng đồng hồ giả
+gio = [0.0]
+gh = GioiHanTanSuat(toi_da=3, cua_so=1.0, dong_ho=lambda: gio[0])
+kq = []
+for t in [0.0, 0.1, 0.2, 0.3, 0.9, 1.05, 1.15, 1.25, 1.35]:
+    gio[0] = t; kq.append((t, gh.cho_phep("ip-1")))
+print("yêu cầu (thời điểm, được phép):", kq)
+gio[0] = 0.0; print("khóa khác không bị ảnh hưởng:", GioiHanTanSuat(1, 1.0, lambda: gio[0]).cho_phep("ip-2"))
+
+@@@ md
+**Cách tích hợp vào `app/api.py`:** khởi tạo `gh = GioiHanTanSuat(10, 1.0)` và, trong hàm xử lý, `if not gh.cho_phep(request.client.host): raise HTTPException(429, "Quá nhiều yêu cầu")` (cần thêm tham số `request: Request`). Lưu ý: (1) bộ đếm trong bộ nhớ **không dùng chung** giữa nhiều tiến trình/máy — khi triển khai nhiều worker, dùng Redis hoặc thư viện như `slowapi`; (2) `request.client.host` đứng sau proxy/load balancer có thể là IP của proxy — cần đọc `X-Forwarded-For` một cách **đáng tin**; (3) giới hạn bộ nhớ (như tham số `toi_da_khoa`) để kẻ tấn công không làm cạn RAM bằng vô số khóa giả.
+
+@@@ md
+## Bài tập 5 (khó) — Đưa CheckList vào CI bằng `pytest`
+
+Dưới đây là nội dung một tệp `tests/test_checklist.py` (đặt ở thư mục gốc dự án). Ô mã chạy cùng logic để bạn thấy kết quả; ở CI bạn chỉ cần `pytest`.
+
+@@@ code
+NGUONG = {"khen đơn giản": 0.15, "chê đơn giản": 0.20, "thêm 'ạ'": 0.02}          # ngưỡng thất bại tối đa được chấp nhận
+
+def kiem_thu_checklist(model_nhan):
+    ket_qua = {
+        "khen đơn giản": np.mean(model_nhan(khen) != "tích cực"),
+        "chê đơn giản": np.mean(model_nhan(che) != "tiêu cực"),
+        "thêm 'ạ'": np.mean(model_nhan(goc) != model_nhan([x + " ạ" for x in goc])),
+    }
+    return ket_qua
+
+kq = kiem_thu_checklist(nhan)
+for ten, v in kq.items():
+    print(f"{'ĐẠT ' if v <= NGUONG[ten] else 'HỎNG'} | {ten}: tỉ lệ thất bại {v:.3f} (ngưỡng {NGUONG[ten]})")
+
+@@@ md
+Tệp kiểm thử **thật** nằm ở [`tests/test_checklist.py`](../../tests/test_checklist.py) (cùng [`tests/test_nlpvi.py`](../../tests/test_nlpvi.py) cho gói tiện ích và tính toàn vẹn dữ liệu). Ô dưới chạy `pytest` trên tệp đó ngay trong notebook:
+
+@@@ code
+import subprocess
+kq = subprocess.run([sys.executable, "-m", "pytest", "-q", "-p", "no:cacheprovider", "tests/test_checklist.py"],
+                    cwd=ROOT, capture_output=True, text=True, encoding="utf-8")
+print(kq.stdout[-1500:] or kq.stderr[-1500:])
+
+@@@ md
+**Cách dùng trong CI.** Thêm một bước `pytest -q` chạy mỗi khi mô hình hoặc dữ liệu thay đổi; nếu một kiểm thử vượt ngưỡng, **build thất bại** và bạn biết *chính xác hành vi nào hỏng*. Hai lưu ý: (1) **ngưỡng** nên đặt dựa trên mức hiện tại cộng một biên an toàn, rồi siết dần — đặt quá chặt khiến CI chập chờn; (2) kiểm thử hành vi **bổ sung** chứ không thay cho kiểm thử độ chính xác trên tập kiểm tra đại diện. Đừng đưa các ca mà bạn *biết mô hình hỏng* (như phủ định ở Bài 14 mục 4) vào ngưỡng đã đạt — hãy theo dõi chúng như "lỗi đã biết" với mục tiêu cải thiện dần.

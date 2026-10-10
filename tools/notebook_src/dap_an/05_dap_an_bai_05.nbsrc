@@ -1,0 +1,194 @@
+@@@ md
+# Đáp án mã · Bài 5 — Word embedding
+
+Giải **các bài tập của Bài 5** bằng mã chạy được. Hãy tự làm trước, rồi đối chiếu. Ô đầu dựng lại các thành phần của Bài 5 dưới dạng hàm để thử nhiều cấu hình.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+import scipy.sparse as sp
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import f1_score
+from sklearn.preprocessing import StandardScaler
+
+from nlpvi import load_splits, normalize, segment, split_sentences, set_seed
+
+set_seed(42)
+train, valid, test = load_splits()
+
+def cau_thanh_tu(text):
+    out = []
+    for cau in split_sentences(normalize(text, emoji="drop", expand_teencode=True)):
+        toks = [w for w in segment(cau).split() if any(ch.isalnum() for ch in w)]
+        if toks:
+            out.append(toks)
+    return out
+
+sents = [s for t in train["text"] for s in cau_thanh_tu(t)]
+dem = Counter(w for s in sents for w in s)
+tu_dien = sorted(w for w, c in dem.items() if c >= 3)
+w2i = {w: i for i, w in enumerate(tu_dien)}
+V = len(tu_dien)
+ids = [s2 for s2 in ([w2i[w] for w in s if w in w2i] for s in sents) if len(s2) >= 2]
+print("V =", V, "| số câu:", len(ids))
+
+def svd_embedding(window=3, D=32):
+    C = np.zeros((V, V))
+    for s in ids:
+        for i, w in enumerate(s):
+            for j in range(max(0, i - window), min(len(s), i + window + 1)):
+                if i != j:
+                    C[w, s[j]] += 1.0 / abs(i - j)
+    tong = C.sum(); p_wc = C / tong
+    p_w = C.sum(1, keepdims=True) / tong
+    cm = C.sum(0) ** 0.75; p_c = (cm / cm.sum())[None, :]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pmi = np.log(p_wc / (p_w * p_c))
+    ppmi = np.where(np.isfinite(pmi) & (pmi > 0), pmi, 0.0)
+    U, S, _ = np.linalg.svd(ppmi, full_matrices=False)
+    return U[:, :D] * np.sqrt(S[:D])
+
+def lang_gieng(E, tu, k=6):
+    En = E / (np.linalg.norm(E, axis=1, keepdims=True) + 1e-9)
+    sim = En @ En[w2i[tu]]
+    return [tu_dien[i] for i in sim.argsort()[::-1][1:k + 1]]
+
+def train_sgns(D=32, epochs=30, subsample=None, seed=0):
+    """Skip-gram + negative sampling (như Bài 5). subsample=t: bỏ ngẫu nhiên từ phổ biến với xác suất 1 - sqrt(t/f)."""
+    rng = np.random.default_rng(seed)
+    tan_suat = np.array([dem[w] for w in tu_dien], dtype=float)
+    f = tan_suat / tan_suat.sum()
+    giu = np.minimum(1.0, np.sqrt(subsample / f)) if subsample else np.ones(V)
+    pairs = []
+    for s in ids:
+        s = [w for w in s if rng.random() < giu[w]] if subsample else s
+        for i in range(len(s)):
+            for j in range(max(0, i - 2), min(len(s), i + 3)):
+                if i != j:
+                    pairs.append((s[i], s[j]))
+    pairs = torch.tensor(pairs)
+    p_neg = torch.tensor(tan_suat ** 0.75 / (tan_suat ** 0.75).sum(), dtype=torch.float)
+    torch.manual_seed(seed)
+    u, v = nn.Embedding(V, D), nn.Embedding(V, D)
+    nn.init.uniform_(u.weight, -0.5 / D, 0.5 / D); nn.init.zeros_(v.weight)
+    opt = torch.optim.Adam(list(u.parameters()) + list(v.parameters()), lr=0.01)
+    for _ in range(epochs):
+        perm = torch.randperm(len(pairs))
+        for b in range(0, len(perm), 512):
+            batch = pairs[perm[b:b + 512]]
+            neg = torch.multinomial(p_neg, len(batch) * 5, replacement=True).view(len(batch), 5)
+            uw = u(batch[:, 0])
+            pos = F.logsigmoid((uw * v(batch[:, 1])).sum(-1))
+            ng = F.logsigmoid(-torch.bmm(v(neg), uw.unsqueeze(2)).squeeze(2)).sum(-1)
+            loss = -(pos + ng).mean()
+            opt.zero_grad(); loss.backward(); opt.step()
+    return u.weight.detach().numpy()
+
+def vec_van_ban(text, E, trong_so=None):
+    toks = [w for s in cau_thanh_tu(text) for w in s if w in w2i]
+    if not toks:
+        return np.zeros(E.shape[1])
+    idx = [w2i[w] for w in toks]
+    w = np.ones(len(idx)) if trong_so is None else np.array([trong_so[i] for i in idx])
+    return (E[idx] * w[:, None]).sum(0) / w.sum()
+
+def f1_embedding(E, trong_so=None, them_tfidf=False):
+    Xt = np.array([vec_van_ban(t, E, trong_so) for t in train["text"]])
+    Xv = np.array([vec_van_ban(t, E, trong_so) for t in valid["text"]])
+    sc = StandardScaler().fit(Xt)
+    A, B = sc.transform(Xt), sc.transform(Xv)
+    if them_tfidf:
+        tf = TfidfVectorizer(ngram_range=(1, 2), min_df=2, sublinear_tf=True, token_pattern=r"(?u)\b\w+\b")
+        A = sp.hstack([tf.fit_transform(train["text"].map(normalize)), sp.csr_matrix(A)]).tocsr()
+        B = sp.hstack([tf.transform(valid["text"].map(normalize)), sp.csr_matrix(B)]).tocsr()
+    clf = LogisticRegression(max_iter=3000, C=1.0).fit(A, train["label"])
+    return round(f1_score(valid["label"], clf.predict(B), average="macro"), 3)
+
+E_svd = svd_embedding()
+E_w2v = train_sgns()
+print("sẵn sàng.")
+
+@@@ md
+## Bài tập 1 — `WINDOW` = 1 và 6: láng giềng của "nhanh"
+
+@@@ code
+rows = {}
+for w in [1, 3, 6]:
+    rows[f"cửa sổ ±{w}"] = lang_gieng(svd_embedding(window=w), "nhanh")
+pd.DataFrame(rows, index=[f"#{i}" for i in range(1, 7)])
+
+@@@ md
+**Đọc kết quả (số của bạn có thể lệch nhẹ).** Lý thuyết nói: cửa sổ **hẹp** thiên về láng giềng *cú pháp* (cùng loại từ), cửa sổ **rộng** thiên về láng giềng *chủ đề* (cùng bối cảnh). Ở đây điều đó **hiện ra khá rõ**: với ±1, toàn bộ 6 láng giềng của "nhanh" là **tính từ** (*chu đáo, gọn nhẹ, thân thiện, nhiệt tình, mềm, đẹp*); với ±3 và ±6 bắt đầu lẫn **danh từ và động từ cùng chủ đề dịch vụ** (*khiếu nại*, *thử*) bên cạnh các tính từ. Cửa sổ hẹp bắt "từ đứng ở vị trí giống nhau trong câu", cửa sổ rộng bắt "từ cùng xuất hiện trong một bối cảnh". (Ghi chú: ở phiên bản đầu của giáo trình, một lỗi tách câu — xem Bài 1, mục 5 — làm nhiều câu dính vào nhau và **che mờ** sự khác biệt này: một ví dụ về việc lỗi tiền xử lý có thể giấu đi hiện tượng thật.) Quy tắc kinh nghiệm: cửa sổ nhỏ → "cú pháp", cửa sổ lớn → "chủ đề"; vẫn nên kiểm chứng trên dữ liệu của bạn.
+
+@@@ md
+## Bài tập 2 — Số chiều `D` = 8 và 100 cho Skip-gram
+
+@@@ code
+rows = []
+for D in [8, 32, 100]:
+    E = train_sgns(D=D)
+    rows.append({"D": D, "macro-F1 valid (trung bình embedding + LR)": f1_embedding(E)})
+pd.DataFrame(rows).set_index("D")
+
+@@@ md
+**Đọc kết quả.** macro-F1 tăng rõ rệt theo số chiều: ≈0,50 (D=8) → ≈0,65 (D=32) → **≈0,76 (D=100)**. Quá ít chiều (8) không đủ chỗ để biểu diễn; **trong khoảng thử, càng nhiều chiều càng tốt** và ta chưa thấy dấu hiệu quá khớp. Hãy thử thêm D = 200, 300 để tìm điểm bão hòa. Hai lưu ý: (1) một phần cải thiện là do bộ phân loại tuyến tính có *nhiều đặc trưng hơn* chứ không hẳn embedding "tốt hơn"; (2) vẫn còn kém TF-IDF (≈0,89) — embedding học từ ~11 nghìn token không cạnh tranh được với đếm từ trực tiếp. Đây là siêu tham số nên chọn bằng valid.
+
+@@@ md
+## Bài tập 3 — Trọng số TF-IDF khi lấy trung bình embedding
+
+@@@ code
+tv = TfidfVectorizer(token_pattern=r"(?u)\b\w+\b").fit([" ".join(s) for s in sents])
+idf = np.ones(V)
+for w, i in w2i.items():
+    idf[i] = tv.idf_[tv.vocabulary_[w]] if w in tv.vocabulary_ else 1.0
+
+pd.DataFrame({"trung bình thường": {"SVD-PPMI": f1_embedding(E_svd), "Skip-gram": f1_embedding(E_w2v)},
+              "trung bình có trọng số idf": {"SVD-PPMI": f1_embedding(E_svd, idf), "Skip-gram": f1_embedding(E_w2v, idf)}})
+
+@@@ md
+**Đọc kết quả.** Trọng số idf **giảm vai trò** của từ rất phổ biến ("rất", "không"...) và **tăng** từ đặc trưng, nên *lý thuyết* kỳ vọng cải thiện. Thực tế ở đây: SVD-PPMI **giảm** (≈0,676 → ≈0,662), Skip-gram **tăng** (≈0,652 → ≈0,662) — hai chiều ngược nhau, mỗi chênh lệch ≈0,01, **nằm trong nhiễu**. Kết luận trung thực: *không có bằng chứng* rằng trọng số idf giúp với embedding và dữ liệu này. Để kết luận cần nhiều seed/CV.
+
+@@@ md
+## Bài tập 4 — Ghép embedding trung bình với TF-IDF
+
+@@@ code
+tfidf_only = f1_embedding(E_w2v * 0, them_tfidf=True)      # nhân 0: chỉ còn TF-IDF (đặc trưng embedding = 0)
+ghep = f1_embedding(E_w2v, them_tfidf=True)
+pd.DataFrame({"macro-F1 valid": {"chỉ TF-IDF (embedding bị tắt)": tfidf_only, "TF-IDF + embedding Skip-gram": ghep, "chỉ embedding Skip-gram": f1_embedding(E_w2v)}})
+
+@@@ md
+**Đọc kết quả.** Ghép TF-IDF + embedding đạt ≈0,873 so với ≈0,868 khi chỉ có TF-IDF (cùng bộ phân loại): **chênh lệch ≈0,005 nằm trong nhiễu**, nên *không* có bằng chứng embedding giúp thêm ở đây. Riêng embedding chỉ đạt ≈0,65. Embedding học trên kho rất nhỏ không mang thông tin bổ sung đáng kể; embedding **tiền huấn luyện trên kho lớn** mới có thể đem lại thông tin thật sự mới (xem Bài 9, 12). Muốn kết luận chắc, cần CV nhiều seed.
+
+@@@ md
+## Bài tập 5 (khó) — Lấy mẫu con (subsampling) từ phổ biến
+
+Từ rất phổ biến ("không", "rất", "nhưng"...) xuất hiện trong vô số cặp (từ, ngữ cảnh) nhưng ít thông tin. **Subsampling** bỏ ngẫu nhiên mỗi lần xuất hiện của từ *w* với xác suất $1-\sqrt{t/f(w)}$ ($f$: tần suất tương đối). Ta so láng giềng của một từ **hiếm** trước và sau.
+
+@@@ code
+E_sub = train_sgns(subsample=3e-3)
+tu_hiem = [w for w in ["thờ_ơ", "mượt", "chát", "rườm_rà", "lan_man", "ẩu"] if w in w2i]
+rows = {}
+for w in tu_hiem[:4]:
+    rows[w] = {"không subsampling": ", ".join(lang_gieng(E_w2v, w, 5)), "subsampling t=3e-3": ", ".join(lang_gieng(E_sub, w, 5))}
+pd.DataFrame(rows).T
+
+@@@ code
+print("macro-F1 valid (trung bình embedding + LR): không subsampling =", f1_embedding(E_w2v), "| có subsampling =", f1_embedding(E_sub))
+
+@@@ md
+**Đọc kết quả.** Về định tính, hai cột láng giềng khá giống nhau (đổi thứ tự, đôi chỗ khác từ). Về định lượng, macro-F1 trong một lần chạy tăng từ ≈0,65 lên ≈0,67 — nhưng đó là **một seed**, chênh lệch ≈0,016 nằm trong nhiễu; cần nhiều seed. Với kho lớn, subsampling vừa **tăng tốc** huấn luyện vừa cải thiện embedding của từ hiếm (bớt "bị chìm" dưới từ chức năng); với kho rất nhỏ nó cũng *bỏ bớt dữ liệu* vốn ít, nên ngưỡng $t$ nên đặt cao hơn. Nhớ rằng láng giềng không có "đáp án đúng" — cần một phép đo định lượng (như Bài 5 mục 6) trước khi kết luận.

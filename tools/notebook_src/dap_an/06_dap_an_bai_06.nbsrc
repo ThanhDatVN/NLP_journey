@@ -1,0 +1,202 @@
+@@@ md
+# Đáp án mã · Bài 6 — Mạng nơ-ron cho văn bản
+
+Giải **các bài tập của Bài 6** bằng mã chạy được. Mỗi thí nghiệm lặp qua **3 seed** (một seed không đủ để kết luận). Chạy trên CPU.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import copy
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+from torch.utils.data import DataLoader
+
+from sklearn.metrics import f1_score
+
+from nlpvi import LABELS, load_hard, load_splits, normalize, segment, set_seed, split_sentences
+from nlpvi.textnn import TextDS, build_vocab, collate, evaluate, tach_tu
+
+train, valid, test = load_splits()
+hard = load_hard()
+CLASSES = sorted(LABELS); c2i = {c: i for i, c in enumerate(CLASSES)}
+itos, stoi = build_vocab(train["text"])
+ds_tr, ds_va, ds_hard = (TextDS(d, stoi, c2i) for d in (train, valid, hard))
+V = len(itos)
+SEEDS = [0, 1, 2]
+
+class CNN1D(nn.Module):
+    def __init__(self, V, d=64, n_cls=3, kernels=(2, 3), filters=64, p=0.4):
+        super().__init__()
+        self.emb = nn.Embedding(V, d, padding_idx=0)
+        self.convs = nn.ModuleList([nn.Conv1d(d, filters, k, padding=k - 1) for k in kernels])
+        self.drop = nn.Dropout(p)
+        self.fc = nn.Linear(filters * len(kernels), n_cls)
+    def forward(self, x):
+        e = self.emb(x).transpose(1, 2)
+        return self.fc(self.drop(torch.cat([F.relu(c(e)).max(2).values for c in self.convs], 1)))
+
+def fit2(model, optimizer="adamw", lr=3e-3, epochs=25, bs=64, seed=0, patience=6, label_smoothing=0.0):
+    """Vòng huấn luyện giống Bài 6 nhưng cho phép đổi bộ tối ưu và label smoothing."""
+    set_seed(seed)
+    params = model.parameters()
+    opt = (torch.optim.AdamW(params, lr=lr, weight_decay=1e-4) if optimizer == "adamw"
+           else torch.optim.SGD(params, lr=lr, momentum=0.9))
+    dl = DataLoader(ds_tr, batch_size=bs, shuffle=True, collate_fn=collate)
+    best, best_state, wait, hist = -1, None, 0, []
+    for ep in range(1, epochs + 1):
+        model.train(); tl = 0.0
+        for xb, yb in dl:
+            loss = F.cross_entropy(model(xb), yb, label_smoothing=label_smoothing)
+            opt.zero_grad(); loss.backward(); opt.step(); tl += loss.item() * len(xb)
+        vl, vf, _ = evaluate(model, ds_va)
+        hist.append((ep, tl / len(ds_tr), vl, vf))
+        if vf > best:
+            best, best_state, wait = vf, copy.deepcopy(model.state_dict()), 0
+        else:
+            wait += 1
+            if wait >= patience: break
+    model.load_state_dict(best_state)
+    return pd.DataFrame(hist, columns=["epoch", "loss_train", "loss_valid", "f1_valid"])
+
+def chay(ctor, **kw):
+    """Chạy qua 3 seed, trả về (mean±std valid, mean±std câu khó, danh sách mô hình)."""
+    v, h = [], []
+    for sd in SEEDS:
+        set_seed(sd); m = ctor(); fit2(m, seed=sd, **kw)
+        v.append(evaluate(m, ds_va)[1]); h.append(evaluate(m, ds_hard)[1])
+    f = lambda a: f"{np.mean(a):.3f} ± {np.std(a):.3f}"
+    return f(v), f(h)
+
+print("V =", V)
+
+@@@ md
+## Bài tập 1 — `SGD(momentum=0.9)` thay cho `AdamW`
+
+@@@ code
+rows = []
+rows.append({"bộ tối ưu": "AdamW lr=3e-3", **dict(zip(["valid", "câu khó"], chay(lambda: CNN1D(V), optimizer="adamw", lr=3e-3)))})
+for lr in [0.01, 0.05, 0.2]:
+    rows.append({"bộ tối ưu": f"SGD momentum lr={lr}", **dict(zip(["valid", "câu khó"], chay(lambda: CNN1D(V), optimizer="sgd", lr=lr)))})
+pd.DataFrame(rows).set_index("bộ tối ưu")
+
+@@@ md
+**Đọc kết quả.** AdamW (≈0,905) vẫn **hơn** mọi cấu hình SGD đã thử. SGD rất **nhạy với `lr`**: 0,01 học quá chậm trong 25 epoch (≈0,876); **0,05 là điểm tốt nhất** trong ba giá trị (≈0,882); 0,2 *quá lớn* và làm huấn luyện mất ổn định (≈0,71). Adam điều chỉnh tốc độ học *từng tham số* nên ít nhạy với `lr` và dễ dùng hơn — đó là lý do nó là mặc định cho văn bản. SGD + momentum có thể khái quát hóa tốt khi được tinh chỉnh kỹ (hay dùng ở thị giác máy tính), nhưng đòi hỏi công chỉnh `lr`.
+
+@@@ md
+## Bài tập 2 — `kernels=(1, 2, 3, 4)`
+
+@@@ code
+rows = []
+for kernels in [(2, 3), (1, 2, 3), (1, 2, 3, 4), (3, 4, 5)]:
+    v, h = chay(lambda: CNN1D(V, kernels=kernels))
+    rows.append({"kernels": str(kernels), "valid": v, "câu khó": h})
+pd.DataFrame(rows).set_index("kernels")
+
+@@@ md
+**Đọc kết quả.** Thêm kernel 1 ≈ thêm một "bộ phát hiện unigram"; kernel dài (4–5) bắt cụm dài nhưng dễ **quá khớp** trên dữ liệu nhỏ. So chênh lệch với độ lệch chuẩn qua seed: chênh lệch nhỏ hơn std thì chưa kết luận được. Với phân loại cảm xúc ngắn, cụm 2–3 từ thường đủ.
+
+@@@ md
+## Bài tập 3 — Khởi tạo embedding bằng vector học từ kho (PPMI-SVD)
+
+Ta tính embedding PPMI-SVD (như Bài 5) **trên đúng từ điển của mô hình** rồi chép vào `nn.Embedding`; so với khởi tạo ngẫu nhiên.
+
+@@@ code
+def ppmi_svd_tren_tu_dien(D=64, window=3):
+    sents_ids = [[stoi.get(w, 1) for w in tach_tu(t)] for t in train["text"]]
+    C = np.zeros((V, V))
+    for s in sents_ids:
+        for i, w in enumerate(s):
+            for j in range(max(0, i - window), min(len(s), i + window + 1)):
+                if i != j: C[w, s[j]] += 1.0 / abs(i - j)
+    tong = C.sum(); p_w = C.sum(1, keepdims=True) / tong
+    cm = C.sum(0) ** 0.75; p_c = (cm / cm.sum())[None, :]
+    with np.errstate(divide="ignore", invalid="ignore"):
+        pmi = np.log((C / tong) / (p_w * p_c))
+    ppmi = np.where(np.isfinite(pmi) & (pmi > 0), pmi, 0.0)
+    U, S, _ = np.linalg.svd(ppmi, full_matrices=False)
+    E = U[:, :D] * np.sqrt(S[:D])
+    return torch.tensor(E / (E.std() + 1e-9) * 0.1, dtype=torch.float)       # co về cỡ khởi tạo thông thường
+
+E_init = ppmi_svd_tren_tu_dien()
+
+def ctor_init(dong_bang=False):
+    m = CNN1D(V)
+    m.emb.weight.data.copy_(E_init); m.emb.weight.data[0].zero_()
+    m.emb.weight.requires_grad = not dong_bang
+    return m
+
+rows = []
+for ten, ctor in [("embedding ngẫu nhiên", lambda: CNN1D(V)), ("khởi tạo PPMI-SVD (tinh chỉnh tiếp)", ctor_init),
+                  ("khởi tạo PPMI-SVD (đóng băng)", lambda: ctor_init(True))]:
+    v, h = chay(ctor)
+    rows.append({"khởi tạo": ten, "valid": v, "câu khó": h})
+pd.DataFrame(rows).set_index("khởi tạo")
+
+@@@ md
+**Đọc kết quả — một kết quả bất ngờ.** Khởi tạo bằng PPMI-SVD **cải thiện rõ rệt** trên `valid`: ≈0,905 → **≈0,943** (tinh chỉnh tiếp), và ngay cả khi **đóng băng** embedding vẫn đạt ≈0,932 — chênh lệch lớn hơn nhiều độ lệch chuẩn qua seed (≈0,01). Trên câu khó thay đổi nằm trong nhiễu (≈0,50 → ≈0,52).
+
+Vì sao? Embedding PPMI-SVD được tính từ **cấu trúc đồng xuất hiện của toàn bộ câu huấn luyện, không dùng nhãn** — một dạng *tiền huấn luyện không giám sát* trên chính kho. Với chỉ 1.262 mẫu có nhãn, mạng học embedding từ đầu thiếu tín hiệu; embedding PPMI cho nó một điểm khởi đầu đã có cấu trúc. Đây là một minh họa nhỏ của ý tưởng cốt lõi của cả kỷ nguyên tiền huấn luyện: **dùng dữ liệu không nhãn để có biểu diễn tốt trước, rồi mới học nhiệm vụ**. (Ở Bài 5, trung bình embedding + LR chỉ đạt ≈0,68 — nhưng khi làm *điểm khởi tạo* cho mạng có học, nó hữu ích hơn nhiều.) Kho của ta vẫn rất nhỏ; embedding tiền huấn luyện trên kho khổng lồ (PhoBERT...) còn mạnh hơn.
+
+@@@ md
+## Bài tập 4 — Label smoothing
+
+Label smoothing thay nhãn one-hot bằng phân phối "mềm" (ví dụ 0,9 cho lớp đúng, 0,05 cho hai lớp còn lại), ngăn mô hình tiến tới xác suất = 1. Ta đo **độ tự tin trung bình** so với **accuracy** — nếu độ tự tin cao hơn nhiều accuracy thì mô hình *quá tự tin*.
+
+@@@ code
+def tu_tin_va_acc(m):
+    m.eval(); P, Y = [], []
+    with torch.no_grad():
+        for xb, yb in DataLoader(ds_va, batch_size=256, collate_fn=collate):
+            P.append(F.softmax(m(xb), -1)); Y.append(yb)
+    P, Y = torch.cat(P), torch.cat(Y)
+    return P.max(1).values.mean().item(), (P.argmax(1) == Y).float().mean().item()
+
+rows = []
+for ls in [0.0, 0.1, 0.2]:
+    loss_v, tt, acc = [], [], []
+    for sd in SEEDS:
+        set_seed(sd); m = CNN1D(V); h = fit2(m, seed=sd, label_smoothing=ls)
+        a, b = tu_tin_va_acc(m); tt.append(a); acc.append(b); loss_v.append(evaluate(m, ds_va)[0])
+    rows.append({"label_smoothing": ls, "độ tự tin TB (valid)": round(np.mean(tt), 3), "accuracy (valid)": round(np.mean(acc), 3),
+                 "chênh lệch (tự tin − acc)": round(np.mean(tt) - np.mean(acc), 3), "loss valid": round(np.mean(loss_v), 3)})
+pd.DataFrame(rows).set_index("label_smoothing")
+
+@@@ md
+**Đọc kết quả.** Không dùng smoothing, mô hình hơi **quá tự tin**: độ tự tin trung bình (≈0,94) cao hơn accuracy (≈0,91) khoảng 0,03. Với label smoothing = 0,1 độ tự tin tụt xuống ≈0,81 — **thấp hơn** accuracy tới 0,10: mô hình trở nên **dưới tự tin** (under-confident); với 0,2 còn tệ hơn (≈ −0,16). Nghĩa là smoothing lớn **vượt quá điểm hiệu chuẩn tốt nhất**, nằm quanh giá trị nhỏ hơn (≈0,02–0,05; bạn nên thử). Accuracy gần như không đổi (≈0,91–0,92); loss valid gần như không đổi ở 0,1 (≈0,33) và cao hơn ở 0,2 (≈0,37) vì mục tiêu không còn đòi xác suất = 1 — nên **đừng so loss giữa các giá trị label smoothing**. Bài học: smoothing là kỹ thuật rẻ để giảm quá tự tin nhưng có một *liều lượng*, và phải **đo hiệu chuẩn** thay vì áp dụng mù quáng.
+
+@@@ md
+## Bài tập 5 (khó) — BiGRU trung bình theo thời gian có mặt nạ
+
+@@@ code
+class BiGRUTB(nn.Module):
+    def __init__(self, V, d=64, h=64, n_cls=3, p=0.4):
+        super().__init__()
+        self.emb = nn.Embedding(V, d, padding_idx=0)
+        self.gru = nn.GRU(d, h, batch_first=True, bidirectional=True)
+        self.drop = nn.Dropout(p)
+        self.fc = nn.Linear(2 * h, n_cls)
+    def forward(self, x):
+        mask = (x != 0).unsqueeze(-1).float()
+        out, _ = self.gru(self.emb(x))                              # (B, L, 2h) — chưa pack: ô đệm vẫn đi qua GRU
+        tb = (out * mask).sum(1) / mask.sum(1).clamp(min=1)         # trung bình CÓ mặt nạ
+        return self.fc(self.drop(tb))
+
+rows = []
+for ten, ctor in [("CNN1D", lambda: CNN1D(V)), ("BiGRU + TB có mặt nạ", lambda: BiGRUTB(V))]:
+    v, h = chay(ctor)
+    rows.append({"mô hình": ten, "valid": v, "câu khó": h})
+pd.DataFrame(rows).set_index("mô hình")
+
+@@@ md
+**Đọc kết quả.** BiGRU thường nhỉnh hơn CNN trên `valid` (nhìn được thứ tự dài hơn), còn trên câu khó chênh lệch nhỏ và nhiễu (40 câu). Lưu ý kỹ thuật: ta chỉ dùng **mặt nạ ở bước trung bình**, còn GRU vẫn đọc cả ô đệm; với GRU hai chiều, hướng *ngược* bắt đầu từ ô đệm cuối nên trạng thái bị "pha" — `pack_padded_sequence` (Bài 7) loại bỏ triệt để vấn đề này. Bạn có thể kiểm tra bằng cách so với phiên bản có `pack`.

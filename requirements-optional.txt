@@ -1,0 +1,2 @@
+# Tùy chọn. Khóa học chạy được KHÔNG cần các gói này (có bộ tách từ thuần Python).
+underthesea>=6.8   # tách từ có huấn luyện; có thể bị chặn DLL bởi Application Control trên một số máy Windows (xem docs/KHAC_PHUC_SU_CO.md)

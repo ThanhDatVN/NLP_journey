@@ -1,0 +1,128 @@
+@@@ md
+# Đáp án mã · Bài 17 — Khôi phục dấu tiếng Việt
+
+Giải các bài tập **1, 2, 4** của Bài 17 bằng mã chạy được (bài 3 cần văn bản cùng miền của riêng bạn; bài 5 là mô hình BiLSTM nên chỉ có gợi ý bằng lời). Hãy tự làm trước, rồi đối chiếu. Ô đầu nạp lại dữ liệu như Bài 17.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+
+from nlpvi import DATA_DIR, load_splits, set_seed, strip_accents
+from nlpvi.diacritics import DiacriticRestorer, tach_token
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+set_seed(42)
+
+try:
+    from datasets import load_dataset
+    uit = load_dataset("uitnlp/vietnamese_students_feedback", revision="refs/convert/parquet")
+    cau_train = [tach_token(s) for s in uit["train"]["sentence"]]
+    cau_valid = [tach_token(s) for s in uit["validation"]["sentence"]]
+    NGUON = "UIT-VSFC"
+except Exception as e:
+    print(f"⚠ Không tải được UIT-VSFC ({type(e).__name__}); dùng bộ tổng hợp (số liệu cao giả tạo).")
+    a, b, _ = load_splits(); cau_train, cau_valid, NGUON = [tach_token(t) for t in a["text"]], [tach_token(t) for t in b["text"]], "tổng hợp"
+lex = [syl for w in (DATA_DIR / "tu_ghep_phobert.txt").read_text(encoding="utf-8").splitlines() for syl in w.split("_")]
+print(NGUON, "| train", len(cau_train), "câu |", sum(map(len, cau_train)), "token | valid", len(cau_valid))
+
+def danh_gia(du_doan, cau, n=None):
+    ok = tot = sent = 0
+    cau = cau[:n] if n else cau
+    for s in cau:
+        pred = du_doan([strip_accents(w) for w in s]); d = [a == b for a, b in zip(pred, s)]
+        ok += sum(d); tot += len(s); sent += all(d)
+    return ok / tot, sent / len(cau)
+
+@@@ md
+## Bài tập 1 — Trọng số nội suy $\lambda$
+
+@@@ code
+cac_lam = [(0.10, 0.40, 0.50), (0.30, 0.40, 0.30), (0.02, 0.28, 0.70), (0.01, 0.09, 0.90), (0.50, 0.30, 0.20), (0.10, 0.90, 0.00)]
+rows = []
+for lam in cac_lam:
+    m = DiacriticRestorer(lam=lam).fit(cau_train)
+    tok, sent = danh_gia(m.restore_tokens, cau_valid)
+    rows.append({"(λ1, λ2, λ3)": str(lam), "token": round(tok, 4), "câu đúng hoàn toàn": round(sent, 3)})
+display(pd.DataFrame(rows).set_index("(λ1, λ2, λ3)"))
+
+@@@ md
+**Đọc kết quả (bài 1).** Sáu bộ trọng số rất khác nhau (kể cả cực đoan như (0,01; 0,09; 0,9) hay bigram thuần (0,1; 0,9; 0)) cho độ chính xác token chỉ trong khoảng 0,9762–0,9778 và tỉ lệ câu đúng 0,787–0,798: **kết quả gần như không nhạy với $\lambda$** ở ≈ 160 nghìn token (và bộ bigram thuần 0,9777 ngang bộ có trigram, đúng như Bài 17 mục 5). Vẫn **không nên chọn $\lambda$ bằng tập đánh giá cuối**: ở đây chênh lệch bé nên rủi ro bé, nhưng với dữ liệu nhỏ hơn hoặc mô hình nhạy hơn thì điểm chọn theo tập đánh giá sẽ lạc quan. Cách làm đúng: tập valid riêng, hoặc nội suy xóa-một.
+
+@@@ md
+## Bài tập 2 — Khi nào từ điển bổ sung (PhoBERT) có ích?
+
+Ước lượng *trước khi huấn luyện*: tỉ lệ token chữ của tập đích có dạng không dấu mà từ điển học từ train **không có ứng viên**. Ta mô phỏng bằng cách **giảm lượng dữ liệu train** (nhiều âm tiết chưa gặp hơn) và đo độ chính xác khi có/không có từ điển bổ sung.
+
+@@@ code
+rng = np.random.default_rng(0)
+rows = []
+for n in (100, 300, 1000, 3000, len(cau_train)):
+    idx = rng.choice(len(cau_train), n, replace=False) if n < len(cau_train) else np.arange(len(cau_train))
+    sub = [cau_train[i] for i in idx]
+    m0 = DiacriticRestorer().fit(sub); m1 = DiacriticRestorer().fit(sub, extra_syllables=lex)
+    chu = [w for s in cau_valid for w in s if w.isalpha()]
+    thieu = np.mean([w not in m0.candidates(strip_accents(w)) for w in chu])
+    a0, _ = danh_gia(m0.restore_tokens, cau_valid, 800); a1, _ = danh_gia(m1.restore_tokens, cau_valid, 800)
+    rows.append({"số câu train": n, "% token thiếu ứng viên (không từ điển)": round(100 * thieu, 1), "độ chính xác (không từ điển)": round(a0, 4),
+                 "độ chính xác (có từ điển PhoBERT)": round(a1, 4), "lợi từ từ điển": round(a1 - a0, 4)})
+display(pd.DataFrame(rows).set_index("số câu train"))
+
+@@@ md
+**Đọc kết quả (bài 2).** Từ điển bổ sung chỉ có ích **khi có nhiều âm tiết chưa gặp**. Với 100 câu train có 13,8% token chữ thiếu ứng viên và từ điển PhoBERT nâng độ chính xác 0,847 → 0,864 (+0,017); lợi giảm dần cùng tỉ lệ thiếu: +0,010 (6,4% thiếu, 300 câu), +0,003 (2,3%, 1.000 câu), +0,001 (0,8%, 3.000 câu) và ≈ 0 (0,3%) với toàn bộ train. Quy tắc ước lượng *trước khi huấn luyện*: đếm tỉ lệ token đích không có ứng viên; ở dữ liệu nhỏ lợi từ từ điển cỡ 12–16% của tỉ lệ đó. Trên văn bản chuyên ngành hoặc nhiều tên riêng tỉ lệ thiếu cao hơn nên từ điển đáng thêm; trên văn bản cùng miền với dữ liệu train đủ lớn (như Bài 17) thì không đáng.
+
+@@@ md
+## Bài tập 4 — Beam search thay cho Viterbi đầy đủ
+
+Với trigram, trạng thái là cặp $(y_{i-1},y_i)$. **Beam search** chỉ giữ $B$ trạng thái điểm cao nhất ở mỗi cột (cắt tỉa), đổi độ chính xác lấy tốc độ. Khi $B$ không giới hạn thì trùng Viterbi đầy đủ.
+
+@@@ code
+def beam(m, bases, B=None):
+    C = [m.candidates(b) for b in bases]
+    truoc, lui = {("<s>", "<s>"): 0.0}, []
+    for ci in C:
+        cur, con = {}, {}
+        for (u, v), sc in truoc.items():
+            for w in ci:
+                s2 = sc + m.logp(u, v, w)
+                if (v, w) not in cur or s2 > cur[(v, w)]:
+                    cur[(v, w)], con[(v, w)] = s2, (u, v)
+        if B and len(cur) > B:
+            giu = sorted(cur, key=cur.get, reverse=True)[:B]
+            cur, con = {k: cur[k] for k in giu}, {k: con[k] for k in giu}
+        lui.append(con); truoc = cur
+    khoa = max(truoc, key=lambda s: truoc[s] + m.logp(s[0], s[1], "</s>"))
+    out = []
+    for i in range(len(C) - 1, -1, -1):
+        out.append(khoa[1]); khoa = lui[i][khoa]
+    return out[::-1]
+
+m = DiacriticRestorer().fit(cau_train)
+mau = cau_valid[:300]
+giong = all(beam(m, [strip_accents(w) for w in s], None) == m.restore_tokens([strip_accents(w) for w in s]) for s in mau[:100])
+print("Beam không giới hạn trùng Viterbi của nlpvi trên 100 câu:", giong)
+
+rows = []
+for B in (1, 2, 5, 10, 20, 50, None):
+    t0 = time.time(); tok, sent = danh_gia(lambda b: beam(m, b, B), cau_valid, 600); dt = time.time() - t0
+    rows.append({"B": B if B else "không giới hạn (Viterbi)", "độ chính xác token": round(tok, 4), "câu đúng": round(sent, 3), "ms / câu": round(1000 * dt / 600, 1)})
+display(pd.DataFrame(rows).set_index("B"))
+
+@@@ md
+**Đọc kết quả (bài 4).** (Đánh giá trên 600 câu đầu của valid nên độ chính xác tuyệt đối hơi khác bảng ở Bài 17.) Beam không giới hạn trùng Viterbi của `nlpvi` trên 100 câu. **B = 10 đã cho kết quả y hệt Viterbi đầy đủ** (token 0,9757, câu đúng 0,785) với ≈ 0,8 ms/câu so với 1,4 ms/câu. Giảm B làm mất độ chính xác rõ: B = 5 còn 0,9745, B = 2 còn 0,9649, B = 1 (tham lam, chỉ giữ một trạng thái) còn 0,9429 và chỉ 61,7% câu đúng — cái giá của việc không thể sửa quyết định sớm khi gặp ngữ cảnh sau. Vì số ứng viên mỗi cột chỉ cỡ vài chục, phần tiết kiệm thời gian của beam ở đây khiêm tốn (≈ 1,75× ở B = 10); lợi ích lớn hơn nhiều khi lưới ứng viên lớn hơn.
+
+@@@ md
+## Gợi ý cho các bài còn lại
+
+- **Bài 3** (thêm văn bản của bạn): hãy chia tập của bạn thành phần *huấn luyện thêm* và phần *đánh giá giữ riêng* trước khi thêm vào mô hình; nếu không bạn sẽ đo lại chính thứ mô hình đã thấy.
+- **Bài 5** (BiLSTM): so theo **đường cong học** (độ chính xác theo lượng dữ liệu) và đo cả ngoài miền, chứ đừng chỉ so một điểm; chưa có số đo nào ở đây về việc BiLSTM có thắng n-gram hay không.

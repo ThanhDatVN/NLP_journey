@@ -1,0 +1,378 @@
+@@@ md
+# Bài 4 · Mô hình ngôn ngữ n-gram
+
+**Thời lượng gợi ý:** 120 phút · **Cần:** Bài 1 · **Không cần GPU**
+
+## Mục tiêu
+
+1. Hiểu **mô hình ngôn ngữ** là gì: gán xác suất cho chuỗi từ, dự đoán từ kế tiếp.
+2. Cài đặt n-gram (unigram, bigram, trigram) từ con số 0 bằng đếm.
+3. Giải thích và xử lý vấn đề **xác suất bằng 0**: làm mịn add-k và nội suy (interpolation).
+4. Tính và diễn giải **perplexity**; sinh văn bản bằng cách lấy mẫu.
+5. Nhận ra giới hạn của n-gram — lý do dẫn tới mạng nơ-ron và Transformer.
+
+> Mô hình ngôn ngữ là "hạt giống" của mọi LLM hiện nay. ChatGPT, Gemini hay Claude đều chỉ là mô hình ngôn ngữ dự đoán token kế tiếp — chỉ khác là dùng mạng nơ-ron khổng lồ thay vì bảng đếm.
+
+@@@ code
+import sys, pathlib
+
+ROOT = pathlib.Path.cwd()
+if ROOT.name == "notebooks":
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import warnings
+warnings.filterwarnings("ignore")
+
+import math
+import random
+from collections import Counter, defaultdict
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+
+from nlpvi import load_splits, normalize, segment, split_sentences, set_seed, tokenize_surface
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+set_seed(42)
+train, valid, test = load_splits()
+
+@@@ md
+## 1. Ý tưởng
+
+Một mô hình ngôn ngữ gán xác suất $P(w_1, w_2, \dots, w_T)$ cho một câu. Theo quy tắc nhân xác suất:
+
+$$P(w_1,\dots,w_T)=\prod_{t=1}^{T} P(w_t \mid w_1,\dots,w_{t-1})$$
+
+Điều kiện hóa trên *toàn bộ lịch sử* là bất khả thi (hầu như mọi câu dài đều chưa từng gặp). **Giả định Markov bậc n−1**: chỉ nhìn $n-1$ từ gần nhất.
+
+- Unigram (n=1): $P(w_t)$ — không nhìn gì.
+- Bigram (n=2): $P(w_t \mid w_{t-1})$.
+- Trigram (n=3): $P(w_t \mid w_{t-2}, w_{t-1})$.
+
+Ước lượng bằng đếm (maximum likelihood):
+
+$$P(w \mid v)=\frac{\text{count}(v,w)}{\text{count}(v)}$$
+
+@@@ md
+## 2. Chuẩn bị văn bản
+
+Ta xử lý mỗi đánh giá thành các **câu**, mỗi câu thành dãy **từ** (đã ghép từ ở Bài 1), hạ chữ thường, bỏ dấu câu/emoji, rồi thêm hai ký hiệu đặc biệt: `<s>` (bắt đầu) và `</s>` (kết thúc) để mô hình biết từ nào hay mở đầu/kết thúc câu.
+
+@@@ code
+def cau_thanh_tu(text):
+    """Trả về danh sách các câu; mỗi câu là list các từ (chữ thường)."""
+    out = []
+    for cau in split_sentences(normalize(text, emoji="drop", expand_teencode=True)):
+        toks = [w for w in segment(cau).split() if any(ch.isalnum() for ch in w)]
+        if toks:
+            out.append(toks)
+    return out
+
+def lam_tap(df):
+    return [s for t in df["text"] for s in cau_thanh_tu(t)]
+
+S_tr, S_va, S_te = lam_tap(train), lam_tap(valid), lam_tap(test)
+print("Số câu:", len(S_tr), len(S_va), len(S_te))
+print("Ví dụ:", S_tr[0], "|", S_tr[5])
+print("Số token train:", sum(map(len, S_tr)))
+
+@@@ md
+### Từ lạ (OOV) và `<unk>`
+
+Mọi mô hình đếm đều gặp vấn đề với từ chưa từng thấy. Cách thông dụng: những từ **chỉ xuất hiện 1 lần** ở train được đổi thành `<unk>`; từ nào ở valid/test không có trong từ điển cũng đổi thành `<unk>`. Nhờ vậy mô hình có dành một chút xác suất cho "từ lạ".
+
+@@@ code
+dem_tu = Counter(w for s in S_tr for w in s)
+TU_DIEN = {w for w, c in dem_tu.items() if c >= 2} | {"<unk>"}
+
+def thay_unk(sents):
+    return [[w if w in TU_DIEN else "<unk>" for w in s] for s in sents]
+
+S_tr, S_va, S_te = thay_unk(S_tr), thay_unk(S_va), thay_unk(S_te)
+V = len(TU_DIEN) + 1      # +1 cho </s>
+print("Kích thước từ điển V (gồm <unk>, </s>):", V)
+print("Tỉ lệ <unk> trong valid:", round(sum(w == "<unk>" for s in S_va for w in s) / sum(map(len, S_va)), 4))
+
+@@@ md
+## 3. Đếm n-gram
+
+@@@ code
+def dem_ngram(sents, n):
+    """Đếm tất cả n-gram, đệm (n-1) ký hiệu <s> ở đầu và </s> ở cuối câu."""
+    c = Counter()
+    for s in sents:
+        toks = ["<s>"] * (n - 1) + s + ["</s>"]
+        for i in range(len(toks) - n + 1):
+            c[tuple(toks[i:i + n])] += 1
+    return c
+
+C1, C2, C3 = dem_ngram(S_tr, 1), dem_ngram(S_tr, 2), dem_ngram(S_tr, 3)
+print("Số unigram / bigram / trigram khác nhau:", len(C1), len(C2), len(C3))
+print("10 bigram phổ biến nhất:", [(" ".join(k), v) for k, v in C2.most_common(10)])
+
+@@@ code
+def tu_ke_tiep(prev, k=8):
+    """Phân phối MLE P(w | prev) cho bigram."""
+    tong = sum(c for (a, b), c in C2.items() if a == prev)
+    cands = sorted(((b, c / tong) for (a, b), c in C2.items() if a == prev), key=lambda x: -x[1])[:k]
+    return [(b, round(p, 3)) for b, p in cands]
+
+for v in ["không", "tuy", "<s>"]:
+    print(f"P(· | {v!r}):", tu_ke_tiep(v))
+
+@@@ md
+Mô hình đã "học" được các mô-típ của dữ liệu: sau "không" hay là "quay" (*không quay lại*), "khuyên" (*không khuyên mua*) hay "hề" (*không hề*); sau `<s>` là các từ mở câu như "mình". Nhưng nó chỉ biết những gì có trong bảng đếm. (Để ý: "giao hàng" không được ghép thành một từ vì không có trong từ điển của bộ tách từ, nên bảng đếm coi "giao" và "hàng" là hai token.)
+
+@@@ md
+## 4. Vấn đề xác suất bằng 0
+
+Với MLE, một bigram chưa từng xuất hiện ở train có xác suất **0**, và vì xác suất cả câu là *tích*, **chỉ cần một cặp lạ là cả câu bằng 0** (log = −∞).
+
+@@@ code
+def logp_mle_bigram(s):
+    toks = ["<s>"] + s + ["</s>"]
+    lp = 0.0
+    for a, b in zip(toks, toks[1:]):
+        if C2[(a, b)] == 0:
+            return float("-inf"), (a, b)
+        lp += math.log(C2[(a, b)] / C1[(a,)] if a != "<s>" else C2[(a, b)] / len(S_tr))
+    return lp, None
+
+bad = 0
+for s in S_va:
+    lp, _ = logp_mle_bigram(s)
+    bad += lp == float("-inf")
+print(f"{bad}/{len(S_va)} câu valid ({bad/len(S_va):.1%}) có xác suất = 0 dưới bigram MLE")
+print("Ví dụ cặp chưa từng thấy:", next(logp_mle_bigram(s)[1] for s in S_va if logp_mle_bigram(s)[0] == float("-inf")))
+
+@@@ md
+## 5. Làm mịn (smoothing)
+
+### 5.1 Add-k (Laplace)
+
+Cộng $k$ vào mọi đếm, kể cả cặp chưa từng thấy:
+
+$$P_{\text{add-}k}(w\mid v)=\frac{\text{count}(v,w)+k}{\text{count}(v)+k\,V}$$
+
+$k=1$ là Laplace; thường $k<1$ tốt hơn vì Laplace "chia" quá nhiều xác suất cho các cặp chưa thấy.
+
+### 5.2 Nội suy (interpolation)
+
+Trộn các mô hình bậc khác nhau: khi trigram chưa thấy, "lùi" về bigram, rồi unigram:
+
+$$P(w\mid u,v)=\lambda_3 \hat P(w\mid u,v)+\lambda_2 \hat P(w\mid v)+\lambda_1 \hat P(w),\qquad \lambda_1+\lambda_2+\lambda_3=1$$
+
+Các $\lambda$ chọn trên tập **validation**.
+
+@@@ code
+class MoHinhNgram:
+    """Mô hình trigram nội suy, có làm mịn add-k cho unigram để không bao giờ bằng 0."""
+    def __init__(self, C1, C2, C3, V, lam=(0.1, 0.3, 0.6), k_uni=0.1):
+        self.C1, self.C2, self.C3, self.V = C1, C2, C3, V
+        self.lam, self.k = lam, k_uni
+        self.tong_uni = sum(C1.values())
+        # đếm ngữ cảnh: số lần (a,) làm tiền tố của bigram; (a,b) làm tiền tố của trigram
+        self.ctx2, self.ctx3 = Counter(), Counter()
+        for (a, b), c in C2.items():
+            self.ctx2[(a,)] += c
+        for (a, b, c_), c in C3.items():
+            self.ctx3[(a, b)] += c
+
+    def p_uni(self, w):
+        return (self.C1[(w,)] + self.k) / (self.tong_uni + self.k * self.V)
+
+    def p_bi(self, v, w):
+        n = self.ctx2[(v,)]
+        return self.C2[(v, w)] / n if n else 0.0
+
+    def p_tri(self, u, v, w):
+        n = self.ctx3[(u, v)]
+        return self.C3[(u, v, w)] / n if n else 0.0
+
+    def p(self, u, v, w):
+        l1, l2, l3 = self.lam
+        return l1 * self.p_uni(w) + l2 * self.p_bi(v, w) + l3 * self.p_tri(u, v, w)
+
+    def logp_cau(self, s):
+        toks = ["<s>", "<s>"] + s + ["</s>"]
+        return sum(math.log(self.p(toks[i - 2], toks[i - 1], toks[i])) for i in range(2, len(toks)))
+
+def perplexity(model, sents):
+    tong_logp = sum(model.logp_cau(s) for s in sents)
+    n_tok = sum(len(s) + 1 for s in sents)          # +1 cho </s>
+    return math.exp(-tong_logp / n_tok)
+
+@@@ md
+**Perplexity** là đại lượng đo chất lượng mô hình ngôn ngữ:
+
+$$\text{PP}=\exp\!\Big(-\tfrac{1}{N}\sum_{t}\log P(w_t\mid \text{ngữ cảnh})\Big)$$
+
+Hiểu trực giác: "trung bình mô hình *phân vân giữa* PP từ ứng viên ở mỗi bước". PP càng **thấp** càng tốt. Một mô hình đoán đều trên V từ có PP = V.
+
+@@@ code
+V_pp = len(C1)
+kq = []
+for ten, lam in {"unigram": (1, 0, 0), "bigram": (0.1, 0.9, 0), "trigram (nội suy)": (0.1, 0.3, 0.6)}.items():
+    m = MoHinhNgram(C1, C2, C3, V_pp, lam=lam)
+    kq.append({"mô hình": ten, "perplexity train": round(perplexity(m, S_tr), 2), "perplexity valid": round(perplexity(m, S_va), 2)})
+kq.append({"mô hình": "đoán đều trên cả từ điển", "perplexity train": V_pp, "perplexity valid": V_pp})
+pd.DataFrame(kq)
+
+@@@ md
+Điều cần thấy:
+
+- Perplexity **train thấp hơn nhiều** so với valid ở mô hình bậc cao — mô hình "nhớ" train. Đây là quá khớp ở dạng đếm.
+- Bậc càng cao, ngữ cảnh càng giàu nên PP valid giảm, nhưng đến một mức thì lợi ích giảm vì dữ liệu thưa.
+
+### Chọn các hệ số λ trên valid
+
+@@@ code
+best = (None, 1e9)
+rows = []
+for l3 in np.arange(0.0, 0.9, 0.1):
+    for l2 in np.arange(0.0, 0.9, 0.1):
+        l1 = 1 - l2 - l3
+        if l1 < 0.05:                      # luôn giữ một ít unigram để không bao giờ có xác suất 0
+            continue
+        pp = perplexity(MoHinhNgram(C1, C2, C3, V_pp, lam=(l1, l2, l3)), S_va)
+        rows.append((round(l1, 2), round(l2, 2), round(l3, 2), pp))
+        if pp < best[1]:
+            best = ((l1, l2, l3), pp)
+tbl = pd.DataFrame(rows, columns=["λ1 (uni)", "λ2 (bi)", "λ3 (tri)", "PP valid"]).sort_values("PP valid")
+print("Tốt nhất:", tuple(round(float(x), 2) for x in best[0]), "→ PP valid =", round(best[1], 2))
+tbl.head(5).round(2)
+
+@@@ md
+## 6. Sinh văn bản bằng cách lấy mẫu
+
+Có mô hình xác suất thì ta có thể **sinh**: bắt đầu từ `<s> <s>`, lấy mẫu từ kế tiếp theo $P(w\mid\text{ngữ cảnh})$, lặp đến khi gặp `</s>`. Tham số **nhiệt độ** $T$ điều chỉnh độ "liều": $T<1$ chọn từ chắc chắn hơn, $T>1$ ngẫu nhiên hơn.
+
+@@@ code
+mo_hinh = MoHinhNgram(C1, C2, C3, V_pp, lam=best[0])
+ds_tu = [w for (w,) in C1 if w != "<s>"] + ["</s>"]
+ds_tu = list(dict.fromkeys(ds_tu))
+
+def sinh_cau(model, T=1.0, toi_da=25, rng=None):
+    rng = rng or np.random.default_rng(0)
+    ctx = ["<s>", "<s>"]
+    out = []
+    for _ in range(toi_da):
+        probs = np.array([model.p(ctx[-2], ctx[-1], w) for w in ds_tu])
+        probs = probs ** (1 / T)          # T nhỏ: nhọn hơn; T lớn: phẳng hơn
+        probs /= probs.sum()
+        w = ds_tu[rng.choice(len(ds_tu), p=probs)]
+        if w == "</s>":
+            break
+        out.append(w)
+        ctx.append(w)
+    return " ".join(out).replace("_", " ")
+
+for T in [0.5, 1.0, 1.5]:
+    print(f"--- nhiệt độ T = {T}")
+    rng = np.random.default_rng(7)
+    for _ in range(4):
+        print("  •", sinh_cau(mo_hinh, T=T, rng=rng))
+
+@@@ md
+Hãy đọc kỹ các câu sinh ra (số bạn nhận có thể khác chút). Ở **T = 0,5**, các câu ngắn và khá trôi chảy ("tốc độ giảng quá nhanh", "mình học online được một tháng") nhưng mô hình có thể bật ra từ lạ hay mảnh không dấu ("giang thuc su <unk>", lấy từ các dòng nhiễu của dữ liệu): mô hình chỉ nhìn hai từ gần nhất nên không "hiểu" mình đang nói gì. Ở **T = 1** câu vẫn đọc được nhưng ngắn và rời rạc ("thất vọng", "recommend nhé") vì mỗi câu chỉ là một khuôn đã thấy; ở **T = 1,5** văn bản gần như nhiễu loạn, trộn cả từ không dấu và từ của các miền không liên quan. Đây cũng chính là tham số `temperature` bạn sẽ gặp lại ở LLM (Bài 13).
+
+@@@ md
+## 7. Mô hình có "cảm nhận" được độ trôi chảy không?
+
+Một kiểm tra thú vị: lấy một câu thật và **xáo trộn thứ tự từ**. Mô hình tốt phải cho câu thật xác suất cao hơn câu xáo trộn. Ta đo tỉ lệ câu valid mà mô hình xếp đúng.
+
+@@@ code
+rng = random.Random(0)
+cau_dai = [s for s in S_va if 4 <= len(s) <= 12]
+thang = {"unigram": 0, "bigram": 0, "trigram nội suy": 0}
+mods = {"unigram": MoHinhNgram(C1, C2, C3, V_pp, lam=(1, 0, 0)),
+        "bigram": MoHinhNgram(C1, C2, C3, V_pp, lam=(0.1, 0.9, 0)),
+        "trigram nội suy": mo_hinh}
+n_thu = 0
+for s in cau_dai:
+    s2 = s[:]
+    for _ in range(10):
+        rng.shuffle(s2)
+        if s2 != s:
+            break
+    if s2 == s:
+        continue
+    n_thu += 1
+    for ten, m in mods.items():
+        a, b = m.logp_cau(s), m.logp_cau(s2)
+        thang[ten] += 0.5 if abs(a - b) < 1e-9 else float(a > b)   # hòa tính 0,5
+pd.DataFrame({"tỉ lệ xếp câu thật cao hơn câu xáo": {k: round(v / n_thu, 3) for k, v in thang.items()}}).T
+
+@@@ md
+Unigram **không phân biệt được**: xác suất là tích nên không phụ thuộc thứ tự; câu xáo có cùng tập từ nên hai xác suất bằng nhau, ta tính hòa là 0,5. Bigram/trigram biết thứ tự cục bộ nên phân biệt được hầu hết. Trong thực tế, kiểu mô hình này được dùng để chấm điểm gợi ý sửa lỗi chính tả, nhận dạng giọng nói, dịch máy thời kỳ trước Transformer.
+
+@@@ md
+## 8. Giới hạn của n-gram
+
+### 8.1 Dữ liệu thưa: n-gram chưa từng thấy tăng nhanh theo bậc
+
+@@@ code
+def ti_le_chua_thay(sents_va, C_n, n):
+    tot = miss = 0
+    for s in sents_va:
+        toks = ["<s>"] * (n - 1) + s + ["</s>"]
+        for i in range(len(toks) - n + 1):
+            tot += 1
+            miss += C_n[tuple(toks[i:i + n])] == 0
+    return miss / tot
+
+hang = [{"n": n, "tỉ lệ n-gram ở valid chưa từng thấy ở train": round(ti_le_chua_thay(S_va, C, n), 3)}
+        for n, C in [(1, C1), (2, C2), (3, C3)]]
+pd.DataFrame(hang).set_index("n")
+
+@@@ md
+Ở lần chạy này: **0%** unigram, **≈6%** bigram và **≈16%** trigram ở valid chưa từng thấy ở train — tăng *gấp nhiều lần* theo mỗi bậc, dù kho của ta rất đồng nhất (từ điển chỉ ~460 từ). Số tham số cần ước lượng tăng *theo cấp số mũ* với n ($V^n$), nhưng dữ liệu thì không. Bậc cao hơn → thưa hơn. Trên văn bản thật với từ vựng hàng chục nghìn từ, vấn đề này nghiêm trọng hơn nhiều.
+
+### 8.2 Không khái quát hóa theo nghĩa
+
+Với n-gram, "giao hàng nhanh" và "vận chuyển mau lẹ" là hai chuỗi hoàn toàn khác nhau; thấy cái này **không giúp** ước lượng cái kia. Mô hình không có khái niệm *gần nghĩa*.
+
+### 8.3 Ngữ cảnh ngắn
+
+Phủ định và đối lập ("tuy A nhưng B") có thể cách nhau xa hơn 2–3 từ; trigram không nhìn thấy.
+
+**Lối thoát:** thay bảng đếm bằng một hàm tham số hóa liên tục — **mạng nơ-ron** — học được biểu diễn từ (embedding) nên khái quát hóa theo nghĩa, và (RNN, rồi Transformer) nhìn được ngữ cảnh dài. Đó là nội dung của các bài tiếp theo.
+
+@@@ md
+## 9. Tổng kết
+
+| Khái niệm | Ghi nhớ |
+|---|---|
+| Mô hình ngôn ngữ | $P(\text{câu})=\prod P(w_t \mid \text{lịch sử})$ |
+| n-gram | giả định Markov, ước lượng bằng đếm |
+| Xác suất 0 | giải quyết bằng add-k, nội suy, back-off |
+| Perplexity | $\exp$ của log-loss trung bình; thấp hơn là tốt hơn; chỉ so sánh được khi cùng từ điển/token hóa |
+| Lấy mẫu | `temperature` điều chỉnh độ ngẫu nhiên |
+| Giới hạn | thưa dữ liệu; không có khái niệm gần nghĩa; ngữ cảnh ngắn |
+
+> Lưu ý: perplexity của hai mô hình chỉ so sánh được khi chúng dùng **cùng từ điển và cùng cách tách token**. Một mô hình dùng từ điển lớn hơn không thể so PP trực tiếp với mô hình từ điển nhỏ.
+
+## Bài tập
+
+1. **(Dễ)** Tính perplexity trên `S_te` (test) của mô hình chọn được. Nó so với valid thế nào?
+2. **(Dễ)** Thử `k_uni` ∈ {0.01, 0.1, 1}. Khi nào perplexity valid tốt nhất?
+3. **(Vừa)** Cài **add-k cho bigram**: `P = (c(v,w)+k)/(c(v)+kV)`. Vẽ perplexity valid theo `k` ∈ {0.001 … 1}.
+4. **(Vừa)** Cài **stupid backoff**: nếu trigram có đếm > 0 thì dùng nó, ngược lại dùng 0.4 × bigram, rồi 0.4² × unigram. Không phải xác suất chuẩn hóa nhưng rất hay dùng cho kho lớn.
+5. **(Khó)** Huấn luyện hai mô hình riêng trên đánh giá *tích cực* và *tiêu cực*. Phân loại một câu mới bằng cách so sánh `logp` của hai mô hình (Bayes: bộ phân loại sinh). Độ chính xác so với Bài 3 thế nào?
+
+@@@ md
+<details>
+<summary><b>Gợi ý đáp án</b></summary>
+
+1. `perplexity(mo_hinh, S_te)`; thường gần với valid (hơi khác vì λ chọn trên valid).
+2. `k_uni` chỉ tác động tới xác suất của từ hiếm/`<unk>`; thường k nhỏ (0.01–0.1) tốt hơn Laplace (1).
+3. Cài một lớp `MoHinhBigramAddK` với `p(v,w)`; PP valid có dạng chữ U theo `k`.
+4. `score = c3/ctx3 if c3 else 0.4*(c2/ctx2 if c2 else 0.4*p_uni)`. Không chuẩn hóa nên không tính PP đúng nghĩa, chỉ dùng để xếp hạng.
+5. `logp_pos(s) - logp_neg(s) > log(prior_neg/prior_pos)` → dự đoán tích cực. Dữ liệu ít nên thường kém hơn Logistic Regression của Bài 3.
+</details>
+
+**Tiếp theo → Bài 5:** Embedding từ — biểu diễn nghĩa bằng vector.
+
+**Đọc thêm:** Jurafsky & Martin, *Speech and Language Processing*, chương 3 (N-gram Language Models) — [bản nháp miễn phí](https://web.stanford.edu/~jurafsky/slp3/)

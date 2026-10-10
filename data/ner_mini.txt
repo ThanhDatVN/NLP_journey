@@ -1,0 +1,38 @@
+Ông [Nguyễn Văn An|PER] công tác tại [Ngân hàng Vietcombank|ORG] ở [Hà Nội|LOC] từ [năm 2015|DATE] .
+Bà [Trần Thị Mai|PER] sinh ra ở [Huế|LOC] và học đại học tại [Đà Nẵng|LOC] .
+[Công ty FPT|ORG] khai trương văn phòng mới tại [Thành phố Hồ Chí Minh|LOC] vào [ngày 15 tháng 3|DATE] .
+Anh [Lê Hoàng Nam|PER] đã đến [Cần Thơ|LOC] dự hội thảo do [Trường Đại học Cần Thơ|ORG] tổ chức .
+[Bộ Y tế|ORG] thông báo kế hoạch tiêm chủng bắt đầu từ [tháng 9 năm 2024|DATE] .
+Chị [Phạm Thu Hà|PER] là giám đốc của [Công ty Vinamilk|ORG] tại [Bình Dương|LOC] .
+Đội tuyển [Việt Nam|LOC] sẽ thi đấu tại [Hải Phòng|LOC] vào [tối thứ Bảy|DATE] .
+[Trường Đại học Bách khoa Hà Nội|ORG] tuyển sinh [năm 2025|DATE] với nhiều ngành mới .
+Thầy [Đặng Quốc Bảo|PER] giảng dạy môn xử lý ngôn ngữ tự nhiên tại [Trường Đại học Khoa học Tự nhiên|ORG] .
+Chuyến tàu từ [Hà Nội|LOC] đến [Vinh|LOC] khởi hành lúc [6 giờ sáng|DATE] .
+[Tập đoàn Vingroup|ORG] công bố kết quả kinh doanh [quý 2|DATE] .
+Cô [Ngô Thanh Vân|PER] mở một quán cà phê ở [Đà Lạt|LOC] từ [năm ngoái|DATE] .
+Hội nghị diễn ra tại [Nha Trang|LOC] từ [ngày 10|DATE] đến [ngày 12 tháng 11|DATE] .
+[Ngân hàng Nhà nước|ORG] điều chỉnh lãi suất điều hành vào [đầu tháng 6|DATE] .
+Ông [Vũ Minh Tuấn|PER] và bà [Hoàng Lan Anh|PER] đến thăm [Sa Pa|LOC] cùng gia đình .
+[Công ty Viettel|ORG] lắp đặt trạm phát sóng mới ở [Điện Biên|LOC] .
+Sinh viên [Nguyễn Gia Huy|PER] giành giải nhất cuộc thi do [Đại học Quốc gia Hà Nội|ORG] tổ chức .
+Cơn bão đổ bộ vào [Quảng Ninh|LOC] trong [đêm 7 tháng 9|DATE] .
+[Bệnh viện Chợ Rẫy|ORG] tiếp nhận bệnh nhân từ [Tây Ninh|LOC] chuyển đến .
+Nhà văn [Tô Hoài|PER] sinh ngày [27 tháng 9 năm 1920|DATE] tại [Hà Nội|LOC] .
+Bạn [Trịnh Khánh Linh|PER] thực tập tại [Công ty Momo|ORG] trong [mùa hè năm 2023|DATE] .
+Đoàn kiểm tra của [Sở Giáo dục và Đào tạo|ORG] làm việc tại [Lâm Đồng|LOC] .
+Phiên chợ nổi ở [Cái Răng|LOC] họp mỗi ngày từ [5 giờ sáng|DATE] .
+Tôi đặt vé đi [Phú Quốc|LOC] cho ngày [mùng 2 Tết|DATE] .
+Giáo sư [Lương Thế Vinh|PER] nghiên cứu tại [Viện Toán học|ORG] đã nhiều năm .
+Cuộc họp của [Hội đồng nhân dân|ORG] kéo dài đến [chiều thứ Sáu|DATE] .
+Chiếc cầu mới bắc qua sông ở [Bến Tre|LOC] sẽ khánh thành vào [dịp lễ 2 tháng 9|DATE] .
+Em [Phan Bảo Ngọc|PER] học lớp 10 tại [Trường THPT Chuyên Lê Hồng Phong|ORG] .
+[Hãng Vietnam Airlines|ORG] mở đường bay mới từ [Đà Nẵng|LOC] đi [Singapore|LOC] .
+Nhà hàng này ở gần [Hồ Gươm|LOC] , mở cửa từ [thứ Hai đến Chủ nhật|DATE] .
+Chủ tịch [Bùi Anh Tuấn|PER] phát biểu tại [Trung tâm Hội nghị Quốc gia|ORG] .
+Tôi thường ăn sáng ở [Hội An|LOC] mỗi khi đi công tác .
+[Công ty Grab|ORG] triển khai dịch vụ mới ở [Biên Hòa|LOC] từ [tuần trước|DATE] .
+Thủ khoa [Đỗ Thùy Dương|PER] nhận học bổng của [Quỹ Vingroup|ORG] .
+Dự báo trời mưa lớn ở [Thanh Hóa|LOC] trong [ngày mai|DATE] .
+Cuốn sách ra mắt tại [Hà Nội|LOC] vào [tháng 4 năm 2022|DATE] .
+Hôm nay trời đẹp và tôi đi dạo trong công viên .
+Món phở này ngon nhưng quán hơi đông khách .

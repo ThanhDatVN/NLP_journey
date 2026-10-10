@@ -1,0 +1,8 @@
+-r requirements.txt
+# Bài 6-8 dùng PyTorch trên CPU; Bài 10, 11, 13 nên có GPU. Với GPU NVIDIA, cài bản PyTorch khớp CUDA theo https://pytorch.org/get-started/locally/ TRƯỚC khi chạy lệnh này.
+torch>=2.2
+transformers>=4.56      # dùng tham số dtype= khi nạp mô hình (Bài 13); đã chạy thử với 5.17
+datasets>=3.0           # Bài 10, 11 (nạp dữ liệu thật)
+huggingface_hub>=0.24   # Bài 9 (tra giấy phép mô hình)
+peft>=0.12              # Bài 15 (LoRA); thuần Python
+sentencepiece>=0.2       # Bài 19 (bộ tách từ của mô hình dịch Marian `opus-mt-en-vi`)

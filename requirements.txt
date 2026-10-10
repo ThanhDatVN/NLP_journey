@@ -1,0 +1,7 @@
+jupyterlab>=4.1
+ipykernel>=6.29
+numpy>=1.26
+pandas>=2.1
+scikit-learn>=1.4
+matplotlib>=3.8
+joblib>=1.3

@@ -1,0 +1,41 @@
+id,text,label,hien_tuong
+h01,Sản phẩm không tệ chút nào.,tích cực,phủ định của từ tiêu cực
+h02,Giao hàng không hề chậm như mình lo.,tích cực,phủ định của từ tiêu cực
+h03,Chất lượng không tốt như quảng cáo.,tiêu cực,phủ định của từ tích cực
+h04,Nhân viên chưa thân thiện lắm.,tiêu cực,phủ định của từ tích cực
+h05,Giá rẻ nhưng chất lượng kém quá.,tiêu cực,đối lập (vế sau quyết định)
+h06,Giao hàng chậm nhưng sản phẩm rất đáng tiền.,tích cực,đối lập (vế sau quyết định)
+h07,Món ăn ngon nhưng phục vụ quá thờ ơ nên mình sẽ không quay lại.,tiêu cực,đối lập (vế sau quyết định)
+h08,Ứng dụng hơi giật lúc đầu nhưng cập nhật xong mượt hẳn.,tích cực,đối lập (vế sau quyết định)
+h09,Khóa học bổ ích nhưng học phí cao quá.,tiêu cực,đối lập (vế sau quyết định)
+h10,Tuy phòng cũ nhưng sạch sẽ và nhân viên rất chu đáo.,tích cực,đối lập (vế sau quyết định)
+h11,Hay thật đấy... mới dùng ba ngày đã hỏng.,tiêu cực,mỉa mai
+h12,Tuyệt vời ghê luôn. Chờ đúng hai tiếng mới đến lượt.,tiêu cực,mỉa mai
+h13,Cảm ơn shop đã giao hàng trễ cho mình có thêm thời gian kiên nhẫn.,tiêu cực,mỉa mai
+h14,chat luong tot gia hop ly se ung ho tiep,tích cực,không dấu
+h15,giao hang cham qua that vong,tiêu cực,không dấu
+h16,sp ko dc nhu mo ta,tiêu cực,teencode
+h17,nv nhiệt tình dc lắm luôn,tích cực,teencode
+h18,Sản phẩm dùng thế nào vậy shop?,trung tính,câu hỏi
+h19,Có giao hàng ngoài giờ hành chính không ạ?,trung tính,câu hỏi
+h20,Mình mới nhận hàng nên chưa biết nói sao.,trung tính,trung tính
+h21,Hàng đúng như mô tả.,trung tính,trung tính
+h22,Ứng dụng có thêm chế độ tối ở bản cập nhật mới.,trung tính,trung tính
+h23,Quán mở cửa từ 7 giờ sáng đến 10 giờ tối.,trung tính,trung tính
+h24,Ngon hơn quán bên cạnh nhiều.,tích cực,so sánh
+h25,Không bằng lần trước mình mua.,tiêu cực,so sánh
+h26,Đắt hơn chỗ khác mà chẳng hơn được điểm nào.,tiêu cực,so sánh
+h27,Không có gì để chê.,tích cực,phủ định của từ tiêu cực
+h28,Chẳng có lý do gì để mua lại.,tiêu cực,phủ định
+h29,Không thể nói là tệ nhưng cũng chẳng xuất sắc.,trung tính,lưỡng lự
+h30,Cũng được thôi.,trung tính,lưỡng lự
+h31,Đã dùng nhiều năm và chưa bao giờ thất vọng.,tích cực,phủ định của từ tiêu cực
+h32,Mình đã thử ba lần và lần nào cũng lỗi.,tiêu cực,không có từ cảm xúc rõ
+h33,Pin dùng được cả ngày mà không cần sạc.,tích cực,không có từ cảm xúc rõ
+h34,Chờ mười lăm phút mà chưa ai ra hỏi mình cần gì.,tiêu cực,không có từ cảm xúc rõ
+h35,Học xong mình làm được dự án đầu tiên.,tích cực,không có từ cảm xúc rõ
+h36,Rất thất vọng!!! Nhưng thôi cho shop thêm một cơ hội.,trung tính,lưỡng lự
+h37,Đồ ăn dở tệ 👍,tiêu cực,emoji ngược nghĩa
+h38,Giao hàng nhanh lắm 😡,tích cực,emoji ngược nghĩa
+h39,"Chất lượng tốt, nhưng không bằng giá tiền.",tiêu cực,đối lập (vế sau quyết định)
+h40,Phục vụ chậm mà đồ ăn lại ngon nên mình bỏ qua.,tích cực,đối lập (vế sau quyết định)

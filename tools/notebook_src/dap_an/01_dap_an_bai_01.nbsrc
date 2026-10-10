@@ -1,0 +1,125 @@
+@@@ md
+# Đáp án mã · Bài 1 — Tiền xử lý văn bản tiếng Việt
+
+Giải **các bài tập của Bài 1** bằng mã chạy được. Hãy tự làm trước, rồi đối chiếu.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import re
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+
+from nlpvi import (TEENCODE, ViSegmenter, load_splits, normalize, segment, set_seed, split_sentences,
+                   strip_accents, tokenize_surface)
+from nlpvi.data import DATA_DIR
+
+set_seed(42)
+train, valid, test = load_splits()
+
+@@@ md
+## Bài tập 1 — Thay chữ số bằng `NUM` nhưng giữ "5 sao"
+
+@@@ code
+def thay_so(text):
+    # (?<![\w])\d+ : chuỗi số không dính vào chữ phía trước; (?!\s*sao) : KHÔNG phải số đứng ngay trước chữ "sao"
+    return re.sub(r"(?<!\w)\d+(?:[.,]\d+)*(?!\s*sao)", " NUM ", text)
+
+mau = ["Cho 5 sao nhé", "Giá 1.500.000 đồng", "Mua 3 cái, giao sau 2 ngày", "Học 12 buổi, 4 sao", "Mã đơn 20241012 giao lúc 8h"]
+for m in mau:
+    kq = re.sub(r"\s+", " ", thay_so(m)).strip()
+    print(f"{m!r:36} → {kq!r}")
+
+@@@ md
+**Lưu ý.** Lookahead phủ định `(?!\s*sao)` giữ nguyên số khi theo sau là "sao"; còn `(?:[.,]\d+)*` gom cả "1.500.000" thành *một* số (nếu không, mỗi nhóm số bị thay riêng thành "NUM . NUM . NUM"). Hạn chế: "8h" thành "NUM h" (đơn vị bị tách ra); tùy bài toán bạn có thể muốn giữ nguyên "8h" như một đơn vị.
+
+@@@ md
+## Bài tập 2 — Thêm viết tắt vào `TEENCODE`; cho ví dụ gây sai
+
+@@@ code
+THEM = {"bt": "bình thường", "vs": "với", "trc": "trước"}
+TEEN2 = {**TEENCODE, **THEM}
+
+def chuan_teen(text):
+    return " ".join(TEEN2.get(w, w) for w in text.lower().split())
+
+for t in ["giá bt thôi", "tốt hơn vs lần trước", "đặt trc 2 ngày", "dùng VS Code để lập trình", "xin chào bt"]:
+    print(f"{t!r:34} → {chuan_teen(t)!r}")
+
+@@@ md
+**Ví dụ gây sai:** "dùng **VS** Code để lập trình" bị đổi thành "dùng **với** code" — vì từ điển ánh xạ theo *token* mà không biết ngữ cảnh ("VS Code" là tên phần mềm). Tương tự "bt" có thể là "bình thường" nhưng cũng là "bài tập" hoặc "bệnh tật". **Nguyên tắc:** luôn đo trên mẫu ngẫu nhiên từ dữ liệu; chỉ thêm ánh xạ khi tần suất của nghĩa mong muốn áp đảo.
+
+@@@ md
+## Bài tập 3 — Tách câu không cắt sau `TP.`, `TS.`, `PGS.`, `GS.`
+
+@@@ code
+VIET_TAT = ("TP.", "TS.", "PGS.", "GS.", "ThS.", "Q.", "P.")
+
+def tach_cau_tot(text):
+    # bảo vệ dấu chấm của viết tắt bằng ký hiệu tạm, tách câu, rồi khôi phục
+    for vt in VIET_TAT:
+        text = text.replace(vt, vt.replace(".", "<DOT>"))
+    cau = split_sentences(text)
+    return [c.replace("<DOT>", ".") for c in cau]
+
+vd2 = "Cửa hàng ở TP. Hồ Chí Minh, mở cửa lúc 8 giờ. PGS. Nguyễn Văn An đến mua hàng. Giá 3.5 triệu thôi."
+print("Cũ  :", split_sentences(vd2))
+print("Mới :", tach_cau_tot(vd2))
+
+@@@ md
+**Lưu ý.** Giải pháp hoạt động vì `split_sentences` chỉ cắt sau dấu chấm khi theo sau là khoảng trắng + chữ/số; ta che dấu chấm của viết tắt trước. Danh sách viết tắt phải được *bảo trì theo dữ liệu*; với ứng dụng nghiêm túc hãy dùng bộ tách câu có huấn luyện và kiểm tra trên chính dữ liệu.
+
+@@@ md
+## Bài tập 4 — Tìm các cụm âm tiết nên là một từ nhưng bị bỏ sót
+
+*Đề gốc: tìm 10 cụm mà bộ tách từ ghép sai hoặc bỏ sót.* Cách làm có hệ thống thay vì đọc ngẫu nhiên: dùng **PMI** (Bài 5) để tìm các cặp âm tiết **đi cùng nhau nhiều hơn mức ngẫu nhiên** nhưng *chưa nằm trong từ điển từ ghép* — đó là ứng viên cần xem xét.
+
+@@@ code
+seg = ViSegmenter.from_file()
+uni, bi = Counter(), Counter()
+for t in train["text"]:
+    toks = [w for w in tokenize_surface(normalize(t, emoji="drop", expand_teencode=False)) if w.isalpha()]
+    uni.update(toks); bi.update(zip(toks, toks[1:]))
+N = sum(uni.values())
+
+rows = []
+for (a, b), c in bi.items():
+    if c >= 8 and f"{a}_{b}" not in seg.dict:                 # chưa là từ ghép trong từ điển
+        pmi = np.log2((c / N) / ((uni[a] / N) * (uni[b] / N)))
+        rows.append((f"{a} {b}", c, round(pmi, 2)))
+ung_vien = pd.DataFrame(sorted(rows, key=lambda r: -r[2])[:15], columns=["cặp âm tiết chưa là từ ghép", "số lần", "PMI"])
+ung_vien
+
+@@@ md
+**Cách đọc danh sách (ở lần chạy của bạn có thể khác nhẹ):** trong 15 dòng đầu có ba loại.
+
+1. **Từ ghép thật mà từ điển thiếu** — nên thêm: `tàm tạm`, `lan man`, `mặn chát`, `trễ hẹn`.
+2. **Mảnh của một cụm dài hơn** — *không* ghép riêng: `các chức` (từ "các chức năng"), `bằng thẻ`/`toán bằng` (từ "thanh toán bằng thẻ"): PMI cao chỉ vì cả cụm dài lặp lại nhiều lần.
+3. **Cụm đi cùng do khuôn câu** của dữ liệu tổng hợp: `xét vậy`, `vậy thôi` (từ câu "Mình ghi nhận xét vậy thôi."), `ở mức`.
+
+Hai điều rút ra: (a) PMI chỉ cho **ứng viên**, **con người phải quyết định** — không có cách tự động hoàn toàn; (b) PMI thiên về cặp *hiếm*, nên ta đặt ngưỡng tần suất (`c >= 8`). Với các từ đã chọn, Bài tập 5 cho thấy cách đưa vào bộ tách từ.
+
+@@@ md
+## Bài tập 5 (khó) — Bộ tách từ cho phép thêm từ chuyên ngành, ưu tiên hơn từ điển mặc định
+
+@@@ code
+def tao_tach_tu(tu_them=()):
+    mac_dinh = [w for w in (DATA_DIR / "tu_ghep_phobert.txt").read_text(encoding="utf-8").splitlines() if w]
+    return ViSegmenter(mac_dinh + list(tu_them), max_syllables=5)      # tăng max_syllables để chứa cụm dài hơn
+
+cau = "Bộ phận chăm sóc khách hàng hỗ trợ khách hàng rất nhiệt tình ."
+seg_mac_dinh = tao_tach_tu()
+seg_moi = tao_tach_tu(["chăm_sóc_khách_hàng"])
+print("Mặc định  :", seg_mac_dinh.segment(cau))
+print("Thêm từ   :", seg_moi.segment(cau))
+
+@@@ md
+**Vì sao từ mới "thắng" tự nhiên.** Thuật toán *khớp tối đa* thử cụm **dài nhất trước**: "chăm sóc khách hàng" (4 âm tiết) được thử trước "chăm sóc" (2 âm tiết) nên chiếm ưu tiên mà không cần quy tắc đặc biệt. Chú ý `max_syllables`: nếu để 4 mà từ mới dài 5 âm tiết thì nó sẽ không bao giờ được thử — một lỗi thầm lặng dễ gặp.

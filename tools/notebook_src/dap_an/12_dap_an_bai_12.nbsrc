@@ -1,0 +1,138 @@
+@@@ md
+# Đáp án mã · Bài 12 — Embedding câu và tìm kiếm ngữ nghĩa
+
+Giải **các bài tập của Bài 12** bằng mã chạy được (Bài tập 5 — reranker — chỉ có hướng dẫn bằng lời vì cần tải thêm một mô hình cross-encoder). Cần Internet lần đầu để tải `multilingual-e5-small`; bộ nhúng chạy trên CPU.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import os, math
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+os.environ.setdefault("HF_HUB_DISABLE_SYMLINKS_WARNING", "1")
+
+import numpy as np
+import pandas as pd
+import transformers
+transformers.logging.set_verbosity_error()
+
+from nlpvi import load_faq, strip_accents, set_seed
+from nlpvi.retrieval import BM25, Embedder, evaluate_rankings, rank_from_scores, rrf, search_tokens
+
+set_seed(42)
+docs, queries = load_faq()
+id2idx = {d["id"]: i for i, d in enumerate(docs)}
+doc_texts = [f"{d['title']}. {d['text']}" for d in docs]
+q_texts = [q["q"] for q in queries]
+gold = [[id2idx[g] for g in q["gold"]] for q in queries]
+
+e5 = Embedder("intfloat/multilingual-e5-small", query_prefix="query: ", passage_prefix="passage: ", device="cpu")
+D = e5.encode(doc_texts, "passage")
+Q = e5.encode(q_texts, "query")
+rk_e5 = [rank_from_scores(s) for s in Q @ D.T]
+
+def tom_tat(rankings, golds=gold):
+    m, _ = evaluate_rankings(rankings, golds)
+    return {k: round(m[k], 3) for k in ["hit@1", "hit@3", "mrr", "ndcg@10"]}
+
+bm = BM25([search_tokens(t) for t in doc_texts])
+rk_bm = [rank_from_scores(bm.scores(search_tokens(q))) for q in q_texts]
+print("BM25:", tom_tat(rk_bm), "\ne5  :", tom_tat(rk_e5))
+
+@@@ md
+## Bài tập 1 — Tham số `k1` và `b` của BM25
+
+@@@ code
+rows = []
+for k1 in [0.5, 1.2, 2.0]:
+    for b in [0.0, 0.5, 1.0]:
+        bmk = BM25([search_tokens(t) for t in doc_texts], k1=k1, b=b)
+        rk = [rank_from_scores(bmk.scores(search_tokens(q))) for q in q_texts]
+        rows.append({"k1": k1, "b": b, **tom_tat(rk)})
+tbl = pd.DataFrame(rows)
+display(tbl.pivot(index="k1", columns="b", values="mrr"))
+dl = np.array([len(search_tokens(t)) for t in doc_texts])
+print(f"Độ dài tài liệu (số từ): trung bình {dl.mean():.1f}, độ lệch chuẩn {dl.std():.1f}, hệ số biến thiên {dl.std() / dl.mean():.2f}")
+
+@@@ md
+**Đọc kết quả (MRR).** MRR dao động từ ≈0,87 đến ≈0,92 — chênh lệch tối đa ≈0,05, tức **khoảng 1–2 truy vấn**. Có hai xu hướng nhẹ: (1) `b = 0` (*không* chuẩn hóa độ dài) luôn thấp hơn `b ≥ 0,5`; (2) `k1` lớn (2,0) nhỉnh hơn `k1` nhỏ (0,5). Vì sao hiệu ứng của `b` nhỏ? Các đoạn FAQ có **độ dài tương tự nhau** (trung bình 31 từ, hệ số biến thiên ≈0,11), nên chuẩn hóa độ dài ít đổi thứ hạng; trên kho có độ dài chênh lệch lớn (tin ngắn lẫn bài dài), `b` sẽ quan trọng hơn nhiều. `k1` điều khiển độ bão hòa của tần suất từ; với truy vấn ngắn mỗi từ chỉ xuất hiện 1–2 lần nên ít nhạy. **Đừng tinh chỉnh tham số trên tập đánh giá nhỏ**: với 33 truy vấn bạn chủ yếu khớp nhiễu.
+
+@@@ md
+## Bài tập 2 — Hằng số `k` trong RRF
+
+@@@ code
+rows = []
+for k in [1, 10, 60, 200]:
+    rk = [rrf([a, b], k=k) for a, b in zip(rk_bm, rk_e5)]
+    rows.append({"k (RRF)": k, **tom_tat(rk)})
+pd.DataFrame(rows).set_index("k (RRF)")
+
+@@@ md
+**Đọc kết quả.** `k` nhỏ (1) làm các hạng đầu *chiếm ưu thế mạnh* ($1/(1+r)$ giảm rất nhanh); `k` lớn (200) làm đóng góp của các hạng khác nhau **phẳng hơn**. Trong khoảng 10–200 kết quả thường ổn định; giá trị 60 là mặc định phổ biến từ bài báo gốc. Với 33 truy vấn chênh lệch giữa các `k` chỉ là 1–2 truy vấn nên **không chọn `k` bằng tập nhỏ**.
+
+@@@ md
+## Bài tập 3 — 16 truy vấn "thực tế" của riêng mình (không dấu, viết tắt, lỗi gõ)
+
+Bạn nên tự viết truy vấn **theo cách người dùng của bạn gõ**. Ví dụ dưới đây gồm không dấu, teencode, lỗi chính tả và cách diễn đạt khác. Ta so BM25, BM25 *chuẩn hóa cả hai phía* (bỏ dấu), e5, và lai.
+
+@@@ code
+QUAY = [
+    ("dc doi tra trong may ngay", "d01"), ("phi ship noi thanh ha noi", "d03"), ("mk quen mat khau lay lai sao", "d21"),
+    ("hàng lỗi nhà sx đổi đc ko", "d15"), ("bao hanh may tinh bao lau", "d06"), ("tra gop the tin dung 0%", "d09"),
+    ("giao hang tinh mat may ngay", "d04"), ("xuat hoa don cong ty", "d22"), ("huỷ đơn đã đặt", "d13"),
+    ("thay doi dia chi giao hang", "d14"), ("nhận được hàng thiếu phụ kiện thì sao", "d16"), ("ma giam gia dung chung duoc khong", "d10"),
+    ("điểm thưởng tích lũy", "d11"), ("gọi tổng đài lúc mấy giờ", "d17"), ("mở cửa ngày tết", "d18"), ("xóa dữ liệu cá nhân", "d20"),
+]
+qt = [q for q, _ in QUAY]; gq = [[id2idx[g]] for _, g in QUAY]
+
+bm_ca_hai = BM25([search_tokens(strip_accents(t), word_level=False) for t in doc_texts])
+rk_bm2 = [rank_from_scores(bm.scores(search_tokens(q))) for q in qt]
+rk_bm3 = [rank_from_scores(bm_ca_hai.scores(search_tokens(strip_accents(q), word_level=False))) for q in qt]
+rk_e5b = [rank_from_scores(s) for s in e5.encode(qt, "query") @ D.T]
+rk_lai = [rrf([a, b]) for a, b in zip(rk_bm3, rk_e5b)]
+pd.DataFrame({"BM25 (có dấu, ghép từ)": tom_tat(rk_bm2, gq), "BM25 (bỏ dấu cả hai phía)": tom_tat(rk_bm3, gq),
+              "e5": tom_tat(rk_e5b, gq), "Lai: e5 + BM25 bỏ dấu": tom_tat(rk_lai, gq)}).T
+
+@@@ md
+**Đọc kết quả — và một cảnh báo.** Với 16 truy vấn tự viết này: BM25 *có dấu* chỉ đạt Hit@1 ≈0,50 (so khớp chuỗi, không hiểu truy vấn không dấu); e5 đạt ≈0,56; hệ thống lai (e5 + BM25 bỏ dấu) ≈0,88; còn **BM25 bỏ dấu cả hai phía đạt tuyệt đối (1,0)** — vượt cả lai. Đừng đọc thành "BM25 bỏ dấu luôn tốt nhất". Truy vấn do **người đã biết nội dung tài liệu** viết (như tôi) có xu hướng dùng đúng từ khóa của tài liệu ("doi tra", "ma giam gia", "xuat hoa don"), nên so khớp từ khóa gần như thắng tuyệt đối. Truy vấn của người dùng thật thường *ít trùng từ khóa hơn*, và khi đó dense/lai mới phát huy. Bài học về **thiết kế tập đánh giá**: truy vấn phải đến từ người dùng thật, không phải từ người viết tài liệu; và với 16 truy vấn mỗi truy vấn ≈6 điểm phần trăm. Cũng thấy rõ điều đã đo ở Bài 12 mục 6.2: **e5 không bền với văn bản không dấu**, còn BM25 chỉ bền nếu bạn *chuẩn hóa cả hai phía* — nhờ đó một hệ thống lai có thành phần BM25 bỏ dấu là lựa chọn an toàn.
+
+@@@ md
+## Bài tập 4 — nDCG với mức liên quan chia bậc
+
+Khi một truy vấn có nhiều tài liệu đúng, chúng không nhất thiết liên quan *ngang nhau*. Ta dùng $\text{gain}=2^{rel}-1$ với $rel\in\{0,1,2\}$ (2 = trả lời trực tiếp, 1 = liên quan một phần).
+
+@@@ code
+def ndcg_bac(ranking, rel, k=10):
+    """rel: dict {chỉ số tài liệu: mức 0/1/2}."""
+    dcg = sum((2 ** rel.get(d, 0) - 1) / math.log2(pos + 1) for pos, d in enumerate(ranking[:k], 1))
+    ideal = sorted(rel.values(), reverse=True)[:k]
+    idcg = sum((2 ** r - 1) / math.log2(pos + 1) for pos, r in enumerate(ideal, 1))
+    return dcg / idcg if idcg else 0.0
+
+# mức liên quan chia bậc: với truy vấn nhiều đáp án, tài liệu ĐẦU trong `gold` trả lời trực tiếp (2), tài liệu sau liên quan một phần (1)
+rel = [{g: (2 if i == 0 else 1) for i, g in enumerate(gl)} for gl in gold]
+binary = {"BM25": np.mean([ndcg_bac(r, {g: 1 for g in gl}) for r, gl in zip(rk_bm, gold)]),
+          "e5": np.mean([ndcg_bac(r, {g: 1 for g in gl}) for r, gl in zip(rk_e5, gold)])}
+bac = {"BM25": np.mean([ndcg_bac(r, rl) for r, rl in zip(rk_bm, rel)]), "e5": np.mean([ndcg_bac(r, rl) for r, rl in zip(rk_e5, rel)])}
+nhieu_dap_an = [i for i, g in enumerate(gold) if len(g) > 1]
+print("Các truy vấn có nhiều đáp án:", [q_texts[i] for i in nhieu_dap_an])
+pd.DataFrame({"nDCG@10 nhị phân": binary, "nDCG@10 chia bậc": bac}).round(3)
+
+@@@ md
+**Đọc kết quả.** Chỉ **2/33** truy vấn có nhiều đáp án nên chênh lệch giữa hai cách tính nhỏ trên cả tập; nhưng *với những truy vấn đó*, nDCG chia bậc **phạt nặng hơn** khi tài liệu "trả lời trực tiếp" (mức 2) bị xếp sau tài liệu chỉ liên quan một phần (mức 1) — điều mà nDCG nhị phân không phân biệt. Dùng nDCG chia bậc khi bạn *thực sự* có nhãn mức liên quan (từ người gán nhãn); đừng bịa mức liên quan chỉ để tính.
+
+@@@ md
+## Bài tập 5 (khó) — Reranker (cross-encoder): hướng dẫn
+
+Phần này **không chạy** ở đây vì cần tải thêm một mô hình cross-encoder đa ngôn ngữ phù hợp với tiếng Việt và kiểm tra giấy phép của nó. Quy trình:
+
+1. Lấy **top-10** từ hệ thống lai (BM25 + e5, RRF) làm ứng viên.
+2. Với mỗi ứng viên, đưa **cặp `(truy vấn, tài liệu)` vào cùng một đầu vào** của mô hình cross-encoder (ví dụ `[CLS] truy vấn [SEP] tài liệu [SEP]`) và lấy một điểm liên quan; xếp lại theo điểm này.
+3. Đo lại Hit@1, MRR, nDCG **và độ trễ**.
+
+**Đánh đổi:** cross-encoder đọc truy vấn và tài liệu *cùng lúc* nên nắm được tương tác từ–từ chi tiết, thường **chính xác hơn** bi-encoder; nhưng không thể tính trước vector cho tài liệu — mỗi truy vấn phải chạy mô hình cho **từng** ứng viên. Chi phí tăng *tuyến tính* theo số ứng viên (10 ứng viên = 10 lần suy luận), nên chỉ dùng cho một tập nhỏ đã được truy hồi lọc sẵn. Quy trình hai tầng *(truy hồi nhanh → xếp lại chính xác)* là kiến trúc chuẩn của hệ thống tìm kiếm hiện đại.

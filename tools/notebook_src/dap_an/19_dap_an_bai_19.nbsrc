@@ -1,0 +1,215 @@
+@@@ md
+# Đáp án mã · Bài 19 — Sinh văn bản có điều kiện
+
+Giải các bài tập **1, 2, 3, 4** của Bài 19 bằng mã chạy được, **chỉ cần CPU** (bài 5 dùng LLM làm giám khảo nên chỉ có gợi ý bằng lời). Hãy tự làm trước, rồi đối chiếu. Bài tập 4 dùng lại **16 bản tóm tắt do Qwen2.5-1.5B sinh ra ở Bài 19** (được chép vào ô bên dưới để notebook này chạy không cần GPU) cùng nhãn do chúng tôi tự đọc.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import json, re
+from collections import Counter
+from itertools import combinations
+
+import numpy as np
+import pandas as pd
+from IPython.display import display
+import transformers
+transformers.logging.set_verbosity_error()
+
+from nlpvi import DATA_DIR, segment, set_seed, split_sentences
+from nlpvi import metrics_gen
+from nlpvi.diacritics import tach_token
+
+set_seed(42)
+tach_am_tiet = tach_token
+tach_tu = lambda t: [w for w in segment(" ".join(tach_token(t))).split() if any(c.isalnum() for c in w)]
+tt = json.loads((DATA_DIR / "tom_tat_mini.json").read_text(encoding="utf-8"))
+print(len(tt), "đoạn")
+
+@@@ md
+## Bài tập 1 — Đổi cách tách token ở mục 4
+
+Chấm lại các đường cơ sở trích xuất bằng token **âm tiết** thay cho **từ ghép** và so thứ hạng.
+
+@@@ code
+def tinh(dau_ra, d, tk):
+    h = tk(dau_ra); kq = []
+    for r in (tk(d["tom_tat_a"]), tk(d["tom_tat_b"])):
+        kq.append((metrics_gen.rouge_n(r, h, 1)["f"], metrics_gen.rouge_n(r, h, 2)["f"], metrics_gen.rouge_l(r, h)["f"]))
+    return np.mean(kq, axis=0)
+
+def trich_xuat(ten, d):
+    cau = split_sentences(d["text"])
+    return {"câu đầu (lead-1)": cau[0], "hai câu đầu (lead-2)": " ".join(cau[:2]), "câu dài nhất": max(cau, key=lambda c: len(tach_tu(c))), "toàn văn": d["text"]}[ten]
+
+CAC = ["câu đầu (lead-1)", "hai câu đầu (lead-2)", "câu dài nhất", "toàn văn"]
+bang = {}
+for ten_tk, tk in (("từ ghép", tach_tu), ("âm tiết", tach_am_tiet)):
+    for ten in CAC:
+        v = np.mean([tinh(trich_xuat(ten, d), d, tk) for d in tt], axis=0)
+        bang.setdefault(ten, {}).update({f"ROUGE-1 ({ten_tk})": round(v[0], 3), f"ROUGE-2 ({ten_tk})": round(v[1], 3), f"ROUGE-L ({ten_tk})": round(v[2], 3)})
+tb = pd.DataFrame(bang).T
+display(tb)
+for ten_tk in ("từ ghép", "âm tiết"):
+    print(f"Thứ hạng theo ROUGE-1 ({ten_tk}):", " > ".join(tb[f"ROUGE-1 ({ten_tk})"].sort_values(ascending=False).index))
+
+@@@ md
+**Đọc kết quả (bài 1).** Điểm tuyệt đối khi tách theo **âm tiết** cao hơn khi tách **từ ghép** (ví dụ lead-1: ROUGE-1 0,468 so với 0,401; ROUGE-2 0,284 so với 0,224), vì từ ghép là token dài hơn nên việc khớp *khó hơn*. Thứ hạng gần như giữ nguyên (toàn văn thấp nhất, câu dài nhất thứ ba) nhưng **thứ tự giữa lead-1 và lead-2 bị đảo**: lead-2 nhỉnh hơn ở từ ghép (0,405 so với 0,401), lead-1 nhỉnh hơn ở âm tiết (0,468 so với 0,457). Chênh lệch ≤ 0,011, nhỏ hơn nhiễu của 16 đoạn, nên đừng đọc thứ hạng của hai hệ thống sát nhau. Bài học: so sánh hệ thống chỉ có nghĩa khi *cùng* cách tách token, và kết luận "A hơn B" chỉ vững khi đúng với mọi cách tách hợp lý.
+
+@@@ md
+## Bài tập 2 — Phép thử công bằng hơn: sửa *ít chữ* cả hai phía
+
+Ở mục 7 của Bài 19, bản "diễn đạt lại" đổi nhiều chữ còn bản "sai nghĩa" chỉ sửa một chữ — nên các độ đo đếm chữ thua là điều dễ đoán. Ta làm công bằng hơn: bản diễn đạt lại cũng **chỉ đổi một chữ** (từ đồng nghĩa) hoặc thêm một chữ vô hại. Nếu độ đo hiểu nghĩa, nó phải chấm bản diễn đạt cao hơn.
+
+@@@ code
+BO_BA = [
+    ("Chuyến bay bị hoãn vì mưa lớn.", "Chuyến bay bị hoãn do mưa lớn.", "Chuyến bay bị hoãn vì mưa nhỏ."),
+    ("Giá xăng giảm 450 đồng mỗi lít.", "Giá xăng hạ 450 đồng mỗi lít.", "Giá xăng tăng 450 đồng mỗi lít."),
+    ("Khách hàng được đổi trả trong 7 ngày.", "Khách hàng được đổi trả trong vòng 7 ngày.", "Khách hàng không được đổi trả trong 7 ngày."),
+    ("Em hài lòng với dịch vụ.", "Em ưng ý với dịch vụ.", "Em không hài lòng với dịch vụ."),
+    ("Sản phẩm phù hợp với trẻ em trên 6 tuổi.", "Sản phẩm thích hợp với trẻ em trên 6 tuổi.", "Sản phẩm phù hợp với trẻ em dưới 6 tuổi."),
+    ("Thành phố sẽ mở rộng tuyến xe buýt điện.", "Thành phố sẽ mở rộng tuyến xe buýt chạy điện.", "Thành phố sẽ dừng tuyến xe buýt điện."),
+    ("Cuộc họp bắt đầu lúc 9 giờ sáng.", "Cuộc họp khởi đầu lúc 9 giờ sáng.", "Cuộc họp bắt đầu lúc 8 giờ sáng."),
+    ("Bệnh viện tiếp nhận 120 bệnh nhân.", "Bệnh viện đón nhận 120 bệnh nhân.", "Bệnh viện tiếp nhận 12 bệnh nhân."),
+]
+from nlpvi.retrieval import Embedder
+e5 = Embedder("intfloat/multilingual-e5-small", query_prefix="query: ", passage_prefix="passage: ", device="cpu", max_length=64)
+
+def diem(ref, hyp):
+    return {"ROUGE-1": metrics_gen.rouge_n(tach_tu(ref), tach_tu(hyp), 1)["f"], "ROUGE-L": metrics_gen.rouge_l(tach_tu(ref), tach_tu(hyp))["f"],
+            "BLEU": metrics_gen.bleu([[tach_am_tiet(ref)]], [tach_am_tiet(hyp)], smooth="exp")["score"], "chrF": metrics_gen.chrf([[ref]], [hyp])}
+
+thang, hoa, thua = Counter(), Counter(), Counter()
+rows = []
+for ref, dung, sai in BO_BA:
+    E = e5.encode([ref, dung, sai], "query")
+    a, b = diem(ref, dung), diem(ref, sai); a["e5 cosine"], b["e5 cosine"] = float(E[0] @ E[1]), float(E[0] @ E[2])
+    for k in a:
+        (thang if a[k] > b[k] + 1e-9 else thua if a[k] < b[k] - 1e-9 else hoa)[k] += 1
+    rows.append({"tham chiếu": ref, "ROUGE-L (đúng | sai)": f"{a['ROUGE-L']:.2f} | {b['ROUGE-L']:.2f}", "chrF (đúng | sai)": f"{a['chrF']:.0f} | {b['chrF']:.0f}", "e5 (đúng | sai)": f"{a['e5 cosine']:.3f} | {b['e5 cosine']:.3f}"})
+display(pd.DataFrame(rows).set_index("tham chiếu"))
+display(pd.DataFrame({"đúng > sai": dict(thang), "hòa": dict(hoa), "đúng < sai": dict(thua)}).fillna(0).astype(int).loc[["ROUGE-1", "ROUGE-L", "BLEU", "chrF", "e5 cosine"]])
+
+@@@ md
+**Đọc kết quả (bài 2).** Khi bản diễn đạt lại cũng chỉ đổi một chữ, ROUGE-1 và ROUGE-L **hòa ở 7/8 bộ ba** (đổi "vì" thành "do" hay đổi "giảm" thành "tăng" đều tốn đúng một token) và thua ở 1/8; BLEU thắng 4, hòa 1, thua 3; **chrF thắng 4, thua 4** — ngang tung đồng xu. Các độ đo đếm chữ không có thông tin nào để phân biệt đồng nghĩa với đảo nghĩa. Điều đáng chú ý: **e5 cosine chấm bản diễn đạt cao hơn ở 7/8 bộ ba** (ví dụ 0,998 so với 0,977 ở "mưa lớn / mưa nhỏ"), so với chỉ 2/8 ở mục 7 của Bài 19. Vậy embedding *không mù hẳn* về nghĩa: khi mức khác biệt bề mặt được giữ ngang nhau nó thường phân biệt được; ở phép thử của Bài 19 nó bị đánh lừa vì bản diễn đạt lại khác nhiều chữ hơn bản sai nghĩa. Nhưng cosine vẫn nằm trong dải hẹp (0,94–1,00) và vẫn sai 1/8 ("6 tuổi": 0,996 so với 0,997), nên cần hiệu chỉnh và kiểm chứng với đánh giá của người trước khi dùng làm độ đo.
+
+@@@ md
+## Bài tập 3 — ROUGE-S (skip-bigram)
+
+ROUGE-S đếm **mọi cặp từ theo thứ tự** trong câu (không cần liền nhau), nên nhạy hơn với trật tự xa. Ta thử xem nó có khắc phục điểm mù không, trên 8 bộ ba của Bài 19 và 8 bộ ba ở bài tập 2.
+
+@@@ code
+def rouge_s(ref, hyp):
+    gr, gh = Counter(combinations(ref, 2)), Counter(combinations(hyp, 2))
+    return metrics_gen._prf(sum(min(c, gr[g]) for g, c in gh.items()), sum(gh.values()), sum(gr.values()))
+
+BO_BA_19 = [
+    ("Khách hàng được đổi trả sản phẩm trong vòng 7 ngày.", "Trong 7 ngày, khách có thể đổi hoặc trả lại hàng.", "Khách hàng không được đổi trả sản phẩm trong vòng 7 ngày."),
+    ("Giá xăng giảm 450 đồng mỗi lít.", "Mỗi lít xăng rẻ đi 450 đồng.", "Giá xăng tăng 450 đồng mỗi lít."),
+    ("Cuộc họp bắt đầu lúc 9 giờ sáng thứ Năm.", "Thứ Năm này, buổi họp khởi động vào 9 giờ sáng.", "Cuộc họp bắt đầu lúc 9 giờ sáng thứ Sáu."),
+    ("Chuyến bay bị hoãn vì mưa lớn.", "Mưa to khiến chuyến bay phải dời lại.", "Chuyến bay không bị hoãn dù mưa lớn."),
+    ("Sản phẩm này phù hợp với trẻ em trên 6 tuổi.", "Trẻ từ 6 tuổi trở lên có thể dùng sản phẩm này.", "Sản phẩm này phù hợp với trẻ em dưới 6 tuổi."),
+    ("Bệnh viện đã tiếp nhận 120 bệnh nhân trong ngày hôm qua.", "Hôm qua có 120 bệnh nhân được bệnh viện tiếp nhận.", "Bệnh viện đã tiếp nhận 12 bệnh nhân trong ngày hôm qua."),
+    ("Thành phố sẽ mở rộng tuyến xe buýt điện vào năm sau.", "Năm tới thành phố dự định thêm tuyến xe buýt chạy điện.", "Thành phố sẽ dừng tuyến xe buýt điện vào năm sau."),
+    ("Em rất hài lòng với chất lượng dịch vụ.", "Chất lượng dịch vụ khiến em vô cùng ưng ý.", "Em rất không hài lòng với chất lượng dịch vụ."),
+]
+rows = []
+for ten, bo in (("8 bộ ba của Bài 19 (diễn đạt lại nhiều chữ)", BO_BA_19), ("8 bộ ba ở bài tập 2 (sửa ít chữ cả hai phía)", BO_BA)):
+    d = sum(rouge_s(tach_tu(r), tach_tu(a))["f"] > rouge_s(tach_tu(r), tach_tu(b))["f"] + 1e-9 for r, a, b in bo)
+    h = sum(abs(rouge_s(tach_tu(r), tach_tu(a))["f"] - rouge_s(tach_tu(r), tach_tu(b))["f"]) <= 1e-9 for r, a, b in bo)
+    d1 = sum(metrics_gen.rouge_n(tach_tu(r), tach_tu(a), 1)["f"] > metrics_gen.rouge_n(tach_tu(r), tach_tu(b), 1)["f"] + 1e-9 for r, a, b in bo)
+    rows.append({"tập bộ ba": ten, "ROUGE-S: đúng > sai": d, "ROUGE-S: hòa": h, "ROUGE-1: đúng > sai": d1})
+display(pd.DataFrame(rows).set_index("tập bộ ba"))
+
+@@@ md
+**Đọc kết quả (bài 3).** ROUGE-S **không** khắc phục được điểm mù: ở 8 bộ ba của Bài 19 nó chấm bản diễn đạt đúng cao hơn ở 0/8; ở 8 bộ ba sửa-ít-chữ nó thắng 0 và hòa 7 (cùng lý do như ROUGE-1/ROUGE-L: một chữ đổi là một chữ đổi). Cặp từ không liền nhau chỉ thêm độ nhạy với trật tự xa, không thêm hiểu biết về nghĩa. METEOR (khớp từ đồng nghĩa/gốc từ nhờ từ điển) có thể giúp với cặp đồng nghĩa nhưng vẫn không hiểu phủ định và con số; chúng tôi không cài ở đây.
+
+@@@ md
+## Bài tập 4 — Bộ kiểm tra trung thực tốt hơn
+
+Ta so **bộ kiểm tra của Bài 19** (v1: số và tên riêng không có trong nguồn) với **bộ v2** thêm ba thứ: (i) chuẩn hóa số viết bằng chữ ("bảy" → 7), (ii) phát hiện **chữ Hán**, (iii) phát hiện **đảo hướng**: tóm tắt dùng một từ chỉ hướng (tăng/giảm, hơn/gần, trên/dưới, cao hơn/thấp hơn...) không có trong nguồn trong khi từ đối nghĩa của nó *có* trong nguồn. Đáp án chuẩn là các lỗi chúng tôi tự đọc ở Bài 19: 2 bản lẫn chữ Hán (tt09, tt10) và 5 bản sai ý (tt05, tt11, tt13, tt15, tt16).
+
+@@@ code
+TOM_TAT_LLM = {
+    "tt01": "Trường Đại học Hướng Dương công bố kế hoạch tuyển sinh năm 2027 với 4.200 chỉ tiêu, tăng 300 so với năm trước; mở thêm Khoa học dữ liệu và Kỹ thuật y sinh; học phí tăng 6%; dành 150 suất học bổng cho thí sinh có điểm cao nhất; đăng ký từ 1/6.",
+    "tt02": "Số ca sốt xuất huyết tại thành phố Bình An tăng gấp đôi so với năm trước, ghi nhận 1.350 ca. Bệnh nhân chủ yếu tập trung ở ba quận có nhiều khu nhà trọ và công trình xây dựng. Ngành y tế đã phun hóa chất diệt muỗi và phát tờ rơi hướng dẫn người dân diệt lăng quăng. Các bệnh viện được yêu cầu dự trù",
+    "tt03": "Giá xăng RON 95 giảm 450 đồng/lít, xuống còn 23.100 đồng/lít; giá dầu diesel giảm 380 đồng/lít. Quỹ bình ổn giá xăng dầu giữ nguyên, không tăng chi phí. Chu kỳ điều hành tiếp theo dự kiến diễn ra sau 7 ngày.",
+    "tt04": "Công ty công nghệ vừa ra mắt ứng dụng thanh toán hóa đơn điện nước bằng giọng nói, hỗ trợ nhiều giọng vùng miền. Tính năng nhận lệnh thanh toán và xác nhận bằng vân tay được thử nghiệm với 20.000 người dùng, tỷ lệ nhận dạng đúng lên tới 94%. Bản chính thức miễn phí trong năm đầu, phù hợp với người dùng lớn tuổi.",
+    "tt05": "Tuyến metro số 2 của thành phố Hải Long sẽ chính thức chạy từ đầu tháng tới, dài 11km với 10 ga, phục vụ 200.000 lượt/ngày, giá vé 7.000 đồng/lượt, có vé tháng cho sinh viên. Người dân được miễn phí tuần đầu. Nhà ga mới có nhiều lối đi chưa quen.",
+    "tt06": "Một chương trình trồng 50.000 cây xanh dọc các tuyến đường ven sông đã hoàn thành sau hai năm triển khai, với hơn 3.000 tình nguyện viên và học sinh tham gia vào các dịp cuối tuần. Tỉ lệ cây sống đạt 88% cao hơn mục tiêu ban đầu là 80%. Một số đoạn đường bị chết cây do ngập úng sẽ",
+    "tt07": "Danh hiệu vô địch quốc gia lần thứ tư liên tiếp được giành bởi đội bóng chuyền nữ Hải Đăng sau chiến thắng 3-1 trước Sao Mai. Lan Anh đóng vai trò quan trọng với 28 điểm ghi được. Đội chủ nhà đã thay đổi chiến thuật để đánh bại đối thủ trong ba set còn lại. Huấn luyện viên trưởng thông báo đội sẽ nghỉ một tuần trước khi chuẩn bị cho giải",
+    "tt08": "Lễ hội hoa đăng trên sông Thanh Hà năm nay thu hút khoảng 80.000 du khách, tăng 15% so với năm trước, với sự hỗ trợ của 30 thêm thuyền và hạn chế đèn nhựa. Chính quyền mở rộng bãi đỗ xe vì tình trạng ùn tắc. Doanh thu từ du lịch dự kiến đạt 120 tỉ đồng.",
+    "tt09": "Sàn thương mại điện tử áp dụng chính sách đổi trả miễn phí trong 15 ngày cho hầu hết mặt hàng thời trang, trước đây chỉ 7 ngày. Khách hàng phản hồi về size không vừa tăng lên 22%, nhưng các sản phẩm giảm giá hơn 50% và đồ lót không áp dụng.新政生效从下个月开始。",
+    "tt10": "Đài điện mặt trời Nắng Mai có công suất 100 MW, cung cấp cho hơn 60.000 hộ gia đình. Dự án占地 120 ha,总投资 2.400 tỷ đồng. Nhà đầu tư sẽ lắp thêm hệ thống pin lưu trữ vào năm sau. Thi công tạo việc làm cho 800 lao động địa phương. Điện sẽ bán cho ngành điện với",
+    "tt11": "Nông dân vùng đồng bằng đang thu hoạch lúa hè thu với năng suất tăng nhẹ so với vụ trước, giá lúa cao hơn gần 10%, nhưng thiếu máy gặt liên hợp khiến việc thu hoạch chậm.",
+    "tt12": "Một chiến dịch lừa đảo qua tin nhắn giả mạo ngân hàng đang lan rộng, gây ra hơn 3.500 vụ và tổng thiệt hại khoảng 45 tỉ đồng. Ngân hàng khuyến cáo khách hàng không cung cấp mã OTP cho bất kỳ ai, kể cả người tự xưng là nhân viên ngân hàng.",
+    "tt13": "Một áp thấp nhiệt đới hình thành trên biển Đông, có khả năng trở thành bão mạnh trong 48 giờ tới. Bão đổ bộ vào miền Trung vào sáng thứ Năm, với sức gió cấp 9-10. Tàu thuyền cần vào trú ẩn, học sinh nghỉ học tại chỗ. Mưa lớn kéo dài có thể gây ngập úng và sạt lở đất ở vùng núi.",
+    "tt14": "Thành phố Lạc Việt thí điểm cho thuê xe đạp công cộng với ưu đãi 30 phút miễn phí, 2.000 đồng mỗi 15 phút. Hệ thống được mở khóa bằng ứng dụng, người dùng có thể trả xe bất kỳ đâu. Trong tháng đầu, 35.000 lượt thuê, cao điểm buổi sáng. Thành phố dự kiến mở rộng sau đánh giá về tình",
+    "tt15": "Một khảo sát của tổ chức bảo vệ người tiêu dùng chỉ ra rằng 62% người mua sắm trực tuyến đã nhận được hàng hóa không đúng như quảng cáo, chủ yếu do màu sắc khác ảnh và chất lượng kém so với mô tả. Chỉ 30% người bị khiếu nại với người bán, còn lại cho rằng thủ tục quá phiền phức. Tổ chức đề xuất việc yêu cầu người bán đăng ảnh",
+    "tt16": "Thư viện thành phố mở thêm khu đọc sách đêm miễn phí, có 150 chỗ ngồi và wifi, thu hút gần 300 người mỗi tối trong tuần đầu tiên.",
+}
+LOI_THAT = {"tt09": "chữ Hán", "tt10": "chữ Hán", "tt05": "sai ý", "tt11": "sai ý", "tt13": "sai ý", "tt15": "sai ý", "tt16": "sai ý"}
+nguon = {d["id"]: d["text"] for d in tt}
+
+def so_va_ten(text):
+    so = set(re.findall(r"\d+", re.sub(r"(?<=\d)[.,](?=\d)", "", text)))
+    toks = text.replace(",", " , ").split()
+    ten = {w.strip('.,;:!?()"') for i, w in enumerate(toks) if i > 0 and w[:1].isupper() and not toks[i - 1].endswith((".", "!", "?"))}
+    return so, ten
+
+def v1(tom_tat, nguon_):
+    so_n, _ = so_va_ten(nguon_); so_t, ten_t = so_va_ten(tom_tat)
+    ten_nguon = {w.strip('.,;:!?()"') for w in nguon_.replace(",", " , ").split() if w[:1].isupper()}
+    return sorted(so_t - so_n) + sorted(ten_t - ten_nguon)
+
+CHU_SO = {"một": 1, "hai": 2, "ba": 3, "bốn": 4, "sáu": 6, "bảy": 7, "tám": 8, "chín": 9, "mười": 10}
+HUONG = [("tăng", "giảm"), ("hơn", "gần"), ("trên", "dưới"), ("nhiều", "ít"), ("mở rộng", "thu hẹp"), ("sớm", "muộn")]
+co_han = lambda t: any(0x4E00 <= ord(c) <= 0x9FFF for c in t)
+
+def so_chuan(text):
+    s = set(re.findall(r"\d+", re.sub(r"(?<=\d)[.,](?=\d)", "", text)))
+    return s | {str(CHU_SO[w]) for w in re.findall(r"\w+", text.lower()) if w in CHU_SO}
+
+def v2(tom_tat, nguon_):
+    loi = []
+    if co_han(tom_tat): loi.append("chữ Hán")
+    la = sorted(so_chuan(tom_tat) - so_chuan(nguon_))
+    if la: loi.append(f"số lạ {la}")
+    t, n = " " + tom_tat.lower() + " ", " " + nguon_.lower() + " "
+    for a, b in HUONG:
+        for x, y in ((a, b), (b, a)):
+            if f" {x} " in t and f" {x} " not in n and f" {y} " in n:
+                loi.append(f"đảo hướng '{x}' ↔ '{y}'")
+    return loi
+
+rows, cap = [], {"v1": [], "v2": []}
+for i in sorted(TOM_TAT_LLM):
+    a, b = v1(TOM_TAT_LLM[i], nguon[i]), v2(TOM_TAT_LLM[i], nguon[i])
+    cap["v1"].append(bool(a)); cap["v2"].append(bool(b))
+    rows.append({"id": i, "lỗi thật (tự đọc)": LOI_THAT.get(i, ""), "v1 gắn cờ": "; ".join(a), "v2 gắn cờ": "; ".join(b)})
+display(pd.DataFrame(rows).set_index("id"))
+that = np.array([i in LOI_THAT for i in sorted(TOM_TAT_LLM)])
+ket = {}
+for ten in ("v1", "v2"):
+    c = np.array(cap[ten]); tp = int((c & that).sum())
+    ket[ten] = {"gắn cờ": int(c.sum()), "đúng (TP)": tp, "dương tính giả (FP)": int((c & ~that).sum()), "bỏ sót (FN)": int((~c & that).sum()),
+                "precision": round(tp / max(c.sum(), 1), 2), "recall": round(tp / that.sum(), 2)}
+display(pd.DataFrame(ket).T)
+gan_co_nguoi = [(d["id"], v2(d["tom_tat_a"], d["text"])) for d in tt if v2(d["tom_tat_a"], d["text"])]
+gan_co_cau_dau = [(d["id"], v2(split_sentences(d["text"])[0], d["text"])) for d in tt if v2(split_sentences(d["text"])[0], d["text"])]
+print("Bộ v2 gắn cờ trên 16 tóm tắt của người (A) — kỳ vọng 0:", gan_co_nguoi)
+print("Bộ v2 gắn cờ trên 16 câu đầu của đoạn — kỳ vọng 0:", gan_co_cau_dau)
+
+@@@ md
+**Đọc kết quả (bài 4).** Trên 16 bản của LLM với 7 lỗi thật: **v1** (Bài 19) gắn cờ 2 mục, đúng 1 (tt10, nhưng vì "MW" chứ không phải vì chữ Hán) và sai 1 (tt03: "7" thay "bảy"): precision 0,50, recall 0,14. **v2** gắn cờ 5 mục, đúng 4 (hai bản chữ Hán, tt11 "tăng ↔ giảm", tt16 "gần ↔ hơn") và sai 1 (tt03: "không tăng chi phí" là diễn đạt trung thực của "không chi thêm"): precision 0,80, recall 0,57 — và vẫn bỏ sót 3 lỗi (tt05 thiếu "thấp nhất", tt13, tt15) vì chúng không phải đảo hướng. Hai điều cần cẩn trọng: (1) v2 được thiết kế *sau khi đã đọc đúng 16 bản này* nên recall 0,57 bị thổi phồng, muốn đánh giá thật cần một tập mới; (2) luật hướng cũng gắn cờ nhầm một tóm tắt **của người** (tt11, bản A: "giá lúa tăng gần 10%" là diễn đạt đúng của "cao hơn cùng kỳ gần 10%"). Kiểm tra bằng luật bắt được lỗi dạng *đổi từ đối nghĩa* nhưng không bắt được lỗi bỏ định lượng ("thấp nhất") hay đổi ngôi ("bị khiếu nại"); hướng chắc hơn là mô hình suy diễn văn bản (NLI) hoặc đọc mẫu.
+
+@@@ md
+## Gợi ý cho bài còn lại
+
+- **Bài 5** (LLM làm giám khảo): cho mỗi bộ ba hỏi "bản nào giữ đúng nghĩa của tham chiếu?" **hai lần**, đổi thứ tự hai ứng viên; giám khảo có thiên lệch vị trí nếu đáp án đổi theo thứ tự. Kết quả của một mô hình 1,5B không khái quát cho mô hình lớn; muốn tin giám khảo hãy so với đánh giá của người trên chính bài toán của bạn.

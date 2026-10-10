@@ -1,0 +1,124 @@
+@@@ md
+# Đáp án mã · Bài 18 — Phân cụm và mô hình chủ đề
+
+Giải các bài tập **1, 2, 3, 5** của Bài 18 bằng mã chạy được (bài 4 cần hai người đặt tên cụm). Hãy tự làm trước, rồi đối chiếu. Ô đầu nạp UIT-VSFC và embedding đã lưu từ Bài 18 (nếu chưa có thì tính lại, ≈ 3 phút).
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import time
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+import transformers
+transformers.logging.set_verbosity_error()
+from sklearn.cluster import AgglomerativeClustering, KMeans
+from sklearn.metrics import adjusted_rand_score as ari, normalized_mutual_info_score as nmi
+
+from nlpvi import set_seed
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+set_seed(42)
+
+from datasets import load_dataset
+d = load_dataset("uitnlp/vietnamese_students_feedback", revision="refs/convert/parquet")["train"].to_pandas()
+texts, chu_de, cam_xuc = d["sentence"].tolist(), d["topic"].values, d["sentiment"].values
+CACHE = ROOT / "outputs" / "cache"; CACHE.mkdir(parents=True, exist_ok=True)
+f = CACHE / "emb_uit_e5small.npy"
+if f.exists() and len(np.load(f)) == len(texts):
+    Z = np.load(f)
+else:
+    from nlpvi.retrieval import Embedder
+    e5 = Embedder("intfloat/multilingual-e5-small", query_prefix="query: ", passage_prefix="passage: ", device="cpu", max_length=64)
+    Z = e5.encode(texts, "query", batch_size=128); np.save(f, Z)
+print(Z.shape, "| chủ đề:", np.bincount(chu_de), "| cảm xúc:", np.bincount(cam_xuc))
+
+@@@ md
+## Bài tập 1 — `n_init` và độ ổn định
+
+Với mỗi `n_init` ∈ {1, 3, 10} và mỗi k, lặp 6 cặp seed: chạy k-means hai lần (seed khác nhau) rồi lấy ARI giữa hai cách chia; kèm quán tính trung bình.
+
+@@@ code
+t0 = time.time()
+rows = []
+for k in (4, 8, 12):
+    for n_init in (1, 3, 10):
+        aris, ine = [], []
+        for s in range(6):
+            a = KMeans(k, n_init=n_init, random_state=2 * s).fit(Z); b = KMeans(k, n_init=n_init, random_state=2 * s + 1).fit(Z)
+            aris.append(ari(a.labels_, b.labels_)); ine += [a.inertia_, b.inertia_]
+        rows.append({"k": k, "n_init": n_init, "ARI TB giữa 2 seed": round(float(np.mean(aris)), 3), "ARI thấp nhất": round(float(np.min(aris)), 3), "quán tính TB": round(float(np.mean(ine)), 1)})
+display(pd.DataFrame(rows).set_index(["k", "n_init"]))
+print(f"{time.time() - t0:.0f}s")
+
+@@@ md
+**Đọc kết quả (bài 1).** `n_init` lớn làm cách chia **ổn định hơn rõ rệt**: ở k = 4, ARI trung bình giữa hai seed tăng 0,65 → 0,92 → 0,99 khi `n_init` = 1, 3, 10 (và trường hợp xấu nhất từ 0,58 lên 0,98); ở k = 8 từ 0,51 lên 0,65; ở k = 12 từ 0,51 lên 0,65. Nhưng **quán tính gần như không đổi** (k = 8: 1356,1 → 1351,7, tức chưa tới 0,4%): các lời giải có quán tính xấp xỉ nhau vẫn có thể là những cách chia khác nhau (đúng như Bài 18 mục 3), nên *quán tính một mình không cho biết cách chia có ổn định hay không* — hãy đo cả hai. Cũng lưu ý ngay với `n_init` = 10, ở k ≥ 8 ARI vẫn chỉ ≈ 0,65: tăng `n_init` không thay thế được việc cách chia mịn vốn thiếu cấu trúc rõ.
+
+@@@ md
+## Bài tập 2 — Tiền tố `passage:` thay cho `query:`
+
+Tính lại embedding trên 3.000 câu ngẫu nhiên với hai tiền tố (≈ 1 phút mỗi tiền tố trên CPU), rồi so NMI của k-means với chủ đề và cảm xúc.
+
+@@@ code
+from nlpvi.retrieval import Embedder
+idx = np.random.default_rng(0).choice(len(texts), 3000, replace=False)
+sub = [texts[i] for i in idx]
+e5 = Embedder("intfloat/multilingual-e5-small", query_prefix="query: ", passage_prefix="passage: ", device="cpu", max_length=64)
+t0 = time.time()
+E = {"query:": e5.encode(sub, "query", batch_size=128), "passage:": e5.encode(sub, "passage", batch_size=128)}
+print(f"{time.time() - t0:.0f}s")
+rows = []
+for ten, Zs in E.items():
+    for k in (4, 8):
+        lab = KMeans(k, n_init=5, random_state=0).fit(Zs).labels_
+        rows.append({"tiền tố": ten, "k": k, "NMI chủ đề": round(nmi(chu_de[idx], lab), 3), "NMI cảm xúc": round(nmi(cam_xuc[idx], lab), 3)})
+tb = pd.DataFrame(rows).set_index(["tiền tố", "k"]); display(tb)
+print("Hai cách chia (query vs passage) giống nhau tới mức nào (ARI), k = 4:",
+      round(ari(KMeans(4, n_init=5, random_state=0).fit(E["query:"]).labels_, KMeans(4, n_init=5, random_state=0).fit(E["passage:"]).labels_), 3))
+
+@@@ md
+**Đọc kết quả (bài 2).** Đổi tiền tố gần như **không thay đổi điểm bên ngoài**: NMI chủ đề 0,091 so với 0,094 (k = 4) và 0,115 so với 0,112 (k = 8); NMI cảm xúc 0,306 so với 0,302 và 0,264 so với 0,266. Nhưng hai cách chia *không giống hệt nhau* (ARI = 0,75 ở k = 4): tiền tố làm dịch các vector đủ để k-means rơi vào cách chia khác, trong khi trục chi phối (cảm xúc) vẫn là cảm xúc. Nghĩa là các kết luận của Bài 18 (cụm theo cảm xúc, NMI chủ đề ≈ 0,1) **không phụ thuộc vào lựa chọn tiền tố**, còn cách chia chi tiết thì có. (Trên 3.000 câu ngẫu nhiên nên số liệu hơi khác bảng toàn bộ dữ liệu ở Bài 18.)
+
+@@@ md
+## Bài tập 3 — Phân cụm phân cấp
+
+`AgglomerativeClustering` với khoảng cách cosine và các liên kết `average`, `complete`, `single` trên 3.000 câu (ma trận khoảng cách 3.000 × 3.000). Ta xem **tỉ lệ cụm lớn nhất** và NMI, so với k-means trên cùng tập con.
+
+@@@ code
+Zs = E["query:"]
+rows = []
+for k in (4, 8):
+    km = KMeans(k, n_init=5, random_state=0).fit(Zs).labels_
+    rows.append({"phương pháp": "k-means", "k": k, "cụm lớn nhất (%)": round(100 * np.bincount(km).max() / len(km), 1), "NMI chủ đề": round(nmi(chu_de[idx], km), 3), "NMI cảm xúc": round(nmi(cam_xuc[idx], km), 3)})
+    for lk in ("average", "complete", "single"):
+        lab = AgglomerativeClustering(n_clusters=k, metric="cosine", linkage=lk).fit(Zs).labels_
+        rows.append({"phương pháp": f"phân cấp ({lk})", "k": k, "cụm lớn nhất (%)": round(100 * np.bincount(lab).max() / len(lab), 1), "NMI chủ đề": round(nmi(chu_de[idx], lab), 3), "NMI cảm xúc": round(nmi(cam_xuc[idx], lab), 3)})
+display(pd.DataFrame(rows).set_index(["phương pháp", "k"]))
+
+@@@ md
+**Đọc kết quả (bài 3).** Với liên kết **`average` và `single`**, một cụm chứa **99,9% dữ liệu** ở k = 4 (98,9–99,8% ở k = 8) và NMI gần 0 (≤ 0,018): hiện tượng "một cụm khổng lồ" — các điểm ngoại lai tự thành cụm nhỏ còn phần còn lại gộp thành một. Liên kết **`complete`** cho cụm hợp lý (cụm lớn nhất 36% ở k = 4 và 28% ở k = 8) với NMI chủ đề 0,092 / 0,126 (k = 4 / 8) và cảm xúc 0,246 / 0,227, tức *cùng cỡ với k-means* (0,091 / 0,115 và 0,306 / 0,264) và hơi nghiêng về chủ đề hơn một chút. Không có phương pháp nào "tìm ra" chủ đề; chọn liên kết sai thì không có cụm nào đáng dùng. (Phân cấp cần ma trận khoảng cách O(n²) nên ta chỉ chạy trên 3.000 câu.)
+
+@@@ md
+## Bài tập 5 — Chỉ các câu tiêu cực
+
+@@@ code
+neg = cam_xuc == 0
+rows = [{"tập": "toàn bộ", "k": k, "NMI chủ đề": round(nmi(chu_de, KMeans(k, n_init=5, random_state=0).fit(Z).labels_), 3)} for k in (3, 4, 6)]
+rows += [{"tập": f"chỉ tiêu cực ({neg.sum():,} câu)", "k": k, "NMI chủ đề": round(nmi(chu_de[neg], KMeans(k, n_init=5, random_state=0).fit(Z[neg]).labels_), 3)} for k in (3, 4, 6)]
+display(pd.DataFrame(rows).set_index(["tập", "k"]))
+print("Phân bố chủ đề trong tập tiêu cực:", dict(zip(["giảng viên", "chương trình", "cơ sở vật chất", "khác"], np.bincount(chu_de[neg]))))
+
+@@@ md
+**Đọc kết quả (bài 5).** Chỉ giữ câu tiêu cực **không** làm NMI chủ đề tăng: 0,030 / 0,034 / 0,052 (k = 3 / 4 / 6) so với 0,102 / 0,094 / 0,108 khi dùng toàn bộ. Lý do không phải mất cân bằng chủ đề: trong tập tiêu cực chủ đề *cân bằng hơn* (giảng viên 55%, chương trình 32%, cơ sở vật chất 9%, khác 4% so với 71% giảng viên ở toàn bộ) mà điểm vẫn thấp hơn. Một giải thích có thể, chưa kiểm tra ở đây: trong các câu tiêu cực, các cụm vẫn tách theo *kiểu phàn nàn* (khó hiểu, thiếu thực hành, góp ý...) chứ không theo mục chủ đề chính thức, nên nhãn "chủ đề" khó khôi phục bằng phân cụm không giám sát với embedding này. Muốn phân loại chủ đề cần học có giám sát (Bài 10) hoặc từ khóa chuyên biệt.
+
+@@@ md
+## Gợi ý cho bài còn lại
+
+- **Bài 4** (đặt tên cụm): nhờ hai người đọc *cùng một mẫu 20 câu ngẫu nhiên* của mỗi cụm rồi đặt tên độc lập; tên khác nhau ở cụm nào thì cụm đó thường không thuần.

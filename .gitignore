@@ -1,0 +1,23 @@
+# Môi trường ảo
+.venv/
+venv/
+
+# Python
+__pycache__/
+*.pyc
+
+# Jupyter
+.ipynb_checkpoints/
+*.failed.ipynb
+
+# Sản phẩm sinh ra khi chạy (mô hình đã huấn luyện có thể nặng hàng trăm MB)
+outputs/
+
+# Hệ điều hành / IDE
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Công cụ kiểm thử
+.pytest_cache/

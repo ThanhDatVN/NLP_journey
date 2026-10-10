@@ -1,0 +1,272 @@
+@@@ md
+# Đáp án mã · Bài 8 — Attention và Transformer
+
+Giải **các bài tập của Bài 8** bằng mã chạy được (CPU, vài phút). Bài tập 5 (decoder Transformer đầy đủ) khá dài nên chỉ có **phác thảo** ở cuối. Các lớp `MultiHeadAttention`, `Block` giống hệt Bài 8.
+
+@@@ code
+import sys, pathlib, warnings
+warnings.filterwarnings("ignore")
+
+ROOT = pathlib.Path.cwd()
+while not (ROOT / "nlpvi").exists():
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import copy, math, time
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+import torch
+import torch.nn as nn
+import torch.nn.functional as F
+
+from nlpvi import LABELS, load_hard, load_splits, normalize, segment, set_seed, split_sentences
+from nlpvi.textnn import TextDS, build_vocab, evaluate, fit
+
+set_seed(42)
+train, valid, test = load_splits(); hard = load_hard()
+CLASSES = sorted(LABELS); c2i = {c: i for i, c in enumerate(CLASSES)}
+itos, stoi = build_vocab(train["text"])
+ds_tr, ds_va, ds_hard = (TextDS(d, stoi, c2i) for d in (train, valid, hard))
+V = len(itos)
+
+def sinusoidal(L, d):
+    pos = np.arange(L)[:, None]; i = np.arange(0, d, 2)[None, :]
+    ang = pos / (10000 ** (i / d)); pe = np.zeros((L, d)); pe[:, 0::2], pe[:, 1::2] = np.sin(ang), np.cos(ang)
+    return pe
+
+class MultiHeadAttention(nn.Module):
+    def __init__(self, d, h, p=0.1):
+        super().__init__()
+        assert d % h == 0
+        self.h, self.dk = h, d // h
+        self.qkv, self.o, self.drop = nn.Linear(d, 3 * d), nn.Linear(d, d), nn.Dropout(p)
+    def forward(self, x, mask=None):
+        B, L, d = x.shape
+        q, k, v = (t.view(B, L, self.h, self.dk).transpose(1, 2) for t in self.qkv(x).chunk(3, -1))
+        scores = q @ k.transpose(-2, -1) / math.sqrt(self.dk)
+        if mask is not None:
+            scores = scores.masked_fill(~mask, -1e9)
+        w = scores.softmax(-1)
+        return self.o((self.drop(w) @ v).transpose(1, 2).reshape(B, L, d)), w
+
+class Block(nn.Module):
+    def __init__(self, d, h, p=0.1):
+        super().__init__()
+        self.ln1, self.ln2 = nn.LayerNorm(d), nn.LayerNorm(d)
+        self.attn = MultiHeadAttention(d, h, p)
+        self.ffn = nn.Sequential(nn.Linear(d, 4 * d), nn.GELU(), nn.Linear(4 * d, d)); self.drop = nn.Dropout(p)
+    def forward(self, x, mask=None):
+        a, w = self.attn(self.ln1(x), mask); x = x + self.drop(a)
+        return x + self.drop(self.ffn(self.ln2(x))), w
+
+class TransformerPhanLoai(nn.Module):
+    def __init__(self, V, d=64, h=4, n_layers=2, max_len=48, n_cls=3, p=0.1, dung_vi_tri=True):
+        super().__init__()
+        self.d, self.dung_vi_tri = d, dung_vi_tri
+        self.emb = nn.Embedding(V, d, padding_idx=0)
+        self.register_buffer("pe", torch.tensor(sinusoidal(max_len, d), dtype=torch.float))
+        self.blocks = nn.ModuleList([Block(d, h, p) for _ in range(n_layers)])
+        self.ln, self.drop, self.fc = nn.LayerNorm(d), nn.Dropout(0.3), nn.Linear(d, n_cls)
+    def forward(self, x):
+        pad = x != 0; mask = pad[:, None, None, :]
+        z = self.emb(x) * math.sqrt(self.d)
+        if self.dung_vi_tri:
+            z = z + self.pe[: x.size(1)]
+        for b in self.blocks:
+            z, _ = b(z, mask)
+        z = self.ln(z); m = pad.unsqueeze(-1).float()
+        return self.fc(self.drop((z * m).sum(1) / m.sum(1).clamp(min=1)))
+
+def chay(**kw):
+    v, h = [], []
+    for sd in [0, 1, 2]:
+        set_seed(sd); m = TransformerPhanLoai(V, **kw)
+        fit(m, ds_tr, ds_va, lr=1e-3, epochs=40, patience=10, seed=sd, clip=1.0)
+        v.append(evaluate(m, ds_va)[1]); h.append(evaluate(m, ds_hard)[1])
+    return f"{np.mean(v):.3f} ± {np.std(v):.3f}", f"{np.mean(h):.3f} ± {np.std(h):.3f}", sum(p.numel() for p in m.parameters())
+print("V =", V)
+
+@@@ md
+## Bài tập 1 — Số đầu `h` = 1, 4, 8: số tham số có đổi không?
+
+@@@ code
+rows = []
+for h in [1, 4, 8]:
+    v, hd, n = chay(h=h)
+    rows.append({"số đầu h": h, "dk = d/h": 64 // h, "số tham số": f"{n:,}", "valid": v, "câu khó": hd})
+pd.DataFrame(rows).set_index("số đầu h")
+
+@@@ md
+**Đọc kết quả.** Số tham số **không đổi** khi đổi số đầu: `qkv` và `o` luôn là ma trận `d×3d` và `d×d`; chỉ cách *chia* chiều `d = h × dk` đổi. 1 đầu = một "góc nhìn" duy nhất với dk = 64; 8 đầu = tám góc nhìn, mỗi góc chỉ 8 chiều. Với `d` nhỏ như ở đây, quá nhiều đầu làm mỗi đầu quá hẹp; chênh lệch điểm thường nhỏ hơn độ lệch chuẩn nên **không kết luận** mô hình nào hơn. (Ở quy mô lớn, nhiều đầu giúp mô hình theo dõi nhiều kiểu quan hệ song song.)
+
+@@@ md
+## Bài tập 2 — Mini-GPT: ảnh hưởng của `T` và `top_k`
+
+Ta huấn luyện mini-GPT như Bài 8 (dừng sớm ở perplexity valid tốt nhất) rồi thử các cấu hình lấy mẫu.
+
+@@@ code
+def cau_thanh_tu(text):
+    out = []
+    for cau in split_sentences(normalize(text, emoji="drop")):
+        toks = [w for w in segment(cau).split() if any(ch.isalnum() for ch in w)]
+        if toks: out.append(toks)
+    return out
+
+cau_tr = [s for t in train["text"] for s in cau_thanh_tu(t)]
+cau_va = [s for t in valid["text"] for s in cau_thanh_tu(t)]
+dem = Counter(w for s in cau_tr for w in s)
+itos_lm = ["<eos>", "<unk>"] + sorted(w for w, c in dem.items() if c >= 2)
+stoi_lm = {w: i for i, w in enumerate(itos_lm)}
+dong = lambda sents: torch.tensor([i for s in sents for i in [stoi_lm.get(w, 1) for w in s] + [0]])
+tr_ids, va_ids = dong(cau_tr), dong(cau_va)
+
+class MiniGPT(nn.Module):
+    def __init__(self, V, d=96, h=4, n_layers=3, ctx=24, p=0.1):
+        super().__init__()
+        self.ctx = ctx; self.emb = nn.Embedding(V, d); self.pos = nn.Embedding(ctx, d)
+        self.blocks = nn.ModuleList([Block(d, h, p) for _ in range(n_layers)])
+        self.ln = nn.LayerNorm(d); self.head = nn.Linear(d, V, bias=False); self.head.weight = self.emb.weight
+    def forward(self, x):
+        L = x.size(1); mask = torch.tril(torch.ones(L, L, dtype=torch.bool))[None, None]
+        z = self.emb(x) + self.pos(torch.arange(L))
+        for b in self.blocks: z, _ = b(z, mask)
+        return self.head(self.ln(z))
+
+@torch.no_grad()
+def pp_lm(model, ids, ctx=24):
+    model.eval(); tot, n = 0.0, 0
+    for s in range(0, len(ids) - ctx - 1, ctx):
+        x, y = ids[s:s + ctx][None], ids[s + 1:s + ctx + 1][None]
+        tot += F.cross_entropy(model(x)[0], y[0], reduction="sum").item(); n += ctx
+    return math.exp(tot / n)
+
+set_seed(0)
+gpt = MiniGPT(len(itos_lm)); opt = torch.optim.AdamW(gpt.parameters(), lr=2e-3, weight_decay=0.01)
+g = torch.Generator().manual_seed(0); tot, best_state = 1e9, None
+for step in range(1, 801):
+    gpt.train()
+    i = torch.randint(0, len(tr_ids) - 25, (32,), generator=g)
+    x = torch.stack([tr_ids[j:j + 24] for j in i]); y = torch.stack([tr_ids[j + 1:j + 25] for j in i])
+    loss = F.cross_entropy(gpt(x).reshape(-1, len(itos_lm)), y.reshape(-1))
+    opt.zero_grad(); loss.backward(); nn.utils.clip_grad_norm_(gpt.parameters(), 1.0); opt.step()
+    if step % 100 == 0:
+        pp = pp_lm(gpt, va_ids)
+        if pp < tot: tot, best_state = pp, copy.deepcopy(gpt.state_dict())
+gpt.load_state_dict(best_state); print(f"perplexity valid tốt nhất: {tot:.1f}")
+
+@@@ code
+@torch.no_grad()
+def sinh(model, T=0.8, top_k=10, toi_da=20, seed=0):
+    gen = torch.Generator().manual_seed(seed); ids = [0]; model.eval()
+    for _ in range(toi_da):
+        logits = model(torch.tensor(ids[-model.ctx:])[None])[0, -1] / T
+        if top_k:
+            logits = logits.masked_fill(logits < logits.topk(top_k).values[-1], float("-inf"))
+        nxt = int(torch.multinomial(logits.softmax(-1), 1, generator=gen))
+        if nxt == 0: break
+        ids.append(nxt)
+    return " ".join(itos_lm[i] for i in ids[1:]).replace("_", " ")
+
+for T, k in [(0.3, 10), (1.0, 10), (3.0, 10), (3.0, None)]:
+    print(f"T={T}, top_k={k}:")
+    for sd in range(3):
+        print("   •", sinh(gpt, T, k, seed=sd))
+
+# Định lượng trên 60 mẫu mỗi cấu hình: bao nhiêu câu khác nhau, bao nhiêu câu chép nguyên văn từ tập huấn luyện
+tap_tr = {" ".join(s).replace("_", " ") for s in cau_tr}
+rows = []
+for T, k in [(0.3, 10), (0.8, 10), (1.0, 10), (1.5, 10), (3.0, 10), (1.0, None), (3.0, None), (0.8, 3)]:
+    cau = [sinh(gpt, T, k, seed=sd) for sd in range(60)]
+    rows.append({"T": T, "top_k": k if k else "không", "câu khác nhau (/60)": len(set(cau)),
+                 "% chép nguyên văn câu huấn luyện": round(100 * np.mean([c in tap_tr for c in cau])),
+                 "độ dài TB (từ)": round(np.mean([len(c.split()) for c in cau]), 1)})
+pd.DataFrame(rows).set_index(["T", "top_k"])
+
+@@@ md
+**Đọc kết quả.**
+
+- **Nhiệt độ T đổi sự trung thực lấy sự đa dạng, đơn điệu theo T.** Với top-k = 10: T = 0,3 cho chỉ 15 câu khác nhau trong 60 mẫu và **97% là câu chép nguyên văn từ tập huấn luyện**; T = 1,0 → 43 câu khác nhau, 63% chép; T = 3,0 → 58 câu khác nhau, 20% chép. Nhìn kỹ hơn: ở T ≤ 1 mô hình chủ yếu **thuộc lòng các khuôn câu** của tập huấn luyện (tổng hợp, nhỏ), không sáng tạo — "đa dạng" chỉ xuất hiện khi ta làm phẳng phân phối.
+- **Đa dạng ở T cao phần lớn là lỗi, không phải sáng tạo.** T = 3,0 cho câu dài hơn (độ dài TB ≈ 10,9 so với 4,6 ở T = 0,3; có lẽ vì `<eos>` không còn được ưu tiên khi phân phối phẳng hơn) và đọc ra **sai ngữ pháp, trộn từ không dấu** ("mình ghi nhận xét vậy nang mot hơi của tư vấn của bạn") — từ không dấu có trong từ điển vì ≈ 6% văn bản huấn luyện bị bỏ dấu (nhiễu có chủ đích, xem `data/DATA_CARD.md`), và chúng được lấy mẫu khi phân phối bị làm phẳng.
+- **top-k chặn phần thiệt hại của T cao.** Ở T = 3,0: top-k = 10 còn đọc được một phần (20% chép nguyên văn, ≈ 10,9 từ), còn **không cắt** thì gần như toàn câu vô nghĩa (chỉ 2% chép, độ dài TB ≈ 16,2 từ): "đường khong xứng đáng mô tả bẩn học phí việc như chan that sạch". Ở T = 1,0 tác động nhỏ hơn nhiều (không cắt: 53 câu khác nhau, 57% chép; k = 10: 43 và 63%). Ngược lại k = 3 ở T = 0,8 gần như tất định: **10 câu khác nhau, 100% chép**.
+- **Quy tắc thực dụng:** cần bám nguồn/ổn định (RAG, trích xuất — Bài 13) thì dùng T thấp hoặc greedy; cần đa dạng thì tăng T vừa phải *và* giữ top-k (hoặc top-p) để cắt đuôi. (Số đo của một mô hình, 60 mẫu mỗi cấu hình, mỗi mẫu một seed; con số cụ thể phụ thuộc mô hình và kho dữ liệu.)
+
+@@@ md
+## Bài tập 3 — Bỏ mã hóa vị trí khỏi bộ phân loại
+
+@@@ code
+rows = []
+for dung in [True, False]:
+    v, hd, _ = chay(dung_vi_tri=dung)
+    rows.append({"có mã hóa vị trí": dung, "valid": v, "câu khó": hd})
+pd.DataFrame(rows).set_index("có mã hóa vị trí")
+
+@@@ md
+**Đọc kết quả.** Với phân loại cảm xúc bằng **gộp trung bình** theo vị trí, thứ tự từ đóng góp ít: nhiều tín hiệu nằm ở *tập từ* ("tệ", "chậm", "tuyệt"). Vì vậy bỏ mã hóa vị trí **ảnh hưởng nhỏ** (chênh lệch nằm trong hoặc gần nhiễu). Nó quan trọng hơn ở các tác vụ cần thứ tự rõ rệt (đảo chuỗi ở Bài 8 mục 7, dịch máy, sinh văn bản), và ở phủ định/"nhưng" nếu mô hình đủ lớn để khai thác thứ tự.
+
+@@@ md
+## Bài tập 4 — Thời gian và bộ nhớ của `MultiHeadAttention` theo L
+
+@@@ code
+mha = MultiHeadAttention(64, 4).eval()
+rows = []
+for L in [64, 128, 256, 512, 1024]:
+    x = torch.randn(1, L, 64)
+    with torch.no_grad():
+        for _ in range(3): mha(x)                           # khởi động
+        ts = []
+        for _ in range(15):
+            t0 = time.perf_counter(); mha(x); ts.append(time.perf_counter() - t0)
+        dt = float(np.median(ts)) * 1000                    # median của 15 lần để bớt nhiễu
+    rows.append({"L": L, "thời gian (ms)": round(dt, 2), "kích thước ma trận attention (số phần tử/đầu)": L * L,
+                 "bộ nhớ ma trận attention (MB, 4 đầu, fp32)": round(4 * L * L * 4 / 1e6, 2)})
+tbl = pd.DataFrame(rows).set_index("L")
+tbl["tỉ lệ thời gian so với L trước"] = (tbl["thời gian (ms)"] / tbl["thời gian (ms)"].shift(1)).round(2)
+tbl
+
+@@@ md
+**Đọc kết quả.** Bộ nhớ của ma trận attention tăng **đúng $L^2$** (L gấp đôi → ×4: 64→128 là 0,07 → 0,26 MB; 512→1024 là 4,2 → 16,8 MB). Thời gian (median của 15 lần) ở L nhỏ bị *chi phí cố định* (gọi hàm, các phép chiếu tuyến tính $O(L)$) che mờ nên chưa thấy ×4: tỉ lệ chỉ ≈ 1,3 rồi ≈ 1,6 khi L = 64 → 128 → 256; ở L lớn nó tiến gần và vượt 4 (≈ 2,4 rồi ≈ 4,5 khi L = 256 → 512 → 1024). Giá trị trên 4 có thể do ma trận $L^2$ không còn nằm gọn trong bộ nhớ đệm, nhưng đây là phép đo ngắn trên CPU, hãy chỉ đọc xu hướng. Đây là lý do giới hạn **độ dài ngữ cảnh** của Transformer — và vì sao có nhiều nghiên cứu về attention thưa, FlashAttention, v.v.
+
+@@@ md
+## Bài tập 5 (khó) — Decoder Transformer với cross-attention
+
+Đây là khối decoder: **self-attention nhân quả → cross-attention** (truy vấn từ decoder, khóa/giá trị từ encoder) **→ FFN**. Ta kiểm tra hình dạng và tính nhân quả bằng mã.
+
+@@@ code
+class CrossBlock(nn.Module):
+    def __init__(self, d, h, p=0.1):
+        super().__init__()
+        self.ln1, self.ln2, self.ln3 = nn.LayerNorm(d), nn.LayerNorm(d), nn.LayerNorm(d)
+        self.self_attn = MultiHeadAttention(d, h, p)
+        self.cross_q, self.cross_kv, self.cross_o = nn.Linear(d, d), nn.Linear(d, 2 * d), nn.Linear(d, d)
+        self.h, self.dk = h, d // h
+        self.ffn = nn.Sequential(nn.Linear(d, 4 * d), nn.GELU(), nn.Linear(4 * d, d))
+
+    def forward(self, y, enc, causal_mask):
+        a, _ = self.self_attn(self.ln1(y), causal_mask); y = y + a
+        B, Ly, d = y.shape; Lx = enc.size(1)
+        q = self.cross_q(self.ln2(y)).view(B, Ly, self.h, self.dk).transpose(1, 2)
+        k, v = (t.view(B, Lx, self.h, self.dk).transpose(1, 2) for t in self.cross_kv(enc).chunk(2, -1))
+        w = (q @ k.transpose(-2, -1) / math.sqrt(self.dk)).softmax(-1)            # (B, h, Ly, Lx): decoder "nhìn" encoder
+        y = y + self.cross_o((w @ v).transpose(1, 2).reshape(B, Ly, d))
+        return y + self.ffn(self.ln3(y)), w
+
+set_seed(0)
+blk = CrossBlock(32, 4).eval()
+enc = torch.randn(2, 7, 32); y = torch.randn(2, 5, 32)
+causal = torch.tril(torch.ones(5, 5, dtype=torch.bool))[None, None]
+out, w = blk(y, enc, causal)
+print("hình dạng đầu ra:", tuple(out.shape), "| attention decoder→encoder:", tuple(w.shape), "(batch, đầu, độ dài đích, độ dài nguồn)")
+print("mỗi hàng attention cộng 1:", bool(torch.allclose(w.sum(-1), torch.ones(2, 4, 5), atol=1e-5)))
+
+# tính nhân quả: đổi token ĐÍCH tương lai (vị trí 3, 4) không đổi đầu ra vị trí 0..2
+y2 = y.clone(); y2[:, 3:] = torch.randn(2, 2, 32)
+out2, _ = blk(y2, enc, causal)
+print("đổi tương lai đích không ảnh hưởng quá khứ:", torch.allclose(out[:, :3], out2[:, :3], atol=1e-5))
+# nhưng đổi NGUỒN (encoder) thì ảnh hưởng mọi vị trí đích:
+out3, _ = blk(y, torch.randn(2, 7, 32), causal)
+print("đổi nguồn làm thay đổi đầu ra đích:", not torch.allclose(out, out3, atol=1e-5))
+
+@@@ md
+**Đọc kết quả.** Cross-attention cho **mọi** vị trí đích nhìn toàn bộ nguồn (không bị mặt nạ nhân quả — chỉ self-attention của decoder bị che), nên đổi *nguồn* ảnh hưởng mọi vị trí đích, còn đổi *tương lai của đích* không ảnh hưởng quá khứ. Để hoàn chỉnh mô hình đảo chuỗi: thêm embedding + mã hóa vị trí cho nguồn và đích, chồng vài `Block` (encoder, không mặt nạ nhân quả) và vài `CrossBlock` (decoder), một lớp tuyến tính ra từ điển, huấn luyện với teacher forcing như Bài 8 mục 7. Hãy thử **mã hóa vị trí hình sin** so với embedding học được ở độ dài ngoài phạm vi huấn luyện (L = 20, 24): hình sin thường ngoại suy *hơi* tốt hơn nhưng không hoàn toàn — đó là động lực của các mã hóa vị trí tương đối như RoPE và ALiBi.

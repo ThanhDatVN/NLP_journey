@@ -1,0 +1,1801 @@
+﻿id,text,label,domain,split
+r0001,tư vấn của shop chậm. sẽ không quay lại!!!,tiêu cực,sản phẩm,train
+r0002,"Tài liệu rất thiếu, nhưng nội dung có hệ thống.",tích cực,khóa học,valid
+r0003,Thực đơn khá nhiều món!!!,trung tính,ẩm thực,train
+r0004,"Tính năng rất đầy đủ, lại còn ứng dụng rất ổn định.",tích cực,ứng dụng,train
+r0005,Chạy bình thường trên máy mình. Thông báo khó hiểu. 😞,tiêu cực,ứng dụng,test
+r0006,tuy giá chát nhưng không gian sạch sẽ. cho 5 sao.,tích cực,ẩm thực,train
+r0007,Mình dùng dịch vụ lần thứ hai. Phòng ốc không hề cũ. Nhân viên thực sự chuyên nghiệp. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,valid
+r0008,Mình mới cài nên chưa dùng nhiều. 🤔,trung tính,ứng dụng,train
+r0009,Di cong tac nen minh ghe. Chi phi ko minh bach chut nao. Phong oc chat. Se khong quay lai. 😐,tiêu cực,dịch vụ,test
+r0010,Thủ tục rất đơn giản. Recommend nhé!,tích cực,dịch vụ,test
+r0011,Tốc độ giảng chẳng hề quá nhanh. Sẽ ủng hộ tiếp.,tích cực,khóa học,train
+r0012,tốc độ quá ổn định.,tích cực,ứng dụng,valid
+r0013,Cả nhà ghé ăn tối cuối tuần. Phục vụ kém.,tiêu cực,ẩm thực,train
+r0014,mình học online được một tháng. bài tập chẳng hay. nội dung sơ sài.,tiêu cực,khóa học,test
+r0015,Cài về từ tháng trước. Tính năng khá đầy đủ. Recommend nhé! 👍,tích cực,ứng dụng,train
+r0016,giá chát.,tiêu cực,sản phẩm,test
+r0017,Màu sắc quá đẹp.,tích cực,sản phẩm,train
+r0018,Khóa học gồm mười hai buổi. Chưa biết có dùng lại không!,trung tính,khóa học,train
+r0019,"Giao hàng quá nhanh, lại còn đóng gói rất cẩn thận. Rất đáng thử. 😍...",trung tính,sản phẩm,test
+r0020,"Dùng trên điện thoại Android được hai tuần. Giao diện rất khó dùng, hỗ trợ khách hàng rất chậm.",tiêu cực,ứng dụng,train
+r0021,chất liệu cực kỳ dày dặn.,tích cực,sản phẩm,test
+r0022,Tuy màu sắc hơi khác hình nhưng giao hàng rất gọn gàng. 👎,tích cực,sản phẩm,valid
+r0023,Tính năng nghèo nàn. Cho 1 sao.,tiêu cực,ứng dụng,valid
+r0024,Nguyên liệu thực sự sạch.,tích cực,ẩm thực,train
+r0025,Mình dùng bản mới nhất. Tốc độ chẳng hề giật. Giao diện thực sự đẹp.,tích cực,ứng dụng,train
+r0026,Tuy nv khá thân thiện nhưng phòng ốc rất chật.,tiêu cực,dịch vụ,test
+r0027,Thủ tục quá phức tạp và việc giải quyết khiếu nại quá chậm.,tiêu cực,dịch vụ,valid
+r0028,Nội dung sát thực tế. Cho 5 sao.,tích cực,khóa học,train
+r0029,Lần đầu mình ghé quán. Tuy nguyên liệu quá kém nhưng không gian rất thoáng.,tích cực,ẩm thực,train
+r0030,Khẩu phần thực sự đầy đặn. Cho 5 sao.,tích cực,ẩm thực,train
+r0031,bài tập không hề quá khó. giảng viên thực sự nhiệt tình. ❤️,tích cực,khóa học,valid
+r0032,giao hàng chậm.,tiêu cực,sản phẩm,train
+r0033,Tính năng khá nghèo nàn nhưng bù lại ứng dụng mượt!,trung tính,ứng dụng,test
+r0034,"Không gian ồn, nhưng phục vụ khá niềm nở. Cho 5 sao.",tích cực,ẩm thực,train
+r0035,dung lượng khoảng 80 mb. thông báo khá rõ ràng. cho 5 sao.,tích cực,ứng dụng,train
+r0036,Phòng ốc rất thoải mái và thời gian chờ thực sự ngắn.,tích cực,dịch vụ,test
+r0037,mình học online được một tháng. học qua zoom vào buổi tối. tốc độ giảng quá nhanh. cho 1 sao.,tiêu cực,khóa học,train
+r0038,"Thời gian xử lý khoảng hai ngày, nhân viên hướng dẫn theo đúng quy trình. Mình ghi nhận xét vậy thôi.",trung tính,dịch vụ,train
+r0039,Mình đến vào giờ cao điểm. Ưu điểm: thời gian chờ ngắn. Nhược điểm: thủ tục khá chậm.,trung tính,dịch vụ,valid
+r0040,ưu điểm: chi phí quá minh bạch. nhược điểm: việc giải quyết khiếu nại rất qua loa.,trung tính,dịch vụ,train
+r0041,"toc do giang thuc su vua phai, nhung hoc phi rat cao. se khong quay lai.",trung tính,khóa học,train
+r0042,Nhân viên không thiếu chuyên nghiệp. Thủ tục cực kỳ nhanh. Recommend nhé!,tích cực,dịch vụ,train
+r0043,Giảng viên chẳng nhiệt tình. Sẽ không quay lại.,tiêu cực,khóa học,test
+r0044,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Tuy tư vấn của shop rất nhanh nhưng màu sắc khá khác hình. 👎",tiêu cực,sản phẩm,train
+r0045,Dùng trên điện thoại Android được hai tuần. Tính năng khá tiện lợi.,tích cực,ứng dụng,train
+r0046,học phí quá cao nhưng bù lại nội dung rất sát thực tế.,tích cực,khóa học,train
+r0047,Nguyên liệu hơi ôi nhưng bù lại không gian rất sạch sẽ.,tích cực,ẩm thực,train
+r0048,Thời gian chờ cực kỳ hợp lý.,tích cực,dịch vụ,train
+r0049,Mình học online được một tháng. Mình mới học được vài buổi. Tài liệu đầy đủ...,tích cực,khóa học,train
+r0050,Chất liệu chẳng mềm. Tư vấn của shop thiếu nhiệt tình. Thất vọng.,tiêu cực,sản phẩm,train
+r0051,Việc giải quyết khiếu nại không chậm. Chi phí thực sự minh bạch. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,test
+r0052,giao diện chẳng hề khó dùng. thông báo khá rõ ràng. 👍...,tích cực,ứng dụng,train
+r0053,Khẩu phần rất ít.,tiêu cực,ẩm thực,train
+r0054,Không gian cực kỳ sạch sẽ!,tích cực,ẩm thực,train
+r0055,dùng trên điện thoại android được hai tuần. thông báo khó hiểu!!!,tiêu cực,ứng dụng,train
+r0056,Bài tập thực sự vừa sức. Rất đáng thử.,tích cực,khóa học,valid
+r0057,Tài liệu rõ ràng!,tích cực,khóa học,train
+r0058,Tính năng rất thừa thãi và hỗ trợ khách hàng qua loa.,tiêu cực,ứng dụng,train
+r0059,mình dùng dịch vụ lần thứ hai. tuy nhân viên quá thờ ơ nhưng thời gian chờ thực sự hợp lý.,tích cực,dịch vụ,valid
+r0060,Ưu điểm: giá khá mềm. Nhược điểm: chất lượng quá thấp.,trung tính,sản phẩm,train
+r0061,Nguyên liệu hơi cũ.,tiêu cực,ẩm thực,test
+r0062,Lớp có khoảng ba mươi học viên. Tốc độ giảng vừa phải. 😍,tiêu cực,khóa học,train
+r0063,Mình học online được một tháng. Bài tập rất nhàm chán. Không khuyên mua!,tiêu cực,khóa học,train
+r0064,"tốc độ giảng quá chậm, giảng viên rất thiếu nhiệt tình.",tiêu cực,khóa học,train
+r0065,"Mình dùng bản mới nhất. Giao diện không thay đổi nhiều so với bản cũ, bản cập nhật mới có thêm chế độ tối.",trung tính,ứng dụng,train
+r0066,"Tài liệu cũ, nhưng giảng viên khá dễ hiểu. Recommend nhé!",tích cực,khóa học,test
+r0067,Khẩu phần khá ít.,tiêu cực,ẩm thực,test
+r0068,Chi phí không hề cao. Việc giải quyết khiếu nại nhanh.,tích cực,dịch vụ,train
+r0069,Nguyên liệu sạch và phục vụ rất niềm nở.,tích cực,ẩm thực,train
+r0070,Mua tặng người nhà. Màu sắc thực sự tươi và giá hợp lý. Sẽ ủng hộ tiếp.,tích cực,sản phẩm,train
+r0071,Tuy thủ tục quá nhanh nhưng nhân viên cáu gắt!!!,tiêu cực,dịch vụ,train
+r0072,Giao hàng không lâu. Đóng gói chắc chắn. Cho 5 sao. 😡,tích cực,sản phẩm,valid
+r0073,Tuy phòng ốc thoáng nhưng việc giải quyết khiếu nại rất qua loa. Cho 1 sao. 👎,tiêu cực,dịch vụ,train
+r0074,"Mình học online được một tháng. Tài liệu thực sự dễ theo dõi, nhưng bài tập nhàm chán. Cho 1 sao.",tiêu cực,khóa học,valid
+r0075,Nội dung đúng như mô tả ban đầu.,trung tính,khóa học,train
+r0076,"Thủ tục khá nhanh, thời gian chờ cực kỳ hợp lý. Cho 5 sao.",tích cực,dịch vụ,train
+r0077,Cả nhà ghé ăn tối cuối tuần. Giá quá phải chăng nhưng tiếc là không gian hơi chật.,tiêu cực,ẩm thực,valid
+r0078,"Tài liệu thiếu, tốc độ giảng quá chậm!",tiêu cực,khóa học,train
+r0079,Thời gian chờ rất lâu.,tiêu cực,dịch vụ,train
+r0080,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Màu sắc xỉn, nhưng chất lượng cao. Recommend nhé!",tích cực,sản phẩm,valid
+r0081,chi phí rất hợp lý. sẽ ủng hộ tiếp...,tích cực,dịch vụ,train
+r0082,Nhân viên cáu gắt. Thất vọng.,tiêu cực,dịch vụ,train
+r0083,"giao hàng chậm, chất liệu rất mỏng. 😤!",tiêu cực,sản phẩm,test
+r0084,thông báo thực sự rõ ràng nhưng tiếc là hỗ trợ khách hàng khá chậm.,tiêu cực,ứng dụng,train
+r0085,Mình đến vào giờ cao điểm. Nhân viên không thờ ơ. Thủ tục thực sự gọn nhẹ.,tích cực,dịch vụ,train
+r0086,Tốc độ nhanh. Cho 5 sao. 🙂!,tích cực,ứng dụng,valid
+r0087,Món ăn hơi mặn chát.,tiêu cực,ẩm thực,test
+r0088,dùng trên điện thoại android được hai tuần. tính năng hữu ích!!!,tích cực,ứng dụng,valid
+r0089,Đi ăn với bạn bè. Giá chẳng hợp lý. Không gian chật. Thất vọng!,tiêu cực,ẩm thực,train
+r0090,Giá quá rẻ.,tích cực,ẩm thực,train
+r0091,"Dùng trên điện thoại Android được hai tuần. Tính năng cực kỳ đầy đủ, ứng dụng rất ổn định.",tích cực,ứng dụng,test
+r0092,chất liệu thực sự bền.,tích cực,sản phẩm,train
+r0093,Ưu điểm: giá cực kỳ rẻ. Nhược điểm: món ăn hơi dở. Cho 3 sao.,trung tính,ẩm thực,train
+r0094,Phòng ốc rất thoáng và việc giải quyết khiếu nại thỏa đáng!!!,tích cực,dịch vụ,train
+r0095,Hoc qua Zoom vao buoi toi.,trung tính,khóa học,train
+r0096,tốc độ giảng khá hợp lý. 🙂,tích cực,khóa học,valid
+r0097,Thời gian chờ quá bất hợp lý nhưng bù lại nhân viên quá nhiệt tình. Cho 5 sao.,tích cực,dịch vụ,test
+r0098,Mình dùng dịch vụ lần thứ hai. Việc giải quyết khiếu nại khá qua loa!,tích cực,dịch vụ,valid
+r0099,"Đóng gói sơ sài, nhưng giao hàng gọn gàng. Recommend nhé!!!!",tích cực,sản phẩm,train
+r0100,Ưu điểm: tốc độ rất mượt. Nhược điểm: tính năng rất khó tìm. Chưa biết có dùng lại ko.,trung tính,ứng dụng,train
+r0101,Chất liệu thực sự dày dặn và màu sắc tươi. Recommend nhé!,tích cực,sản phẩm,test
+r0102,Món ăn không đậm đà. Phục vụ kém.,tiêu cực,ẩm thực,train
+r0103,Đóng gói không sơ sài. ❤️,tích cực,sản phẩm,train
+r0104,Tốc độ quá mượt!!,tích cực,ứng dụng,train
+r0105,"Thủ tục đơn giản, nhưng nv thờ ơ!!!",tiêu cực,dịch vụ,valid
+r0106,Hỗ trợ khách hàng không thiếu chuyên nghiệp. Ứng dụng cực kỳ ít lỗi.,tích cực,ứng dụng,train
+r0107,"Cài về từ tháng trước. Tính năng đầy đủ, thông báo kịp thời. Cho 5 sao!",tích cực,ứng dụng,train
+r0108,"toc do rat nhanh, nhung ung dung hay treo. 😞",tiêu cực,ứng dụng,train
+r0109,nguyên liệu khá tươi. recommend nhé!,tích cực,ẩm thực,train
+r0110,Mình dùng dịch vụ lần thứ hai. Chi phí ở mức trung bình. Phòng ốc rất chật.,tiêu cực,dịch vụ,train
+r0111,Nguyên liệu quá sạch.,tích cực,ẩm thực,train
+r0112,"Màu sắc khá giống hình, nhưng chất liệu hơi mỏng.",tiêu cực,sản phẩm,train
+r0113,Tài liệu dễ theo dõi. Recommend nhé!!!,tích cực,khóa học,test
+r0114,Nội dung chẳng bổ ích. Bài tập nhàm chán.,tiêu cực,khóa học,train
+r0115,tuy thủ tục cực kỳ gọn nhẹ nhưng việc giải quyết khiếu nại qua loa.,tiêu cực,dịch vụ,train
+r0116,Ứng dụng hơi hay treo.,tiêu cực,ứng dụng,train
+r0117,"Thời gian chờ quá ngắn, lại còn phòng ốc cực kỳ sạch sẽ.",tích cực,dịch vụ,train
+r0118,"Có thể thanh toán bằng thẻ, mình chờ khoảng mười phút. 🤔",trung tính,dịch vụ,train
+r0119,Chi phí minh bạch.,tích cực,dịch vụ,valid
+r0120,Tính năng quá khó tìm. Không khuyên mua.,tiêu cực,ứng dụng,train
+r0121,Hỗ trợ khách hàng thực sự chu đáo. Cho 5 sao.,tích cực,ứng dụng,test
+r0122,Ưu điểm: món ăn cực kỳ vừa miệng. Nhược điểm: nguyên liệu cũ. Cho 3 sao.,trung tính,ẩm thực,train
+r0123,Việc giải quyết khiếu nại thỏa đáng.,tích cực,dịch vụ,train
+r0124,Di an voi ban be. Uu diem: gia r re. Nhuoc diem: nguyen lieu kem.,trung tính,ẩm thực,train
+r0125,Mình đến vào giờ cao điểm. Tuy việc giải quyết khiếu nại thỏa đáng nhưng chi phí khá cao. Thất vọng.,tiêu cực,dịch vụ,train
+r0126,"Việc giải quyết khiếu nại cực kỳ nhanh, nhưng thủ tục chậm. 👎",tiêu cực,dịch vụ,train
+r0127,học phí đắt và tốc độ giảng quá chậm. thất vọng.,tiêu cực,khóa học,test
+r0128,Nội dung đúng như mô tả ban đầu!!,trung tính,khóa học,train
+r0129,tốc độ khá thất thường nhưng bù lại ứng dụng khá ít lỗi. 🙂,tích cực,ứng dụng,train
+r0130,Món ăn khá đậm đà.,tích cực,ẩm thực,test
+r0131,Uu diem: dong goi thuc su dep. Nhuoc diem: chat luong kha te.,trung tính,sản phẩm,train
+r0132,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giá ở mức trung bình. Cho 3 sao.",trung tính,sản phẩm,train
+r0133,"Mình dùng được một tuần rồi. Dùng được, không có gì đặc biệt. Giao hàng thực sự đúng hẹn.",tích cực,sản phẩm,train
+r0134,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Tuy giá quá hợp lý nhưng chất lượng rất tệ.",tiêu cực,sản phẩm,train
+r0135,Mình dùng bản mới nhất. Ứng dụng có đủ các chức năng cơ bản.,trung tính,ứng dụng,train
+r0136,Tính năng không hề thừa thãi. Giao diện quá đẹp. Recommend nhé!,tích cực,ứng dụng,train
+r0137,mình chờ khoảng mười phút. việc giải quyết khiếu nại thực sự thỏa đáng. rất đáng thử.,tích cực,dịch vụ,train
+r0138,mình học online được một tháng. giảng viên cực kỳ dễ hiểu nhưng tiếc là tài liệu hơi cũ.,tiêu cực,khóa học,train
+r0139,Việc giải quyết khiếu nại khá qua loa.,tiêu cực,dịch vụ,test
+r0140,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Ưu điểm: chất lượng thực sự tốt. Nhược điểm: giá khá chát. Chưa biết có dùng lại không!!",trung tính,sản phẩm,train
+r0141,nội dung hơi sơ sài nhưng bù lại giảng viên dễ hiểu. 👍...,tích cực,khóa học,valid
+r0142,nhân viên hướng dẫn theo đúng quy trình. chi phí khá minh bạch.,tích cực,dịch vụ,train
+r0143,Mua tặng người nhà. Tư vấn của shop chẳng hề thiếu nhiệt tình. 😍,trung tính,sản phẩm,test
+r0144,Chi phí không minh bạch chút nào. Sẽ không quay lại.,tiêu cực,dịch vụ,train
+r0145,Đi công tác nên mình ghé. Nhân viên thực sự chuyên nghiệp.,tích cực,dịch vụ,test
+r0146,nội dung cực kỳ có hệ thống. cho 5 sao.,tích cực,khóa học,train
+r0147,dùng trên điện thoại android được hai tuần. hỗ trợ khách hàng cực kỳ nhanh. recommend nhé!,tích cực,ứng dụng,train
+r0148,"Nguyên liệu rất cũ, giá rất đắt!",trung tính,ẩm thực,train
+r0149,Ung dung co du cac chuc nang co ban.,trung tính,ứng dụng,valid
+r0150,Kích cỡ đúng bảng size. Chưa biết có dùng lại không!!!,trung tính,sản phẩm,valid
+r0151,Mình đến làm thủ tục vào buổi sáng.,trung tính,dịch vụ,train
+r0152,Thực đơn khá nhiều món. Nguyên liệu rất sạch. 😍,tích cực,ẩm thực,test
+r0153,Dung lượng khoảng 80 MB. Tính năng nghèo nàn. Thất vọng.,tiêu cực,ứng dụng,train
+r0154,Cả nhà ghé ăn tối cuối tuần. Nguyên liệu kém. Thất vọng!,tiêu cực,ẩm thực,train
+r0155,"Mình học buổi tối sau giờ làm. Tài liệu hơi thiếu, giảng viên khá hời hợt.",tiêu cực,khóa học,train
+r0156,Chất liệu chẳng hề mỏng. Sẽ ủng hộ tiếp...,tích cực,sản phẩm,train
+r0157,Không gian quá bẩn!,tiêu cực,ẩm thực,valid
+r0158,"Hỗ trợ khách hàng rất qua loa, lại còn ứng dụng nhiều lỗi.",tiêu cực,ứng dụng,train
+r0159,Hoc phi khong he cao. Toc do giang vua phai.,tích cực,khóa học,train
+r0160,mình đến vào giờ cao điểm. tuy chi phí cao nhưng thủ tục nhanh. recommend nhé!,tích cực,dịch vụ,test
+r0161,cả nhà ghé ăn tối cuối tuần. quán nằm trên đường chính. giá rất phải chăng...,tích cực,ẩm thực,train
+r0162,Giao dien than thien...,tích cực,ứng dụng,train
+r0163,Tốc độ giảng vừa phải.,tích cực,khóa học,train
+r0164,Gia o muc trung binh.,trung tính,sản phẩm,train
+r0165,giảng viên cực kỳ dễ hiểu nhưng tiếc là nội dung lỗi thời. sẽ không quay lại.,tiêu cực,khóa học,train
+r0166,Mình dùng được một tuần rồi. Tư vấn của shop không qua loa!,tích cực,sản phẩm,test
+r0167,món ăn cực kỳ đậm đà!,tích cực,ẩm thực,train
+r0168,"Minh dung dich vu lan thu hai. Viec giai quyet khieu nai nhanh, lai con chi phi hop ly. Recommend nhe!!!",tích cực,dịch vụ,train
+r0169,"Học phí hơi đắt, lại còn tài liệu thiếu. 😡!",tiêu cực,khóa học,train
+r0170,Học phí hợp lý và bài tập cực kỳ hay.,tích cực,khóa học,train
+r0171,Hỗ trợ khách hàng quá nhanh.,tích cực,ứng dụng,train
+r0172,Mình học buổi tối sau giờ làm. Tốc độ giảng khá hợp lý nhưng tiếc là bài tập rất nhàm chán.,tiêu cực,khóa học,valid
+r0173,mình đăng ký theo lời giới thiệu của bạn. khóa học gồm mười hai buổi!,trung tính,khóa học,train
+r0174,Bản cập nhật mới có thêm chế độ tối. Tốc độ khá giật.,tiêu cực,ứng dụng,train
+r0175,Hàng giống mô tả.,trung tính,sản phẩm,train
+r0176,Ưu điểm: khẩu phần khá vừa ăn. Nhược điểm: nguyên liệu quá ôi.,trung tính,ẩm thực,train
+r0177,Chất lượng cao. Sẽ ủng hộ tiếp.,tích cực,sản phẩm,valid
+r0178,mình học buổi tối sau giờ làm. bài tập quá khó và nội dung lan man. không khuyên mua.,tiêu cực,khóa học,train
+r0179,"Phòng ốc rất bẩn, nhưng thời gian chờ ngắn.",tích cực,dịch vụ,train
+r0180,"Mình dùng được một tuần rồi. Tư vấn của shop nhanh, nhưng chất liệu rất kém bền. Cho 1 sao.",tiêu cực,sản phẩm,train
+r0181,Đi ăn với bạn bè. Nguyên liệu tươi và khẩu phần đầy đặn!,tích cực,ẩm thực,train
+r0182,Chi phí khá hợp lý. Recommend nhé!,tích cực,dịch vụ,valid
+r0183,Màu sắc quá tươi nhưng tiếc là giá chát. Không khuyên mua.,tiêu cực,sản phẩm,train
+r0184,Ưu điểm: tính năng cực kỳ đầy đủ. Nhược điểm: hỗ trợ khách hàng qua loa.,trung tính,ứng dụng,test
+r0185,Giảng viên dễ hiểu nhưng tiếc là nội dung lan man. Không khuyên mua.,tiêu cực,khóa học,train
+r0186,Đóng gói chắc chắn nhưng tiếc là giao hàng khá trễ hẹn.,tiêu cực,sản phẩm,train
+r0187,Giá ở mức trung bình. Chất liệu thực sự dày dặn.,tích cực,sản phẩm,test
+r0188,Uu diem: toc do nhanh. Nhuoc diem: giao dien kho dung.,trung tính,ứng dụng,train
+r0189,Mình đăng ký theo lời giới thiệu của bạn. Bài tập thực tế. Rất đáng thử.,tích cực,khóa học,train
+r0190,Mình học online dc một tháng. Học qua Zoom vào buổi tối. Cho 3 sao.,trung tính,khóa học,train
+r0191,"Chi phí cực kỳ hợp lý, nhưng thời gian chờ khá lâu.",tiêu cực,dịch vụ,train
+r0192,"Mua tặng người nhà. Chất lượng tệ, nhưng chất liệu cực kỳ mềm.",tích cực,sản phẩm,train
+r0193,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu tàm tạm. Cho 3 sao.",trung tính,sản phẩm,valid
+r0194,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất lượng khá cao. 😤...",tích cực,sản phẩm,train
+r0195,"Ứng dụng rất ít lỗi, nhưng giao diện hơi khó dùng.",tiêu cực,ứng dụng,train
+r0196,"Thủ tục rất nhanh, phòng ốc cực kỳ thoáng. ❤️",tích cực,dịch vụ,train
+r0197,"Thời gian chờ quá dài, nhưng việc giải quyết khiếu nại thực sự thỏa đáng. 👍",tích cực,dịch vụ,test
+r0198,Giao hàng chưa gọn gàng. 😐,tiêu cực,sản phẩm,valid
+r0199,Phục vụ không chậm.,tích cực,ẩm thực,test
+r0200,Ứng dụng có đủ các chức năng cơ bản. Giao diện quá đẹp. Rất đáng thử.,tích cực,ứng dụng,test
+r0201,việc giải quyết khiếu nại quá nhanh. sẽ ủng hộ tiếp.,tích cực,dịch vụ,valid
+r0202,Đi ăn với bạn bè. Không gian thực sự sạch sẽ.,tích cực,ẩm thực,test
+r0203,"Thủ tục thực sự gọn nhẹ, nhưng nhân viên thờ ơ. Cho 1 sao.",tiêu cực,dịch vụ,train
+r0204,Mình đến vào giờ cao điểm. Phòng ốc bẩn nhưng bù lại thời gian chờ rất hợp lý.,tích cực,dịch vụ,train
+r0205,giao diện cũng được. 😐,trung tính,ứng dụng,train
+r0206,mình học buổi tối sau giờ làm. giảng viên giỏi chuyên môn.,tích cực,khóa học,train
+r0207,Đi ăn với bạn bè. Tuy phục vụ thờ ơ nhưng món ăn quá ngon.,tích cực,ẩm thực,train
+r0208,Tính năng đầy đủ và hỗ trợ khách hàng thực sự nhanh!!,tích cực,ứng dụng,train
+r0209,Giao diện chẳng hề xấu. Ứng dụng cực kỳ ít lỗi. Rất đáng thử.,tích cực,ứng dụng,test
+r0210,"Tài liệu cực kỳ dễ theo dõi, nhưng tốc độ giảng quá nhanh. Cho 1 sao.",tiêu cực,khóa học,train
+r0211,"Giao diện thực sự đẹp, nhưng tốc độ giật. Sẽ không quay lại.",tiêu cực,ứng dụng,train
+r0212,"Mình đăng ký theo lời giới thiệu của bạn. Nội dung sát thực tế, lại còn tài liệu dễ theo dõi.",tích cực,khóa học,train
+r0213,Mình đăng ký theo lời giới thiệu của bạn. Bài tập bình thường. Chưa biết có dùng lại không!!,trung tính,khóa học,valid
+r0214,Mình đăng ký theo lời giới thiệu của bạn. Tuy tốc độ giảng thực sự vừa phải nhưng học phí đắt. 😞,tiêu cực,khóa học,train
+r0215,Dùng trên điện thoại Android được hai tuần. Giao diện khá dễ dùng và ứng dụng cực kỳ ít lỗi. Recommend nhé!,tích cực,ứng dụng,train
+r0216,Không gian khá chật...,tiêu cực,ẩm thực,train
+r0217,"Tài liệu đầy đủ, lại còn nội dung quá có hệ thống!",tích cực,khóa học,train
+r0218,Màu sắc giống trong ảnh. Chất lượng quá kém. Sẽ không quay lại.,tiêu cực,sản phẩm,test
+r0219,Tuy học phí hợp lý nhưng bài tập khá ít.,tiêu cực,khóa học,test
+r0220,Mình mới cài nên chưa dùng nhiều. Thông báo kịp thời. Rất đáng thử.,tích cực,ứng dụng,test
+r0221,"mình đăng ký theo lời giới thiệu của bạn. tốc độ giảng rất vừa phải, giảng viên nhiệt tình. recommend nhé! 👍",tích cực,khóa học,test
+r0222,Mình đăng ký theo lời giới thiệu của bạn. Tuy nội dung quá sát thực tế nhưng học phí khá đắt.,tiêu cực,khóa học,train
+r0223,"Mua tặng người nhà. Chất lượng kém, nhưng chất liệu rất dày dặn. 😍",tích cực,sản phẩm,train
+r0224,Giao diện quá thân thiện. Recommend nhé!,tích cực,ứng dụng,train
+r0225,Thực đơn khá nhiều món. Giá rẻ.,tích cực,ẩm thực,train
+r0226,Khẩu phần hơi nhỏ nhưng bù lại nguyên liệu khá sạch!,tích cực,ẩm thực,train
+r0227,Ưu điểm: giảng viên thực sự giỏi chuyên môn. Nhược điểm: tốc độ giảng quá nhanh. Cho 3 sao.,trung tính,khóa học,train
+r0228,Mình học buổi tối sau giờ làm. Giảng viên nhiệt tình. Recommend nhé!,tích cực,khóa học,train
+r0229,Phòng ốc rất cũ.,tiêu cực,dịch vụ,valid
+r0230,Mình đến vào giờ cao điểm. Việc giải quyết khiếu nại khá chậm.,tiêu cực,dịch vụ,train
+r0231,Hỗ trợ khách hàng nhiệt tình!,tích cực,ứng dụng,valid
+r0232,Giao diện không thay đổi nhiều so với bản cũ. Chưa biết có dùng lại không...,trung tính,ứng dụng,test
+r0233,Mình học buổi tối sau giờ làm. Bài tập quá ít!!!,tiêu cực,khóa học,valid
+r0234,Bài tập khá thực tế. 😍,tích cực,khóa học,test
+r0235,Giao hàng cũng được. Mình ghi nhận xét vậy thôi.,trung tính,sản phẩm,train
+r0236,Giao diện không thay đổi nhiều so với bản cũ. Chưa biết có dùng lại không.,trung tính,ứng dụng,train
+r0237,tư vấn của shop không nhiệt tình chút nào. chất liệu rất kém bền.,tiêu cực,sản phẩm,train
+r0238,"Mình mới cài nên chưa dùng nhiều, cần đăng nhập mới xem được nội dung...",trung tính,ứng dụng,train
+r0239,tốc độ giảng quá nhanh. 🤔,tiêu cực,khóa học,train
+r0240,"Mình đăng ký theo lời giới thiệu của bạn. Nội dung thực sự bổ ích, lại còn bài tập rất thực tế.",tích cực,khóa học,train
+r0241,"Dùng được, không có gì đặc biệt. Giao hàng chậm!!!",tiêu cực,sản phẩm,train
+r0242,"Nhân viên khá thân thiện, nhưng chi phí rất mập mờ. Không khuyên mua. 🤔!!",tiêu cực,dịch vụ,valid
+r0243,Nội dung rất có hệ thống.,tích cực,khóa học,train
+r0244,"Dùng trên điện thoại Android đc hai tuần. Giao diện xấu, nhưng tính năng rất đầy đủ. Cho 5 sao.",tích cực,ứng dụng,train
+r0245,dùng trên điện thoại android được hai tuần. ứng dụng thực sự ít lỗi. rất đáng thử. 🙂,tích cực,ứng dụng,train
+r0246,"Thủ tục rườm rà, nhân viên thiếu chuyên nghiệp. Sẽ không quay lại. 😤",tiêu cực,dịch vụ,train
+r0247,Tuy tài liệu khó theo dõi nhưng giảng viên dễ hiểu.,tích cực,khóa học,train
+r0248,Mình mới học đc vài buổi!!!,trung tính,khóa học,train
+r0249,ưu điểm: giao diện đẹp. nhược điểm: tốc độ rất chậm.,trung tính,ứng dụng,train
+r0250,Nội dung hơi sơ sài. Cho 1 sao.,tiêu cực,khóa học,train
+r0251,Tài liệu ở mức trung bình.,trung tính,khóa học,train
+r0252,Phục vụ khá kém và ko gian rất bẩn.,tiêu cực,ẩm thực,test
+r0253,"Phục vụ quá thờ ơ, lại còn khẩu phần khá sơ sài!!!",tiêu cực,ẩm thực,test
+r0254,Tốc độ tàm tạm.,trung tính,ứng dụng,train
+r0255,Giá chẳng hề chát. Sẽ ủng hộ tiếp. 👍!,tích cực,ẩm thực,train
+r0256,Giảng viên khó hiểu. Sẽ không quay lại.,tiêu cực,khóa học,train
+r0257,Bài tập quá khó.,tiêu cực,khóa học,train
+r0258,Tài liệu chẳng rõ ràng. 😐,tiêu cực,khóa học,train
+r0259,Chất liệu quá mềm. 🙂,tích cực,sản phẩm,train
+r0260,thời gian chờ quá dài!,tiêu cực,dịch vụ,train
+r0261,Ưu điểm: thủ tục khá đơn giản. Nhược điểm: việc giải quyết khiếu nại hơi qua loa.,trung tính,dịch vụ,train
+r0262,Học phí không xứng đáng.,tiêu cực,khóa học,test
+r0263,Mình dùng được một tuần rồi. Ưu điểm: đóng gói cẩn thận. Nhược điểm: giá quá cao. Cho 3 sao.,trung tính,sản phẩm,valid
+r0264,Mua tặng người nhà. Chất lượng không hề tệ. 👍,tích cực,sản phẩm,train
+r0265,"Dùng trên điện thoại Android được hai tuần. Ứng dụng khá ổn định, nhưng tính năng quá thừa thãi!",tiêu cực,ứng dụng,valid
+r0266,mình học buổi tối sau giờ làm. bài tập quá khó. thất vọng.,tiêu cực,khóa học,valid
+r0267,Giá rất phải chăng.,tích cực,ẩm thực,train
+r0268,Món ăn ở mức bình thường. Phục vụ khá chu đáo.,tích cực,ẩm thực,test
+r0269,Mình học online được một tháng. Ưu điểm: giảng viên cực kỳ dễ hiểu. Nhược điểm: tốc độ giảng quá nhanh. Chưa biết có dùng lại không.,trung tính,khóa học,train
+r0270,"Cả nhà ghé ăn tối cuối tuần. Giá cao, nhưng không gian cực kỳ ấm cúng.",tích cực,ẩm thực,train
+r0271,giá rẻ.,tích cực,ẩm thực,train
+r0272,nội dung chẳng sát thực tế. cho 1 sao!!,tiêu cực,khóa học,train
+r0273,"Chat luong kha cao, lai con chat lieu thuc su day dan. Rat dang thu.",tích cực,sản phẩm,valid
+r0274,Món ăn khá dở và phục vụ chậm.,tiêu cực,ẩm thực,train
+r0275,Chất lượng quá ổn. Recommend nhé! 👎,tích cực,sản phẩm,train
+r0276,Ưu điểm: giá cực kỳ hợp lý. Nhược điểm: không gian ồn.,trung tính,ẩm thực,train
+r0277,"tốc độ mượt, hỗ trợ khách hàng rất chu đáo.",tích cực,ứng dụng,train
+r0278,Giá quá đắt.,tiêu cực,ẩm thực,train
+r0279,Giao hàng quá đúng hẹn. Recommend nhé!,tích cực,sản phẩm,train
+r0280,Bài tập tạm được.,trung tính,khóa học,train
+r0281,Minh dung duoc mot tuan roi. Gia rat cao nhung bu lai chat luong qua tot. 🤔,tích cực,sản phẩm,valid
+r0282,không gian tạm được. mình ghi nhận xét vậy thôi. 😐,trung tính,ẩm thực,test
+r0283,Giá chưa mềm. 😞,tiêu cực,sản phẩm,train
+r0284,Phong oc binh thuong.,trung tính,dịch vụ,train
+r0285,mua tặng người nhà. màu sắc giống trong ảnh.,trung tính,sản phẩm,train
+r0286,Lan dau minh ghe quan. Mon an o muc binh thuong. Cho 3 sao.,trung tính,ẩm thực,train
+r0287,"Phòng ốc thoải mái, nhân viên chuyên nghiệp. Cho 5 sao.",tích cực,dịch vụ,test
+r0288,Mình học buổi tối sau giờ làm. Ưu điểm: tài liệu rất đầy đủ. Nhược điểm: giảng viên khá hời hợt.,trung tính,khóa học,train
+r0289,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giao hàng đúng thời gian dự kiến. Cho 3 sao.",trung tính,sản phẩm,train
+r0290,khẩu phần vừa đủ một người. khẩu phần khá ít.,tiêu cực,ẩm thực,train
+r0291,Thực đơn khá nhiều món. Giá quá chát. 😡!!!,tiêu cực,ẩm thực,train
+r0292,Bai tap qua kho.,tiêu cực,khóa học,train
+r0293,"Dung lượng khoảng 80 MB, ứng dụng có đủ các chức năng cơ bản. Mình ghi nhận xét vậy thôi.",trung tính,ứng dụng,train
+r0294,Cả nhà ghé ăn tối cuối tuần. Quán nằm trên đường chính. Chưa biết có dùng lại không. 🤔,trung tính,ẩm thực,valid
+r0295,Giảng viên không giỏi chuyên môn.,tiêu cực,khóa học,train
+r0296,"Nhân viên khá nhiệt tình, lại còn phòng ốc thoáng. Recommend nhé!",tích cực,dịch vụ,train
+r0297,Nội dung đúng như mô tả ban đầu. Giảng viên hời hợt.,tiêu cực,khóa học,train
+r0298,Món ăn r mặn chát.,tiêu cực,ẩm thực,train
+r0299,Học phí chưa hợp lý. Cho 1 sao.,tiêu cực,khóa học,train
+r0300,"Không gian thực sự thoáng, khẩu phần rất vừa ăn.",tích cực,ẩm thực,test
+r0301,Dùng trên điện thoại Android được hai tuần. Ứng dụng thực sự ổn định nhưng tiếc là giao diện hơi rối.,tiêu cực,ứng dụng,valid
+r0302,"Giảng viên thiếu nhiệt tình, lại còn nội dung rất sơ sài. Sẽ không quay lại.",tiêu cực,khóa học,valid
+r0303,Ưu điểm: phục vụ quá niềm nở. Nhược điểm: không gian khá bẩn.,trung tính,ẩm thực,train
+r0304,Bài tập hơi nhàm chán. Thất vọng.,tiêu cực,khóa học,test
+r0305,Món ăn thực sự đậm đà nhưng tiếc là giá đắt.,tiêu cực,ẩm thực,train
+r0306,"Thu tuc kha ruom ra, nhung viec giai quyet khieu nai cuc ky nhanh. 👍",tích cực,dịch vụ,train
+r0307,Mình đăng ký theo lời giới thiệu của bạn. Bài tập hay và tốc độ giảng rất hợp lý. Recommend nhé!,tích cực,khóa học,train
+r0308,Tư vấn của shop rất chu đáo. Cho 5 sao.,tích cực,sản phẩm,train
+r0309,Học phí thực sự hợp lý. Recommend nhé!,tích cực,khóa học,valid
+r0310,Giá trung bình so với quanh đây. Khẩu phần quá vừa ăn.,tích cực,ẩm thực,train
+r0311,Giá hơi cao. Không khuyên mua.,tiêu cực,sản phẩm,train
+r0312,Đi công tác nên mình ghé. Tuy chi phí hơi mập mờ nhưng phòng ốc thực sự thoải mái. Rất đáng thử!!!,tích cực,dịch vụ,train
+r0313,Ứng dụng không ít lỗi lắm.,tiêu cực,ứng dụng,train
+r0314,Đi công tác nên mình ghé. Thời gian xử lý khoảng hai ngày.,trung tính,dịch vụ,train
+r0315,"Mình dùng dịch vụ lần thứ hai. Chi phí ở mức trung bình, mình chờ khoảng mười phút. Mình ghi nhận xét vậy thôi.",trung tính,dịch vụ,train
+r0316,Tốc độ cực kỳ nhanh. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r0317,Mua tặng người nhà. Mới nhận hàng nên chưa đánh giá được nhiều. ❤️,trung tính,sản phẩm,valid
+r0318,Tính năng nghèo nàn nhưng bù lại thông báo thực sự rõ ràng.,tích cực,ứng dụng,train
+r0319,"Dùng được, không có gì đặc biệt. Chất liệu thô!!",tiêu cực,sản phẩm,train
+r0320,Tuy thời gian chờ rất lâu nhưng nhân viên cực kỳ nhiệt tình. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r0321,giảng viên rất nhiệt tình.,tích cực,khóa học,train
+r0322,Thủ tục không gọn nhẹ chút nào. Chi phí mập mờ.,tiêu cực,dịch vụ,test
+r0323,Mình đến làm thủ tục vào buổi sáng. Thời gian chờ khá ngắn.,tích cực,dịch vụ,train
+r0324,minh hoc online duoc mot thang. noi dung hoi loi thoi. cho 1 sao. 👎!,tiêu cực,khóa học,train
+r0325,Đi ăn với bạn bè. Giá trung bình so với quanh đây. Khẩu phần khá vừa ăn.,tích cực,ẩm thực,valid
+r0326,tài liệu gửi qua email sau mỗi buổi. cho 3 sao.,trung tính,khóa học,train
+r0327,Mình học buổi tối sau giờ làm. Ưu điểm: tài liệu đầy đủ. Nhược điểm: giảng viên rất hời hợt.,trung tính,khóa học,train
+r0328,Giá trung bình so với quanh đây. Cho 3 sao...,trung tính,ẩm thực,train
+r0329,Thủ tục quá phức tạp. 👎...,tiêu cực,dịch vụ,train
+r0330,Giảng viên quá giỏi chuyên môn. 🙂,tích cực,khóa học,train
+r0331,Nguyên liệu thực sự tươi. ❤️,tích cực,ẩm thực,train
+r0332,Mình chờ khoảng mười phút. Chi phí cao!!,tiêu cực,dịch vụ,train
+r0333,nguyên liệu cũ. cho 1 sao.,tiêu cực,ẩm thực,train
+r0334,Tốc độ nhanh.,tích cực,ứng dụng,train
+r0335,"đi công tác nên mình ghé. nhân viên cực kỳ chuyên nghiệp, việc giải quyết khiếu nại quá nhanh.",tích cực,dịch vụ,train
+r0336,giảng viên khó hiểu nhưng bù lại tài liệu dễ theo dõi.,tích cực,khóa học,valid
+r0337,"Không gian thực sự sạch sẽ, lại còn nguyên liệu rất sạch.",tích cực,ẩm thực,valid
+r0338,Mình mới cài nên chưa dùng nhiều.,trung tính,ứng dụng,train
+r0339,"Mình đến vào giờ cao điểm. Việc giải quyết khiếu nại khá nhanh, nhưng nhân viên quá cáu gắt!",tiêu cực,dịch vụ,train
+r0340,Chạy bình thường trên máy mình. Cho 3 sao.,trung tính,ứng dụng,train
+r0341,"Thời gian chờ hợp lý, lại còn chi phí hợp lý.",tích cực,dịch vụ,train
+r0342,Nguyên liệu không sạch. Không gian hơi chật. Cho 1 sao.,tiêu cực,ẩm thực,train
+r0343,Nhân viên hơi thiếu chuyên nghiệp và việc giải quyết khiếu nại khá chậm. Không khuyên mua.,tiêu cực,dịch vụ,train
+r0344,Mau sac cuc ky tuoi. Rat dang thu.,tích cực,sản phẩm,valid
+r0345,Ưu điểm: giảng viên khá giỏi chuyên môn. Nhược điểm: tốc độ giảng quá chậm.,trung tính,khóa học,train
+r0346,Phục vụ rất niềm nở. 🙂,tích cực,ẩm thực,train
+r0347,Món ăn tàm tạm.,trung tính,ẩm thực,train
+r0348,Tuy bài tập cực kỳ thực tế nhưng tốc độ giảng quá nhanh. Sẽ không quay lại. 😡,tiêu cực,khóa học,train
+r0349,mua tặng người nhà. tư vấn của shop thiếu nhiệt tình. sẽ không quay lại.,tiêu cực,sản phẩm,valid
+r0350,Giảng viên rất nhiệt tình. Cho 5 sao.,tích cực,khóa học,train
+r0351,"Chi phí quá mập mờ, nhân viên thờ ơ!!!",tiêu cực,dịch vụ,train
+r0352,Mua tặng người nhà. Tư vấn của shop không chậm. Màu sắc cực kỳ giống hình. Sẽ ủng hộ tiếp.,tích cực,sản phẩm,train
+r0353,Tốc độ giật nhưng bù lại hỗ trợ khách hàng quá chu đáo. Recommend nhé!,tích cực,ứng dụng,train
+r0354,ho tro khach hang qua loa.,tiêu cực,ứng dụng,test
+r0355,Tốc độ giảng rất vừa phải nhưng tiếc là giảng viên khó hiểu. Cho 1 sao. 👎,tiêu cực,khóa học,valid
+r0356,Dịch vụ giống như quảng cáo. ❤️,trung tính,dịch vụ,train
+r0357,Tốc độ giảng chẳng hề quá nhanh. Học phí rất xứng đáng. Cho 5 sao.,tích cực,khóa học,train
+r0358,"Màu sắc phai, nhưng chất liệu quá bền.",tích cực,sản phẩm,train
+r0359,Tốc độ giảng khá vừa phải. Recommend nhé!,tích cực,khóa học,train
+r0360,Món ăn dở và phục vụ hơi kém.,tiêu cực,ẩm thực,train
+r0361,Thời gian chờ cũng được.,trung tính,dịch vụ,train
+r0362,Đi ăn với bạn bè. Khẩu phần rất đầy đặn. Rất đáng thử.,tích cực,ẩm thực,train
+r0363,"Nhân viên cực kỳ nhiệt tình, phòng ốc khá thoải mái. ❤️",tích cực,dịch vụ,test
+r0364,Mình dùng được một tuần rồi. Giao hàng lâu nhưng bù lại màu sắc tươi. Rất đáng thử!,tích cực,sản phẩm,train
+r0365,"Phòng ốc cực kỳ sạch sẽ, thời gian chờ cực kỳ hợp lý. ❤️",tích cực,dịch vụ,train
+r0366,Đi ăn với bạn bè. Phục vụ cực kỳ chu đáo.,tích cực,ẩm thực,valid
+r0367,Mình đăng ký theo lời giới thiệu của bạn. Giảng viên tạm được.,trung tính,khóa học,train
+r0368,Ứng dụng khá mượt nhưng tiếc là hỗ trợ khách hàng quá chậm. Cho 1 sao. 😡,tiêu cực,ứng dụng,train
+r0369,Cài về từ tháng trước. Giao diện rối. Cho 1 sao.,tiêu cực,ứng dụng,train
+r0370,bài tập rất ít.,tiêu cực,khóa học,train
+r0371,Tuy đóng gói cẩu thả nhưng màu sắc khá đẹp.,tích cực,sản phẩm,test
+r0372,Quán nằm trên đường chính.,trung tính,ẩm thực,train
+r0373,Giang vien gioi chuyen mon!!,tích cực,khóa học,train
+r0374,giao hàng đúng thời gian dự kiến...,trung tính,sản phẩm,test
+r0375,Chất liệu không kém bền!!!,tích cực,sản phẩm,test
+r0376,Nội dung đúng như mô tả ban đầu. Tài liệu quá dễ theo dõi.,tích cực,khóa học,train
+r0377,Giao dien khong he kho dung. Ung dung qua on dinh. Recommend nhe!,tích cực,ứng dụng,train
+r0378,mình đăng ký theo lời giới thiệu của bạn. mình mới học được vài buổi. học phí khá cao. sẽ không quay lại.,tiêu cực,khóa học,test
+r0379,Ứng dụng hơi hay văng. 😞,tiêu cực,ứng dụng,train
+r0380,Mình đăng ký theo lời giới thiệu của bạn. Tài liệu gửi qua email sau mỗi buổi. Giảng viên khá nhiệt tình. Sẽ ủng hộ tiếp.,tích cực,khóa học,train
+r0381,Giao diện rất xấu.,tiêu cực,ứng dụng,train
+r0382,Đi công tác nên mình ghé. Thời gian chờ không hợp lý. Nhân viên khá cáu gắt. Sẽ không quay lại.,tiêu cực,dịch vụ,train
+r0383,"Chi phi kha minh bach, thoi gian cho hop ly. Recommend nhe!",tích cực,dịch vụ,train
+r0384,Mình dùng được một tuần rồi. Giao hàng chẳng hề trễ hẹn. Cho 5 sao.,tích cực,sản phẩm,valid
+r0385,Mua tặng người nhà. Giao hàng đúng thời gian dự kiến. Chất liệu rất mềm.,tích cực,sản phẩm,train
+r0386,Tốc độ giảng khá hợp lý!,tích cực,khóa học,test
+r0387,Cài về từ tháng trước. Tốc độ khá mượt. 😍,tích cực,ứng dụng,train
+r0388,"Mình đến vào giờ cao điểm. Chi phí mập mờ, việc giải quyết khiếu nại rất chậm.",tiêu cực,dịch vụ,train
+r0389,Món ăn ở mức bình thường. Món ăn thực sự ngon. 👍,tích cực,ẩm thực,train
+r0390,đi ăn với bạn bè. giá chẳng hợp lý.,tiêu cực,ẩm thực,train
+r0391,Mình học online được một tháng. Mình mới học được vài buổi. Mình ghi nhận xét vậy thôi.,trung tính,khóa học,train
+r0392,đi ăn với bạn bè. khẩu phần khá đầy đặn và phục vụ khá chu đáo. ❤️!!!,tích cực,ẩm thực,train
+r0393,Giảng viên rất dễ hiểu và tài liệu dễ theo dõi. 🙂!,tích cực,khóa học,valid
+r0394,ứng dụng hơi nhiều lỗi.,tiêu cực,ứng dụng,train
+r0395,"Nhân viên rất nhiệt tình, phòng ốc cực kỳ thoải mái.",tích cực,dịch vụ,train
+r0396,"Đóng gói chắc chắn, lại còn giá khá rẻ. Rất đáng thử.",tích cực,sản phẩm,train
+r0397,Giao diện không thay đổi nhiều so với bản cũ. Thông báo quá chậm!!,tiêu cực,ứng dụng,train
+r0398,tính năng cực kỳ tiện lợi. 🙂,tích cực,ứng dụng,train
+r0399,Ưu điểm: chi phí khá hợp lý. Nhược điểm: việc giải quyết khiếu nại khá qua loa. Cho 3 sao.,trung tính,dịch vụ,valid
+r0400,"Mình dùng bản mới nhất. Giao diện quá đẹp, tốc độ thực sự nhanh. Recommend nhé!...",tích cực,ứng dụng,train
+r0401,Khẩu phần quá nhỏ.,tiêu cực,ẩm thực,train
+r0402,Hỗ trợ khách hàng cực kỳ chu đáo. Recommend nhé!,tích cực,ứng dụng,train
+r0403,Uu diem: ung dung cuc ky muot. Nhuoc diem: tinh nang kha kho tim.,trung tính,ứng dụng,train
+r0404,Đi ăn với bạn bè. Phục vụ chu đáo. 👍,tích cực,ẩm thực,train
+r0405,Màu sắc thực sự tươi!!,tích cực,sản phẩm,valid
+r0406,Mình học online được một tháng. Giảng viên khá dễ hiểu.,tích cực,khóa học,valid
+r0407,Mình dùng được một tuần rồi. Giá không đắt.,tích cực,sản phẩm,train
+r0408,"Mới nhận hàng nên chưa đánh giá được nhiều, dùng được, ko có gì đặc biệt.",trung tính,sản phẩm,train
+r0409,Phục vụ khá niềm nở!,tích cực,ẩm thực,test
+r0410,"mình đến vào giờ cao điểm. nhân viên rất thân thiện, lại còn thời gian chờ cực kỳ ngắn. recommend nhé!",tích cực,dịch vụ,valid
+r0411,bài tập không có gì đặc biệt.,trung tính,khóa học,valid
+r0412,hỗ trợ khách hàng chậm và tốc độ giật. thất vọng.,tiêu cực,ứng dụng,valid
+r0413,Lần đầu mình ghé quán. Món ăn thực sự vừa miệng.,tích cực,ẩm thực,train
+r0414,Giá cực kỳ hợp lý nhưng tiếc là món ăn dở. Không khuyên mua!,tiêu cực,ẩm thực,test
+r0415,Nội dung đúng như mô tả ban đầu. Bài tập quá khó.,tiêu cực,khóa học,valid
+r0416,đóng gói không sơ sài. tư vấn của shop khá nhanh. rất đáng thử.,tích cực,sản phẩm,train
+r0417,Mình học online được một tháng. Tài liệu không có gì đặc biệt.,trung tính,khóa học,test
+r0418,mình dùng bản mới nhất. ứng dụng không ít lỗi. thông báo chậm. thất vọng.,tiêu cực,ứng dụng,train
+r0419,Đóng gói bình thường. Giao hàng lâu.,tiêu cực,sản phẩm,train
+r0420,"Học phí thanh toán một lần, khóa học gồm mười hai buổi. Mình ghi nhận xét vậy thôi.",trung tính,khóa học,valid
+r0421,Ưu điểm: tốc độ ổn định. Nhược điểm: hỗ trợ khách hàng chậm. Chưa biết có dùng lại không.,trung tính,ứng dụng,train
+r0422,Tuy thủ tục khá rườm rà nhưng chi phí khá hợp lý.,tích cực,dịch vụ,train
+r0423,Dùng trên điện thoại Android được hai tuần. Ứng dụng thực sự ít lỗi và hỗ trợ khách hàng nhiệt tình.,tích cực,ứng dụng,train
+r0424,Bai tap rat it.,tiêu cực,khóa học,train
+r0425,"Đóng gói khá ẩu, nhưng màu sắc đẹp. Rất đáng thử.",tích cực,sản phẩm,train
+r0426,Tài liệu không cũ. Nội dung rất sát thực tế. Cho 5 sao.,tích cực,khóa học,valid
+r0427,Mua tặng người nhà. Tư vấn của shop khá qua loa và giao hàng khá trễ hẹn. Không khuyên mua.,tiêu cực,sản phẩm,train
+r0428,mình dùng bản mới nhất. tính năng đầy đủ.,tích cực,ứng dụng,valid
+r0429,Tuy giá rất đắt nhưng đóng gói khá chắc chắn.,tích cực,sản phẩm,train
+r0430,Khẩu phần rất vừa ăn. Sẽ ủng hộ tiếp. 😍,tích cực,ẩm thực,train
+r0431,Tuy phòng ốc khá thoáng nhưng thời gian chờ rất bất hợp lý. Thất vọng!!,tiêu cực,dịch vụ,train
+r0432,Món ăn dở nhưng bù lại giá rẻ.,tích cực,ẩm thực,test
+r0433,tốc độ mượt và ứng dụng quá ổn định.,tích cực,ứng dụng,valid
+r0434,tuy giao hàng nhanh nhưng tư vấn của shop thiếu nhiệt tình.,tiêu cực,sản phẩm,train
+r0435,"Mua tặng người nhà. Tư vấn của shop quá qua loa, nhưng giá khá mềm.",tích cực,sản phẩm,train
+r0436,Lần đầu mình ghé quán. Quán mở cửa đến 22 giờ. 🤔,trung tính,ẩm thực,train
+r0437,"Minh hoc buoi toi sau gio lam. Tai lieu hoi thieu, lai con toc do giang qua cham. Se khong quay lai.",tiêu cực,khóa học,valid
+r0438,Phòng ốc hơi chật. Thất vọng.,tiêu cực,dịch vụ,valid
+r0439,Cài về từ tháng trước. Ưu điểm: tốc độ quá ổn định. Nhược điểm: tính năng khó tìm. Cho 3 sao.,trung tính,ứng dụng,train
+r0440,bài tập khá vừa sức và học phí thực sự xứng đáng. sẽ ủng hộ tiếp. 🙂!,tích cực,khóa học,test
+r0441,Màu sắc hơi xỉn.,tiêu cực,sản phẩm,train
+r0442,mình đến vào giờ cao điểm. chi phí tàm tạm. cho 3 sao.,trung tính,dịch vụ,train
+r0443,"Nhân viên hướng dẫn theo đúng quy trình, có thể thanh toán bằng thẻ. Chưa biết có dùng lại không.",trung tính,dịch vụ,valid
+r0444,Dùng trên điện thoại Android được hai tuần. Hỗ trợ khách hàng chu đáo.,tích cực,ứng dụng,test
+r0445,"tư vấn của shop quá thiếu nhiệt tình, nhưng giá mềm.",tích cực,sản phẩm,train
+r0446,"Mua tặng người nhà. Chất lượng cao, màu sắc thực sự tươi.",tích cực,sản phẩm,train
+r0447,"thông báo quá khó hiểu, nhưng ứng dụng ổn định. cho 5 sao.",tích cực,ứng dụng,train
+r0448,Phuc vu cuc ky nhanh. Rat dang thu...,tích cực,ẩm thực,test
+r0449,Giảng viên hơi khó hiểu.,tiêu cực,khóa học,train
+r0450,Tuy chi phí khá mập mờ nhưng phòng ốc cực kỳ sạch sẽ.,tích cực,dịch vụ,train
+r0451,Chất lượng khá thấp và giá đắt. Cho 1 sao!!,tiêu cực,sản phẩm,train
+r0452,"Giá đắt, màu sắc khác hình.",tiêu cực,sản phẩm,valid
+r0453,Mình học online được một tháng. Mình mới học được vài buổi.,trung tính,khóa học,train
+r0454,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giá quá hợp lý, giao hàng quá đúng hẹn. Recommend nhé! ❤️",tích cực,sản phẩm,test
+r0455,Đi công tác nên mình ghé. Nhân viên hướng dẫn theo đúng quy trình. 😐!,trung tính,dịch vụ,train
+r0456,Học phí chẳng hề đắt.,tích cực,khóa học,train
+r0457,Phòng ốc khá cũ nhưng bù lại thủ tục nhanh.,tích cực,dịch vụ,test
+r0458,Tuy phòng ốc cực kỳ thoải mái nhưng việc giải quyết khiếu nại rất qua loa.,tiêu cực,dịch vụ,train
+r0459,đi công tác nên mình ghé. chi phí thực sự minh bạch.,tích cực,dịch vụ,test
+r0460,chi phí minh bạch và nhân viên nhiệt tình.,tích cực,dịch vụ,valid
+r0461,Ứng dụng có đủ các chức năng cơ bản. Hỗ trợ khách hàng qua loa. Cho 1 sao.,tiêu cực,ứng dụng,test
+r0462,Chất liệu hơi thô. Không khuyên mua. 👎!!,tiêu cực,sản phẩm,train
+r0463,"Phục vụ thực sự niềm nở, nguyên liệu rất tươi. Recommend nhé!!",tích cực,ẩm thực,train
+r0464,Chất lượng không kém. Chất liệu khá bền. Recommend nhé! ❤️,tích cực,sản phẩm,train
+r0465,Chi phí cực kỳ hợp lý!,tích cực,dịch vụ,valid
+r0466,nguyên liệu kém nhưng bù lại giá quá hợp lý.,tích cực,ẩm thực,train
+r0467,"Mình đến vào giờ cao điểm. Nhân viên hướng dẫn theo đúng quy trình, chi phí ở mức trung bình. Chưa biết có dùng lại không.",trung tính,dịch vụ,train
+r0468,Mình đến vào giờ cao điểm. Nhân viên cũng được.,trung tính,dịch vụ,valid
+r0469,Mua tặng người nhà. Giá ở mức trung bình.,trung tính,sản phẩm,train
+r0470,Đi công tác nên m ghé. Thời gian xử lý khoảng hai ngày. Phòng ốc quá cũ. 😤,tiêu cực,dịch vụ,test
+r0471,Mình dùng dịch vụ lần thứ hai. Phòng ốc sạch sẽ.,tích cực,dịch vụ,train
+r0472,"Màu sắc phai, đóng gói rất sơ sài.",tiêu cực,sản phẩm,valid
+r0473,Mau sac giong hinh va chat luong qua cao!!,tích cực,sản phẩm,train
+r0474,"minh hoc buoi toi sau gio lam. noi dung bo ich, bai tap cuc ky thuc te!",tích cực,khóa học,valid
+r0475,Món ăn ở mức bình thường. Món ăn quá nhạt.,tiêu cực,ẩm thực,train
+r0476,"giao diện cực kỳ đẹp, nhưng tính năng quá thừa thãi!",tiêu cực,ứng dụng,test
+r0477,Đi công tác nên mình ghé. Nhân viên rất nhiệt tình.,tích cực,dịch vụ,valid
+r0478,giảng viên thiếu nhiệt tình.,tiêu cực,khóa học,train
+r0479,Món ăn dở. 😤,tiêu cực,ẩm thực,train
+r0480,Giá rẻ. Cho 5 sao.,tích cực,sản phẩm,train
+r0481,Hỗ trợ khách hàng thiếu chuyên nghiệp.,tiêu cực,ứng dụng,test
+r0482,Ưu điểm: thủ tục gọn nhẹ. Nhược điểm: chi phí cao. 😐,trung tính,dịch vụ,train
+r0483,Việc giải quyết khiếu nại không nhanh. Sẽ không quay lại.,tiêu cực,dịch vụ,valid
+r0484,"Tư vấn của shop thiếu nhiệt tình, nhưng đóng gói thực sự chắc chắn. Rất đáng thử.",tích cực,sản phẩm,test
+r0485,Tính năng thừa thãi. Cho 1 sao.,tiêu cực,ứng dụng,train
+r0486,khẩu phần khá sơ sài.,tiêu cực,ẩm thực,train
+r0487,Hỗ trợ khách hàng khá nhanh.,tích cực,ứng dụng,train
+r0488,"Giá khá hợp lý, nhưng chất liệu khá thô.",tiêu cực,sản phẩm,test
+r0489,Cài về từ tháng trước. Thông báo không hề chậm.,tích cực,ứng dụng,train
+r0490,"Nội dung khá sơ sài, nhưng học phí quá xứng đáng.",tích cực,khóa học,train
+r0491,Cả nhà ghé ăn tối cuối tuần. Nguyên liệu tươi.,tích cực,ẩm thực,valid
+r0492,"Tư vấn của shop rất thiếu nhiệt tình, lại còn đóng gói khá cẩu thả!",tiêu cực,sản phẩm,train
+r0493,Thời gian chờ rất hợp lý và nhân viên thực sự nhiệt tình. 😍,tích cực,dịch vụ,train
+r0494,Mua tặng người nhà. Giao hàng khá chậm. Không khuyên mua.,tiêu cực,sản phẩm,test
+r0495,Tốc độ giảng không quá nhanh.,tích cực,khóa học,train
+r0496,giá hơi đắt.,tiêu cực,sản phẩm,test
+r0497,Ung dung co du cac chuc nang co ban. Giao dien rat than thien.,tích cực,ứng dụng,train
+r0498,"Thủ tục quá rườm rà, nhưng nhân viên nhiệt tình. Rất đáng thử.",tích cực,dịch vụ,test
+r0499,Tuy giao diện quá thân thiện nhưng tính năng hơi thừa thãi.,tiêu cực,ứng dụng,train
+r0500,Tốc độ ổn định.,tích cực,ứng dụng,train
+r0501,Giá trung bình so với quanh đây...,trung tính,ẩm thực,train
+r0502,Dùng trên điện thoại Android được hai tuần. Ứng dụng quá ổn định.,tích cực,ứng dụng,train
+r0503,Ứng dụng hay văng và tính năng hơi khó tìm. Cho 1 sao. 😞...,tiêu cực,ứng dụng,test
+r0504,Tuy hỗ trợ khách hàng chu đáo nhưng tính năng thừa thãi.,tiêu cực,ứng dụng,train
+r0505,Dịch vụ giống như quảng cáo. Chưa biết có dùng lại không.,trung tính,dịch vụ,valid
+r0506,Ưu điểm: khẩu phần cực kỳ vừa ăn. Nhược điểm: nguyên liệu ôi.,trung tính,ẩm thực,test
+r0507,Tốc độ không hề chậm.,tích cực,ứng dụng,train
+r0508,tốc độ giảng quá nhanh. cho 1 sao.,tiêu cực,khóa học,train
+r0509,"mình đăng ký theo lời giới thiệu của bạn. bài tập quá thực tế, nhưng nội dung hơi sơ sài...",tiêu cực,khóa học,train
+r0510,"Đóng gói khá đẹp, lại còn chất lượng tốt. Sẽ ủng hộ tiếp. 😍",tích cực,sản phẩm,train
+r0511,Bài tập bình thường!,trung tính,khóa học,test
+r0512,Giao hàng rất nhanh!!,tích cực,sản phẩm,train
+r0513,"Dùng được, không có gì đặc biệt. Màu sắc rất tươi. Sẽ ủng hộ tiếp!!",tích cực,sản phẩm,train
+r0514,Ưu điểm: việc giải quyết khiếu nại khá nhanh. Nhược điểm: chi phí cao. Cho 3 sao.,trung tính,dịch vụ,valid
+r0515,Mình dùng được một tuần rồi. Chất lượng tệ!,tiêu cực,sản phẩm,train
+r0516,Màu sắc tươi.,tích cực,sản phẩm,train
+r0517,"Nguyên liệu quá sạch, nhưng phục vụ quá kém. Thất vọng.",tiêu cực,ẩm thực,train
+r0518,Việc giải quyết khiếu nại cực kỳ thỏa đáng.,tích cực,dịch vụ,valid
+r0519,"Món ăn vừa miệng, nhưng khẩu phần sơ sài!!!",tiêu cực,ẩm thực,valid
+r0520,mình đăng ký theo lời giới thiệu của bạn. bài tập cũng được.,trung tính,khóa học,test
+r0521,Khẩu phần cực kỳ đầy đặn.,tích cực,ẩm thực,train
+r0522,"Dịch vụ giống như quảng cáo, chi phí ở mức trung bình.",trung tính,dịch vụ,train
+r0523,Mua tặng người nhà. Chất lượng hơi thấp. 👎!,tiêu cực,sản phẩm,train
+r0524,Giao hàng trễ hẹn.,tiêu cực,sản phẩm,train
+r0525,Ưu điểm: hỗ trợ khách hàng nhiệt tình. Nhược điểm: giao diện xấu.,trung tính,ứng dụng,train
+r0526,"Mình dùng được một tuần rồi. Chất lượng quá cao, nhưng chất liệu khá thô. Sẽ không quay lại.",tiêu cực,sản phẩm,test
+r0527,Ứng dụng nhiều lỗi và tốc độ khá chậm.,tiêu cực,ứng dụng,train
+r0528,Tư vấn của shop thiếu nhiệt tình. Thất vọng.,tiêu cực,sản phẩm,train
+r0529,Giao hang khong tre hen.,tích cực,sản phẩm,train
+r0530,"Hỗ trợ khách hàng rất chậm, lại còn thông báo khó hiểu. Không khuyên mua.",tiêu cực,ứng dụng,test
+r0531,Giao hang dung hen va dong goi kha dep. Cho 5 sao.,tích cực,sản phẩm,valid
+r0532,mình học buổi tối sau giờ làm. giảng viên khá hời hợt.,tiêu cực,khóa học,train
+r0533,Mình đến vào giờ cao điểm. Nhân viên cực kỳ chuyên nghiệp. Recommend nhé!,tích cực,dịch vụ,test
+r0534,Đi ăn với bạn bè. Nguyên liệu khá sạch. Recommend nhé!,tích cực,ẩm thực,train
+r0535,"Tư vấn của shop quá thiếu nhiệt tình, giao hàng quá lâu.",tiêu cực,sản phẩm,train
+r0536,Đi ăn với bạn bè. Khẩu phần ít. Sẽ không quay lại.,tiêu cực,ẩm thực,train
+r0537,Khẩu phần hơi sơ sài.,tiêu cực,ẩm thực,train
+r0538,Bản cập nhật mới có thêm chế độ tối.,trung tính,ứng dụng,train
+r0539,"Chi phí mập mờ, lại còn phòng ốc cũ.",tiêu cực,dịch vụ,train
+r0540,Ứng dụng không ổn định lắm. Không khuyên mua.,tiêu cực,ứng dụng,train
+r0541,màu sắc giống trong ảnh. giao hàng khá gọn gàng.,tích cực,sản phẩm,train
+r0542,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Màu sắc khá tươi và giao hàng thực sự đúng hẹn.",tích cực,sản phẩm,valid
+r0543,Học phí đắt nhưng bù lại nội dung sát thực tế.,tích cực,khóa học,train
+r0544,tuy thủ tục rất chậm nhưng chi phí hợp lý. 👍,tích cực,dịch vụ,train
+r0545,"Mua tặng người nhà. Màu sắc giống trong ảnh, đóng gói bình thường.",trung tính,sản phẩm,test
+r0546,Tư vấn của shop chu đáo. Rất đáng thử.,tích cực,sản phẩm,valid
+r0547,Dung lượng khoảng 80 MB.,trung tính,ứng dụng,train
+r0548,giao diện dễ dùng!,tích cực,ứng dụng,test
+r0549,"Tư vấn của shop rất nhiệt tình, đóng gói quá cẩn thận. Recommend nhé!",tích cực,sản phẩm,train
+r0550,thời gian chờ quá dài nhưng bù lại việc giải quyết khiếu nại nhanh.,tích cực,dịch vụ,train
+r0551,"giá quá chát, món ăn rất dở. không khuyên mua.",tiêu cực,ẩm thực,valid
+r0552,Chất liệu kém bền nhưng bù lại giá quá mềm. Rất đáng thử!!,tích cực,sản phẩm,train
+r0553,Phòng ốc rất cũ nhưng bù lại thời gian chờ thực sự hợp lý.,tích cực,dịch vụ,train
+r0554,"Chất liệu khá mỏng, nhưng chất lượng khá ổn.",tích cực,sản phẩm,train
+r0555,"mình đến làm thủ tục vào buổi sáng, dịch vụ giống như quảng cáo. 🤔",trung tính,dịch vụ,valid
+r0556,Ứng dụng mượt. Recommend nhé!,tích cực,ứng dụng,train
+r0557,Giao diện rất xấu và tốc độ chậm.,tiêu cực,ứng dụng,train
+r0558,Mình dùng dịch vụ lần thứ hai. Mình đến làm thủ tục vào buổi sáng. Phòng ốc hơi cũ!!,tiêu cực,dịch vụ,valid
+r0559,"Mình dùng dịch vụ lần thứ hai. Phòng ốc khá bẩn, nhưng thời gian chờ ngắn!",tích cực,dịch vụ,train
+r0560,Mon an chang he man chat. Cho 5 sao.,tích cực,ẩm thực,train
+r0561,Mình dùng dịch vụ lần thứ hai. Dịch vụ giống như quảng cáo. Chi phí cao. Không khuyên mua. 😞,tiêu cực,dịch vụ,test
+r0562,bai tap kha vua suc.,tích cực,khóa học,train
+r0563,Tuy món ăn dở nhưng nguyên liệu quá chất lượng. 🙂,tích cực,ẩm thực,train
+r0564,Chạy bình thường trên máy mình. 🤔!!,trung tính,ứng dụng,train
+r0565,"Minh den lam thu tuc vao buoi sang, co the thanh toan bang the. Chua biet co dung lai khong.",trung tính,dịch vụ,train
+r0566,Mình đăng ký theo lời giới thiệu của bạn. Bài tập khá ít.,tiêu cực,khóa học,train
+r0567,Tư vấn của shop nhiệt tình.,tích cực,sản phẩm,valid
+r0568,Giao diện quá khó dùng.,tiêu cực,ứng dụng,train
+r0569,Thủ tục đơn giản và nhân viên cực kỳ chuyên nghiệp.,tích cực,dịch vụ,test
+r0570,"Khẩu phần cực kỳ vừa ăn, nhưng giá rất chát. Cho 1 sao.",tiêu cực,ẩm thực,train
+r0571,Học phí cực kỳ hợp lý. Cho 5 sao.,tích cực,khóa học,test
+r0572,"Phục vụ hơi kém, nguyên liệu ôi.",tiêu cực,ẩm thực,test
+r0573,Co the thanh toan bang the. Phong oc hoi ban.,tiêu cực,dịch vụ,train
+r0574,minh dang ky theo loi gioi thieu cua ban. noi dung loi thoi.,tiêu cực,khóa học,train
+r0575,Giao diện rất đẹp. Rất đáng thử...,tích cực,ứng dụng,valid
+r0576,Mới nhận hàng nên chưa đánh giá được nhiều.,trung tính,sản phẩm,train
+r0577,Chất liệu khá mỏng và tư vấn của shop khá thiếu nhiệt tình. Không khuyên mua!!!,tiêu cực,sản phẩm,train
+r0578,mau sac kha tuoi.,tích cực,sản phẩm,train
+r0579,Giao hàng rất gọn gàng. Recommend nhé!,tích cực,sản phẩm,test
+r0580,"Phục vụ chu đáo, khẩu phần rất vừa ăn. Sẽ ủng hộ tiếp.",tích cực,ẩm thực,valid
+r0581,Ứng dụng cực kỳ mượt.,tích cực,ứng dụng,train
+r0582,Thủ tục rất gọn nhẹ. Recommend nhé!,tích cực,dịch vụ,train
+r0583,Mình dùng dịch vụ lần thứ hai. Thời gian chờ quá dài và thủ tục khá rườm rà. Thất vọng. 😤,tiêu cực,dịch vụ,train
+r0584,Chất lượng kém.,tiêu cực,sản phẩm,valid
+r0585,Chất liệu khá kém bền và tư vấn của shop khá qua loa.,tiêu cực,sản phẩm,train
+r0586,bài tập ít. cho 1 sao.,tiêu cực,khóa học,test
+r0587,món ăn không ngon. khẩu phần nhỏ. không khuyên mua.,tiêu cực,ẩm thực,valid
+r0588,Học phí rất đắt và nội dung rất lỗi thời. Không khuyên mua. 🙂,tiêu cực,khóa học,valid
+r0589,Chat lieu khong co gi dac biet.,trung tính,sản phẩm,train
+r0590,"Mình mới cài nên chưa dùng nhiều, ứng dụng có đủ các chức năng cơ bản.",tích cực,ứng dụng,train
+r0591,"Tài liệu dễ theo dõi, học phí hợp lý.",tích cực,khóa học,train
+r0592,Mình đăng ký theo lời giới thiệu của bạn. Nội dung quá sơ sài và học phí khá đắt.,tiêu cực,khóa học,test
+r0593,Chạy bình thường trên máy mình. Hỗ trợ khách hàng hơi qua loa.,tiêu cực,ứng dụng,valid
+r0594,"dùng trên điện thoại android được hai tuần. thông báo khá rõ ràng, tính năng hữu ích. cho 5 sao.",tích cực,ứng dụng,train
+r0595,việc giải quyết khiếu nại qua loa. sẽ không quay lại.,tiêu cực,dịch vụ,train
+r0596,Gia kha hop ly.,tích cực,sản phẩm,train
+r0597,Tuy chi phí mập mờ nhưng nhân viên nhiệt tình.,tích cực,dịch vụ,train
+r0598,Nguyên liệu khá cũ. Thất vọng.,tiêu cực,ẩm thực,train
+r0599,Chi phí ở mức trung bình.,trung tính,dịch vụ,test
+r0600,Phòng ốc cực kỳ sạch sẽ.,tích cực,dịch vụ,train
+r0601,Tư vấn của shop khá nhanh.,tích cực,sản phẩm,valid
+r0602,Lần đầu mình ghé quán. Khẩu phần đầy đặn. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r0603,"Mình đăng ký theo lời giới thiệu của bạn. Tài liệu thực sự dễ theo dõi, học phí xứng đáng. Cho 5 sao.",tích cực,khóa học,valid
+r0604,Thời gian chờ rất hợp lý.,tích cực,dịch vụ,train
+r0605,Có thể thanh toán bằng thẻ. Mình ghi nhận xét vậy thôi.,trung tính,dịch vụ,test
+r0606,Tài liệu quá dễ theo dõi...,tích cực,khóa học,train
+r0607,"Phòng ốc quá bẩn, nhưng nhân viên rất nhiệt tình.",tích cực,dịch vụ,test
+r0608,Màu sắc cực kỳ giống hình.,tích cực,sản phẩm,train
+r0609,chất liệu quá thô.,tiêu cực,sản phẩm,train
+r0610,giá hơi chát.,tiêu cực,ẩm thực,train
+r0611,Nội dung thực sự có hệ thống.,tích cực,khóa học,train
+r0612,Chất lượng cực kỳ cao.,tích cực,sản phẩm,train
+r0613,Mình dùng dịch vụ lần thứ hai. Ưu điểm: phòng ốc rất sạch sẽ. Nhược điểm: nhân viên khá thiếu chuyên nghiệp. Mình ghi nhận xét vậy thôi...,trung tính,dịch vụ,train
+r0614,Khẩu phần vừa đủ một người!!,trung tính,ẩm thực,valid
+r0615,ưu điểm: bài tập thực sự hay. nhược điểm: nội dung lỗi thời.,trung tính,khóa học,train
+r0616,"Cài về từ tháng trước. Hỗ trợ khách hàng hơi qua loa, nhưng tốc độ rất mượt!!!",tích cực,ứng dụng,train
+r0617,Đi công tác nên mình ghé. Dịch vụ giống như quảng cáo. Cho 3 sao. 😐!!!,trung tính,dịch vụ,train
+r0618,Thời gian chờ hợp lý nhưng tiếc là phòng ốc rất bẩn.,tiêu cực,dịch vụ,train
+r0619,Tính năng quá nghèo nàn. Thất vọng.,tiêu cực,ứng dụng,train
+r0620,hỗ trợ khách hàng nhiệt tình. recommend nhé!!!!,tích cực,ứng dụng,train
+r0621,Phòng ốc khá chật.,tiêu cực,dịch vụ,train
+r0622,Thủ tục chậm. Thất vọng.,tiêu cực,dịch vụ,train
+r0623,thời gian xử lý khoảng hai ngày. thời gian chờ rất lâu.,tiêu cực,dịch vụ,valid
+r0624,Giao hang rat nhanh.,tích cực,sản phẩm,train
+r0625,Tuy tốc độ thất thường nhưng hỗ trợ khách hàng khá nhiệt tình.,tích cực,ứng dụng,train
+r0626,Phòng ốc cực kỳ sạch sẽ nhưng tiếc là chi phí mập mờ.,tiêu cực,dịch vụ,test
+r0627,Giảng viên khá nhiệt tình và học phí hợp lý. Rất đáng thử.,tích cực,khóa học,test
+r0628,"Học phí cực kỳ hợp lý, nhưng nội dung lỗi thời.",tiêu cực,khóa học,train
+r0629,"Thời gian xử lý khoảng hai ngày, dịch vụ giống như quảng cáo.",trung tính,dịch vụ,train
+r0630,Giao hàng không hề lâu. 😍,tích cực,sản phẩm,test
+r0631,Giá mềm.,tích cực,sản phẩm,valid
+r0632,Bài tập không quá khó. Tốc độ giảng quá hợp lý.,tích cực,khóa học,train
+r0633,"mình dùng bản mới nhất. ứng dụng rất nhiều lỗi, nhưng tốc độ ổn định.",tích cực,ứng dụng,valid
+r0634,Tính năng rất khó tìm nhưng bù lại hỗ trợ khách hàng nhiệt tình!!!,tích cực,ứng dụng,train
+r0635,"Mình đến vào giờ cao điểm. Nhân viên quá thờ ơ, nhưng phòng ốc rất thoáng. Recommend nhé! 😍",tích cực,dịch vụ,train
+r0636,"Khau phan nho, nhung gia thuc su phai chang.",tích cực,ẩm thực,train
+r0637,tư vấn của shop rất qua loa!!,tiêu cực,sản phẩm,train
+r0638,Màu sắc phai.,tích cực,sản phẩm,train
+r0639,Ưu điểm: bài tập vừa sức. Nhược điểm: giảng viên thiếu nhiệt tình.,trung tính,khóa học,valid
+r0640,Mua tặng người nhà. Giá hợp lý. Recommend nhé!,tích cực,sản phẩm,valid
+r0641,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. màu sắc giống trong ảnh. cho 3 sao!!!",trung tính,sản phẩm,train
+r0642,Chất lượng quá cao.,tích cực,sản phẩm,train
+r0643,Ứng dụng hay văng nhưng bù lại thông báo kịp thời. ❤️,tích cực,ứng dụng,test
+r0644,Thủ tục quá chậm!!!,tiêu cực,dịch vụ,train
+r0645,Mình đăng ký theo lời giới thiệu của bạn. Tốc độ giảng hợp lý. Cho 5 sao!,tích cực,khóa học,valid
+r0646,Chất liệu cực kỳ dày dặn!!,tích cực,sản phẩm,train
+r0647,"Mua tặng người nhà. Giao hàng quá lâu, nhưng màu sắc cực kỳ giống hình.",tích cực,sản phẩm,train
+r0648,đóng gói rất cẩn thận. recommend nhé!,tích cực,sản phẩm,valid
+r0649,Thông báo kịp thời.,tích cực,ứng dụng,train
+r0650,"Chất liệu thô, nhưng màu sắc quá đẹp.",tích cực,sản phẩm,test
+r0651,"chi phí rất cao, thời gian chờ quá lâu.",tiêu cực,dịch vụ,train
+r0652,Ưu điểm: thời gian chờ hợp lý. Nhược điểm: thủ tục chậm. Cho 3 sao. 😐!,trung tính,dịch vụ,train
+r0653,Tuy hỗ trợ khách hàng hơi qua loa nhưng tính năng hữu ích.,tích cực,ứng dụng,valid
+r0654,Giá không hề đắt.,tích cực,ẩm thực,train
+r0655,"Thời gian chờ quá ngắn, lại còn việc giải quyết khiếu nại khá thỏa đáng. Sẽ ủng hộ tiếp.",tích cực,dịch vụ,train
+r0656,"Dùng trên điện thoại Android được hai tuần. Ứng dụng quá hay văng, hỗ trợ khách hàng rất qua loa. 😤",tiêu cực,ứng dụng,train
+r0657,Món ăn không đậm đà. Không gian hơi ồn.,tiêu cực,ẩm thực,valid
+r0658,Nguyên liệu khá sạch.,tích cực,ẩm thực,train
+r0659,Tài liệu gửi qua email sau mỗi buổi. 🤔,trung tính,khóa học,train
+r0660,Đóng gói quá chắc chắn.,tích cực,sản phẩm,train
+r0661,"Mua tặng người nhà. Dùng được, không có gì đặc biệt. Màu sắc khác hình!!!",tiêu cực,sản phẩm,train
+r0662,Nhân viên rất thiếu chuyên nghiệp. Cho 1 sao.,tiêu cực,dịch vụ,train
+r0663,Mình dùng được một tuần rồi. Kích cỡ đúng bảng size. Chất liệu cực kỳ bền.,tích cực,sản phẩm,valid
+r0664,Tuy món ăn khá đậm đà nhưng nguyên liệu rất cũ. 😤,tiêu cực,ẩm thực,train
+r0665,Tính năng ở mức trung bình. Chưa biết có dùng lại không.,trung tính,ứng dụng,valid
+r0666,Cài về từ tháng trước. Hỗ trợ khách hàng không nhiệt tình lắm. Sẽ không quay lại.,tiêu cực,ứng dụng,valid
+r0667,Khóa học gồm mười hai buổi. Bài tập cực kỳ thực tế. Rất đáng thử.,tích cực,khóa học,valid
+r0668,Tuy hỗ trợ khách hàng cực kỳ nhiệt tình nhưng giao diện khó dùng. 😤,tiêu cực,ứng dụng,train
+r0669,cả nhà ghé ăn tối cuối tuần. không gian khá bẩn. 👎,tích cực,ẩm thực,train
+r0670,Thời gian chờ hơi lâu. Cho 1 sao.,tiêu cực,dịch vụ,valid
+r0671,Minh dung ban moi nhat. Giao dien than thien.,tích cực,ứng dụng,train
+r0672,mình dùng được một tuần rồi. kích cỡ đúng bảng size. giá hợp lý. sẽ ủng hộ tiếp.,tích cực,sản phẩm,train
+r0673,Học phí thanh toán một lần. Cho 3 sao.,trung tính,khóa học,train
+r0674,"Món ăn khá dở, nhưng giá hợp lý. 🙂!!",tích cực,ẩm thực,train
+r0675,"Quán nằm trên đường chính, món ăn ở mức bình thường. 🤔",trung tính,ẩm thực,train
+r0676,"Dùng trên điện thoại Android được hai tuần. Tính năng khó tìm, ứng dụng quá nhiều lỗi.",tiêu cực,ứng dụng,test
+r0677,Ứng dụng thực sự ít lỗi. ❤️,tích cực,ứng dụng,train
+r0678,Hàng giống mô tả. Giá đắt. Thất vọng!!,tiêu cực,sản phẩm,train
+r0679,Cài về từ tháng trước. Giao diện không có gì đặc biệt.,trung tính,ứng dụng,train
+r0680,Lan dau minh ghe quan. Mon an chang he do. Recommend nhe!,tích cực,ẩm thực,train
+r0681,"giảng viên khá khó hiểu, tài liệu quá cũ. sẽ không quay lại.",tiêu cực,khóa học,train
+r0682,Mình đăng ký theo lời giới thiệu của bạn. Tốc độ giảng khá vừa phải.,tích cực,khóa học,valid
+r0683,Bài tập thực sự vừa sức và tốc độ giảng rất vừa phải. Recommend nhé! 👍,tích cực,khóa học,test
+r0684,nguyên liệu chẳng hề kém. 👍,tích cực,ẩm thực,valid
+r0685,Khóa học gồm mười hai buổi. Cho 3 sao.,trung tính,khóa học,train
+r0686,Mình học online được một tháng. Nội dung chẳng hề lan man. Bài tập cực kỳ hay. Sẽ ủng hộ tiếp.,tích cực,khóa học,test
+r0687,Mới nhận hàng nên chưa đánh giá được nhiều. Chưa biết có dùng lại không.,trung tính,sản phẩm,train
+r0688,Chất liệu không hề kém bền. Giá hợp lý...,tích cực,sản phẩm,train
+r0689,Tài liệu quá cũ. Cho 1 sao.,tiêu cực,khóa học,train
+r0690,Đi công tác nên m ghé. Thời gian chờ khá lâu. 😤,tiêu cực,dịch vụ,valid
+r0691,"Thủ tục nhanh, nhưng việc giải quyết khiếu nại qua loa.",tiêu cực,dịch vụ,train
+r0692,mình đến vào giờ cao điểm. nhân viên hướng dẫn theo đúng quy trình. mình ghi nhận xét vậy thôi.,tích cực,dịch vụ,train
+r0693,việc giải quyết khiếu nại hơi chậm và thủ tục rất rườm rà!!!,tiêu cực,dịch vụ,train
+r0694,Lần đầu mình ghé quán. Không gian hơi bẩn nhưng bù lại nguyên liệu cực kỳ chất lượng. Cho 5 sao.,tích cực,ẩm thực,train
+r0695,phục vụ không kém.,tích cực,ẩm thực,train
+r0696,Nội dung r bổ ích.,tích cực,khóa học,train
+r0697,"tốc độ giảng quá nhanh, nhưng giảng viên khá dễ hiểu. rất đáng thử.",tích cực,khóa học,train
+r0698,Ho tro khach hang rat cham. 😞,tiêu cực,ứng dụng,train
+r0699,Thông báo khá chậm và hỗ trợ khách hàng quá qua loa. Không khuyên mua.,tiêu cực,ứng dụng,test
+r0700,mua tặng người nhà. đóng gói ẩu và màu sắc quá xỉn. sẽ ko quay lại.,tiêu cực,sản phẩm,train
+r0701,Đi công tác nên mình ghé. Nhân viên hướng dẫn theo đúng quy trình. Việc giải quyết khiếu nại thỏa đáng.,tích cực,dịch vụ,train
+r0702,Mình dùng bản mới nhất. Thông báo cực kỳ kịp thời. Rất đáng thử. 😐,tích cực,ứng dụng,train
+r0703,Giảng viên tàm tạm. Chưa biết có dùng lại không.,trung tính,khóa học,train
+r0704,cài về từ tháng trước. tốc độ chậm.,tiêu cực,ứng dụng,train
+r0705,Tư vấn của shop qua loa. 😡,tiêu cực,sản phẩm,train
+r0706,nguyen lieu sach. recommend nhe!!!,tích cực,ẩm thực,train
+r0707,Giảng viên khá hời hợt.,tiêu cực,khóa học,train
+r0708,Tuy việc giải quyết khiếu nại nhanh nhưng nhân viên quá cáu gắt. Cho 1 sao.,tiêu cực,dịch vụ,test
+r0709,Khẩu phần quá nhỏ và món ăn rất dở.,tiêu cực,ẩm thực,train
+r0710,"Giao diện khá khó dùng, nhưng ứng dụng mượt. Sẽ ủng hộ tiếp.",tích cực,ứng dụng,train
+r0711,Tuy phục vụ thờ ơ nhưng khẩu phần rất đầy đặn. Rất đáng thử!,tích cực,ẩm thực,train
+r0712,Đi ăn với bạn bè. Nguyên liệu chất lượng.,tích cực,ẩm thực,train
+r0713,"Thời gian chờ khá bất hợp lý, nhưng phòng ốc thực sự thoải mái.",trung tính,dịch vụ,train
+r0714,"Đi ăn với bạn bè. Giá trung bình so với quanh đây, quán nằm trên đường chính.",trung tính,ẩm thực,train
+r0715,Chất lượng khá thấp.,tiêu cực,sản phẩm,train
+r0716,"Học phí hợp lý, nhưng tài liệu hơi khó theo dõi.",tiêu cực,khóa học,train
+r0717,Học phí thanh toán một lần. Bài tập cực kỳ hay.,tích cực,khóa học,valid
+r0718,Thủ tục tàm tạm!!,trung tính,dịch vụ,train
+r0719,Món ăn quá đậm đà. Recommend nhé! ❤️,tích cực,ẩm thực,train
+r0720,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu rất bền và giá khá rẻ. Rất đáng thử.",tích cực,sản phẩm,train
+r0721,mua tặng người nhà. giá hơi đắt!,tiêu cực,sản phẩm,train
+r0722,Cài về từ tháng trước. Giao diện rất thân thiện nhưng tiếc là ứng dụng khá hay văng. Sẽ không quay lại.,tiêu cực,ứng dụng,train
+r0723,đi công tác nên mình ghé. chi phí rất minh bạch!,tích cực,dịch vụ,train
+r0724,"Quán mở cửa đến 22 giờ, thực đơn khá nhiều món. Chưa biết có dùng lại không.",trung tính,ẩm thực,train
+r0725,Đi công tác nên mình ghé. Thời gian chờ cực kỳ ngắn. Rất đáng thử.,tích cực,dịch vụ,train
+r0726,Phòng ốc không bẩn.,tích cực,dịch vụ,train
+r0727,"Chi phi hop ly, thoi gian cho cuc ky hop ly. ❤️",tích cực,dịch vụ,test
+r0728,Đóng gói quá chắc chắn. Recommend nhé!,tích cực,sản phẩm,train
+r0729,Đóng gói sơ sài. 😤,tiêu cực,sản phẩm,train
+r0730,Phòng ốc chật. Sẽ không quay lại.,tiêu cực,dịch vụ,test
+r0731,Ưu điểm: tốc độ giảng cực kỳ hợp lý. Nhược điểm: nội dung khá sơ sài. Mình ghi nhận xét vậy thôi!!!,trung tính,khóa học,train
+r0732,"lần đầu mình ghé quán. không gian rất ồn, món ăn khá nhạt. cho 1 sao.",tiêu cực,ẩm thực,test
+r0733,Cả nhà ghé ăn tối cuối tuần. Tuy khẩu phần đầy đặn nhưng món ăn khá mặn chát.,tiêu cực,ẩm thực,train
+r0734,"Đi ăn với bạn bè. Phục vụ quá chậm, giá quá chát. Sẽ không quay lại.",tiêu cực,ẩm thực,valid
+r0735,"giảng viên quá khó hiểu, nội dung lỗi thời. không khuyên mua.",tiêu cực,khóa học,train
+r0736,"Giá cao, nhưng khẩu phần thực sự đầy đặn. Recommend nhé!",tích cực,ẩm thực,train
+r0737,Đi công tác nên mình ghé. Tuy thủ tục gọn nhẹ nhưng nhân viên rất thiếu chuyên nghiệp.,tiêu cực,dịch vụ,test
+r0738,Phòng ốc cực kỳ thoáng.,tích cực,dịch vụ,train
+r0739,Đi ăn với bạn bè. Khẩu phần chưa vừa ăn. Phục vụ rất kém!!,tiêu cực,ẩm thực,train
+r0740,Giá trung bình so với quanh đây.,trung tính,ẩm thực,train
+r0741,Đi công tác nên mình ghé. Chi phí không hề mập mờ. Nhân viên nhiệt tình. Cho 5 sao.,tích cực,dịch vụ,test
+r0742,Tốc độ ổn định nhưng tiếc là ứng dụng khá hay treo.,tiêu cực,ứng dụng,train
+r0743,"Không gian rất sạch sẽ, nhưng phục vụ kém. Cho 1 sao.",tiêu cực,ẩm thực,train
+r0744,Phòng ốc cũ và việc giải quyết khiếu nại hơi qua loa!!,tiêu cực,dịch vụ,test
+r0745,Cài về từ tháng trước. Ứng dụng nhiều lỗi.,tiêu cực,ứng dụng,valid
+r0746,màu sắc giống trong ảnh. đóng gói khá cẩn thận.,tích cực,sản phẩm,valid
+r0747,Giá cao. Sẽ không quay lại. 😤,tiêu cực,sản phẩm,train
+r0748,Khóa học gồm mười hai buổi. Nội dung rất lan man.,tiêu cực,khóa học,train
+r0749,bài tập thực sự thực tế. 🙂,tích cực,khóa học,train
+r0750,Cài về từ tháng trước. Tuy tính năng quá thừa thãi nhưng hỗ trợ khách hàng rất nhanh.,tích cực,ứng dụng,train
+r0751,"Món ăn rất đậm đà, phục vụ nhanh.",tích cực,ẩm thực,test
+r0752,Khẩu phần nhỏ. 😞,tiêu cực,ẩm thực,test
+r0753,mình học online được một tháng. học phí xứng đáng. sẽ ủng hộ tiếp.,tích cực,khóa học,valid
+r0754,Mình đến vào giờ cao điểm. Thời gian chờ cực kỳ ngắn.,tích cực,dịch vụ,train
+r0755,"Đóng gói chắc chắn, nhưng tư vấn của shop thiếu nhiệt tình.",tiêu cực,sản phẩm,train
+r0756,giá hợp lý.,tích cực,ẩm thực,train
+r0757,thời gian chờ chẳng hề bất hợp lý. phòng ốc rất sạch sẽ. sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r0758,Mình dùng bản mới nhất. Ưu điểm: giao diện quá đẹp. Nhược điểm: tính năng rất nghèo nàn.,trung tính,ứng dụng,train
+r0759,Không gian không sạch sẽ chút nào. Cho 1 sao.,tiêu cực,ẩm thực,train
+r0760,"Việc giải quyết khiếu nại khá thỏa đáng, lại còn nhân viên thân thiện. Cho 5 sao.",tích cực,dịch vụ,train
+r0761,"Học phí đắt, nội dung quá lan man. Thất vọng.",tiêu cực,khóa học,train
+r0762,Món ăn ở mức bình thường. Giá phải chăng. 👍,tích cực,ẩm thực,train
+r0763,"tính năng nghèo nàn, nhưng giao diện thực sự thân thiện. 😍",tích cực,ứng dụng,train
+r0764,chất liệu quá kém bền nhưng bù lại chất lượng rất tốt.,tích cực,sản phẩm,train
+r0765,Mới nhận hàng nên chưa đánh giá được nhiều. Giá khá cao.,tiêu cực,sản phẩm,valid
+r0766,Món ăn quá nhạt.,tiêu cực,ẩm thực,valid
+r0767,Chất liệu khá mềm. Rất đáng thử!!!,tích cực,sản phẩm,train
+r0768,"Giá cao, lại còn tư vấn của shop chậm. Không khuyên mua.",tiêu cực,sản phẩm,test
+r0769,Giang vien qua de hieu. ❤️!!!,tích cực,khóa học,train
+r0770,mình học online được một tháng. nội dung đúng như mô tả ban đầu. học phí hơi cao.,tiêu cực,khóa học,train
+r0771,Nội dung quá có hệ thống. Sẽ ủng hộ tiếp.,tích cực,khóa học,valid
+r0772,Mua tặng người nhà. Đóng gói rất sơ sài. Cho 1 sao. 👎,tiêu cực,sản phẩm,train
+r0773,Cài về từ tháng trước. Giao diện không thay đổi nhiều so với bản cũ.,trung tính,ứng dụng,train
+r0774,bài tập không nhàm chán.,tích cực,khóa học,train
+r0775,Phục vụ rất chậm.,tiêu cực,ẩm thực,train
+r0776,Tuy chi phí quá cao nhưng thời gian chờ cực kỳ hợp lý. Recommend nhé!,tích cực,dịch vụ,valid
+r0777,"Dùng được, không có gì đặc biệt. Giao hàng hơi chậm.",tiêu cực,sản phẩm,train
+r0778,Thời gian chờ hợp lý và việc giải quyết khiếu nại quá thỏa đáng. Cho 5 sao.,tích cực,dịch vụ,train
+r0779,tốc độ giảng rất vừa phải và bài tập thực sự hay.,tích cực,khóa học,train
+r0780,"Thủ tục gọn nhẹ, nhưng chi phí cao. Thất vọng.",tiêu cực,dịch vụ,train
+r0781,"tốc độ giảng quá vừa phải, lại còn nội dung quá có hệ thống. recommend nhé!",tích cực,khóa học,train
+r0782,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu chẳng hề kém bền. Đóng gói khá cẩn thận.",tích cực,sản phẩm,train
+r0783,Có thể thanh toán bằng thẻ. Phòng ốc thực sự thoáng. Recommend nhé! 🙂,tích cực,dịch vụ,train
+r0784,Tốc độ bình thường. Cho 3 sao. 😐,trung tính,ứng dụng,train
+r0785,Màu sắc giống trong ảnh. Giao hàng hơi trễ hẹn.,tiêu cực,sản phẩm,train
+r0786,Ứng dụng hay văng và tốc độ chậm. Không khuyên mua!,tiêu cực,ứng dụng,train
+r0787,Mình học online được một tháng. Tài liệu hơi thiếu. 😡,tiêu cực,khóa học,train
+r0788,"Tốc độ thực sự mượt, tính năng hữu ích...",tích cực,ứng dụng,train
+r0789,Nội dung lan man và tốc độ giảng quá nhanh.,tiêu cực,khóa học,train
+r0790,Nhân viên hướng dẫn theo đúng quy trình. Cho 3 sao.,trung tính,dịch vụ,train
+r0791,chất lượng không tốt. 😡!!,tiêu cực,sản phẩm,train
+r0792,khẩu phần vừa ăn nhưng tiếc là món ăn nhạt. không khuyên mua...,tiêu cực,ẩm thực,train
+r0793,chất lượng cực kỳ ổn. rất đáng thử.,tích cực,sản phẩm,train
+r0794,thủ tục chẳng hề chậm. recommend nhé!,tích cực,dịch vụ,train
+r0795,Cả nhà ghé ăn tối cuối tuần. Khẩu phần vừa đủ một người. Món ăn mặn chát.,tiêu cực,ẩm thực,train
+r0796,Mình học online được một tháng. Tốc độ giảng không hợp lý lắm. Giảng viên hơi khó hiểu. Sẽ không quay lại.,trung tính,khóa học,valid
+r0797,Phòng ốc thoải mái. Rất đáng thử.,tích cực,dịch vụ,train
+r0798,tốc độ cực kỳ mượt. rất đáng thử!!!,tích cực,ứng dụng,train
+r0799,Mình dùng được một tuần rồi. Màu sắc quá giống hình. Cho 5 sao.,tích cực,sản phẩm,train
+r0800,Bài tập vừa sức. Rất đáng thử. 👍,tích cực,khóa học,train
+r0801,Thông báo kịp thời nhưng tiếc là tính năng rất thừa thãi. Cho 1 sao.,tiêu cực,ứng dụng,train
+r0802,Mình đến vào giờ cao điểm. Phòng ốc khá bẩn nhưng bù lại thời gian chờ thực sự ngắn. Cho 5 sao!!,tích cực,dịch vụ,test
+r0803,thong bao hay tre va toc do giat.,tiêu cực,ứng dụng,train
+r0804,Ung dung cuc ky muot. Rat dang thu.,tích cực,ứng dụng,train
+r0805,khẩu phần quá sơ sài. sẽ không quay lại.,tiêu cực,ẩm thực,train
+r0806,Nguyên liệu chẳng hề kém. Khẩu phần khá vừa ăn.,tích cực,ẩm thực,train
+r0807,Giá ở mức trung bình. Mình ghi nhận xét vậy thôi.,trung tính,sản phẩm,train
+r0808,mua tặng người nhà. tư vấn của shop khá chậm. 👎,tiêu cực,sản phẩm,train
+r0809,"Học phí khá đắt, lại còn tốc độ giảng quá chậm.",tiêu cực,khóa học,test
+r0810,Giá cũng được.,trung tính,sản phẩm,train
+r0811,Hỗ trợ khách hàng cực kỳ chu đáo và tính năng khá hữu ích. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r0812,giao diện xấu.,tiêu cực,ứng dụng,train
+r0813,Mình dùng bản mới nhất. Giao diện hok thay đổi nhiều so với bản cũ. Tính năng hữu ích.,tích cực,ứng dụng,test
+r0814,Minh hoc online dc mot thang. Tai lieu r cu. Cho 1 sao...,tiêu cực,khóa học,train
+r0815,Tuy hỗ trợ khách hàng nhanh nhưng giao diện hơi rối.,tiêu cực,ứng dụng,train
+r0816,Nhân viên rất thờ ơ. 😤,tiêu cực,dịch vụ,train
+r0817,Tính năng khá tiện lợi.,tích cực,ứng dụng,train
+r0818,Đóng gói quá ẩu và giá đắt. 👍,tiêu cực,sản phẩm,train
+r0819,nhân viên khá nhiệt tình. rất đáng thử.,tích cực,dịch vụ,train
+r0820,Giá chưa phải chăng. Cho 1 sao!!,tiêu cực,ẩm thực,valid
+r0821,Mua tang nguoi nha. Gia o muc trung binh. Giao hang lau.,tiêu cực,sản phẩm,train
+r0822,Phong oc rat cu va viec giai quyet khieu nai qua cham. That vong.,tiêu cực,dịch vụ,train
+r0823,Tính năng hơi thừa thãi.,tiêu cực,ứng dụng,train
+r0824,Mình học online được một tháng. Học phí thanh toán một lần.,trung tính,khóa học,valid
+r0825,Dung tren dien thoai Android duoc hai tuan. Ho tro khach hang chang chu dao. Thong bao kha cham.,tiêu cực,ứng dụng,valid
+r0826,Chất liệu bình thường!!,trung tính,sản phẩm,train
+r0827,"Giao hàng quá gọn gàng, tư vấn của shop nhanh. Rất đáng thử.",tích cực,sản phẩm,train
+r0828,tư vấn của shop không hề thiếu nhiệt tình. màu sắc rất giống hình!!!,tích cực,sản phẩm,train
+r0829,Đi công tác nên mình ghé. Có thể thanh toán bằng thẻ.,trung tính,dịch vụ,train
+r0830,Mình dùng được một tuần rồi. Chất lượng tốt nhưng tiếc là tư vấn của shop qua loa.,tiêu cực,sản phẩm,test
+r0831,không gian tạm được!!,trung tính,ẩm thực,train
+r0832,Giá khá hợp lý.,tích cực,sản phẩm,train
+r0833,Đi ăn với bạn bè. Nguyên liệu cũng được. 🤔,trung tính,ẩm thực,train
+r0834,Đi ăn với bạn bè. Khẩu phần rất nhỏ.,tiêu cực,ẩm thực,train
+r0835,Thủ tục rất gọn nhẹ.,tích cực,dịch vụ,train
+r0836,phục vụ chu đáo!!!,tích cực,ẩm thực,train
+r0837,Đi ăn với bạn bè. Ưu điểm: nguyên liệu rất tươi. Nhược điểm: khẩu phần nhỏ.,trung tính,ẩm thực,train
+r0838,Bài tập khá hay. Recommend nhé!,tích cực,khóa học,train
+r0839,"Đi ăn với bạn bè. Món ăn khá vừa miệng, lại còn nguyên liệu quá sạch.",tích cực,ẩm thực,test
+r0840,Dịch vụ giống như quảng cáo.,trung tính,dịch vụ,test
+r0841,món ăn quá đậm đà và khẩu phần thực sự vừa ăn!!,tích cực,ẩm thực,test
+r0842,Ứng dụng mượt!,tích cực,ứng dụng,train
+r0843,Lần đầu mình ghé quán. Giá hợp lý và không gian thoáng.,tích cực,ẩm thực,train
+r0844,mình đến vào giờ cao điểm. việc giải quyết khiếu nại khá chậm. thất vọng.,tiêu cực,dịch vụ,test
+r0845,mình dùng bản mới nhất. bản cập nhật mới có thêm chế độ tối!!!,trung tính,ứng dụng,test
+r0846,"Món ăn mặn chát, không gian hơi ồn. Sẽ không quay lại.",tiêu cực,ẩm thực,train
+r0847,đi công tác nên mình ghé. việc giải quyết khiếu nại chưa thỏa đáng. sẽ không quay lại...,tiêu cực,dịch vụ,test
+r0848,Giao hàng tàm tạm.,trung tính,sản phẩm,valid
+r0849,Chất lượng kém!,tiêu cực,sản phẩm,train
+r0850,Lần đầu mik ghé quán. Món ăn không dở. Không gian khá sạch sẽ. 👍,tích cực,ẩm thực,test
+r0851,không gian không ấm cúng. nguyên liệu khá ôi.,tiêu cực,ẩm thực,train
+r0852,Việc giải quyết khiếu nại rất qua loa.,tiêu cực,dịch vụ,train
+r0853,Học qua Zoom vào buổi tối.,trung tính,khóa học,test
+r0854,Ứng dụng mượt và tốc độ quá nhanh. 😍!!!,tích cực,ứng dụng,train
+r0855,ứng dụng rất ổn định. sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r0856,mình dùng dịch vụ lần thứ hai. nhân viên hơi thờ ơ.,tiêu cực,dịch vụ,test
+r0857,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Màu sắc quá giống hình.",tích cực,sản phẩm,train
+r0858,Không gian chẳng hề ồn. Sẽ ủng hộ tiếp!!!,tích cực,ẩm thực,train
+r0859,Nguyên liệu chẳng hề ôi. Khẩu phần quá vừa ăn. 👍,tích cực,ẩm thực,train
+r0860,"Hỗ trợ khách hàng nhanh, lại còn ứng dụng ổn định!!",tích cực,ứng dụng,train
+r0861,Nội dung không có hệ thống. Giảng viên hơi khó hiểu. Sẽ không quay lại.,tiêu cực,khóa học,train
+r0862,Mình dùng được một tuần rồi. Màu sắc khác hình nhưng bù lại đóng gói thực sự chắc chắn. Recommend nhé!!,tích cực,sản phẩm,train
+r0863,Bài tập ít.,trung tính,khóa học,train
+r0864,Tư vấn của shop khá nhiệt tình.,tích cực,sản phẩm,train
+r0865,Lần đầu mình ghé quán. Tuy khẩu phần hơi ít nhưng món ăn quá ngon!!!,tích cực,ẩm thực,train
+r0866,Chi phí hơi cao. Sẽ không quay lại.,tiêu cực,dịch vụ,valid
+r0867,Chất liệu thô.,tiêu cực,sản phẩm,train
+r0868,"Thời gian chờ cực kỳ ngắn, nhưng thủ tục rườm rà.",tiêu cực,dịch vụ,train
+r0869,thông báo chẳng hề hay trễ. tính năng đầy đủ!!,tích cực,ứng dụng,train
+r0870,Tuy tốc độ giảng khá vừa phải nhưng giảng viên khó hiểu.,tiêu cực,khóa học,valid
+r0871,Việc giải quyết khiếu nại hơi qua loa và phòng ốc rất chật!,tiêu cực,dịch vụ,test
+r0872,Lop co khoang ba muoi hoc vien!,trung tính,khóa học,train
+r0873,bai tap hoi it.,tiêu cực,khóa học,train
+r0874,Thời gian chờ tàm tạm.,trung tính,dịch vụ,train
+r0875,Phục vụ thờ ơ. Sẽ không quay lại.,tiêu cực,ẩm thực,train
+r0876,Đi ăn với bạn bè. Ưu điểm: khẩu phần thực sự vừa ăn. Nhược điểm: món ăn rất nhạt.,trung tính,ẩm thực,valid
+r0877,Màu sắc chẳng tươi. Chất lượng quá thấp. 😡,tiêu cực,sản phẩm,train
+r0878,Mình dùng bản mới nhất. Ứng dụng khá ít lỗi nhưng tiếc là thông báo hay trễ. Sẽ không quay lại.,tiêu cực,ứng dụng,train
+r0879,Ưu điểm: màu sắc thực sự giống hình. Nhược điểm: chất lượng thấp.,trung tính,sản phẩm,train
+r0880,"Học phí đắt, giảng viên khó hiểu.",tiêu cực,khóa học,train
+r0881,Nhân viên quá thân thiện.,tích cực,dịch vụ,train
+r0882,Tốc độ thực sự ổn định. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r0883,mình mới học dc vài buổi. bài tập quá nhàm chán. thất vọng.,tiêu cực,khóa học,train
+r0884,"Chi phí ở mức trung bình, có thể thanh toán bằng thẻ!!",trung tính,dịch vụ,train
+r0885,Mình dùng được một tuần rồi. Giá ở mức trung bình. Cho 3 sao...,trung tính,sản phẩm,train
+r0886,thông báo chẳng hề khó hiểu. giao diện rất đẹp. 😍,tích cực,ứng dụng,valid
+r0887,đi công tác nên mình ghé. thời gian xử lý khoảng hai ngày. mình ghi nhận xét vậy thôi. 😤,trung tính,dịch vụ,train
+r0888,Giao hàng quá gọn gàng và màu sắc đẹp.,tích cực,sản phẩm,valid
+r0889,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Tư vấn của shop rất nhiệt tình. ❤️",tích cực,sản phẩm,train
+r0890,Mình dùng dịch vụ lần thứ hai. Ưu điểm: thủ tục đơn giản. Nhược điểm: thời gian chờ rất bất hợp lý. Mình ghi nhận xét vậy thôi!!,trung tính,dịch vụ,train
+r0891,Tốc độ giật. Cho 1 sao.,tiêu cực,ứng dụng,train
+r0892,mình dùng dịch vụ lần thứ hai. dịch vụ giống như quảng cáo. 😐,trung tính,dịch vụ,train
+r0893,Mình học online được một tháng. Bài tập nhàm chán.,tiêu cực,khóa học,train
+r0894,"Giao diện rất rối, lại còn thông báo khó hiểu. Không khuyên mua.",tiêu cực,ứng dụng,train
+r0895,Màu sắc đẹp. ❤️,tích cực,sản phẩm,train
+r0896,Phòng ốc cũng được. Cho 3 sao.,trung tính,dịch vụ,train
+r0897,mình đến vào giờ cao điểm. chi phí không minh bạch chút nào. thủ tục hơi phức tạp.,tiêu cực,dịch vụ,train
+r0898,Tư vấn của shop nhanh.,tích cực,sản phẩm,train
+r0899,Nội dung hơi lỗi thời!,tiêu cực,khóa học,train
+r0900,dùng trên điện thoại android được hai tuần. tính năng rất thừa thãi.,tiêu cực,ứng dụng,train
+r0901,Chất liệu ở mức trung bình.,trung tính,sản phẩm,train
+r0902,Món ăn đậm đà.,tích cực,ẩm thực,train
+r0903,Tài liệu gửi qua email sau mỗi buổi.,trung tính,khóa học,train
+r0904,"tốc độ quá giật, ứng dụng rất hay treo!",tiêu cực,ứng dụng,train
+r0905,Màu sắc rất đẹp. 🤔!!!,tích cực,sản phẩm,valid
+r0906,Tư vấn của shop quá nhanh. Recommend nhé!,tích cực,sản phẩm,train
+r0907,Tốc độ rất giật và hỗ trợ khách hàng chậm. Không khuyên mua.,tiêu cực,ứng dụng,train
+r0908,Tốc độ giảng cực kỳ hợp lý nhưng tiếc là giảng viên hơi thiếu nhiệt tình. Cho 1 sao. 😐,tiêu cực,khóa học,train
+r0909,Mua tặng người nhà. Màu sắc giống trong ảnh. Màu sắc khác hình.,tiêu cực,sản phẩm,train
+r0910,Mình đến vào giờ cao điểm. Nhân viên hướng dẫn theo đúng quy trình. Nhân viên thực sự chuyên nghiệp.,tích cực,dịch vụ,train
+r0911,Mua tặng người nhà. Tư vấn của shop thực sự chu đáo nhưng tiếc là đóng gói sơ sài.,tiêu cực,sản phẩm,train
+r0912,Tốc độ giảng vừa phải. Recommend nhé!,tích cực,khóa học,train
+r0913,Bài tập quá hay.,tích cực,khóa học,train
+r0914,hỗ trợ khách hàng rất qua loa. 👎,tiêu cực,ứng dụng,train
+r0915,"Lần đầu mình ghé quán. Không gian thoáng, nhưng khẩu phần sơ sài. Cho 1 sao. 👎",tiêu cực,ẩm thực,train
+r0916,"Món ăn khá dở, lại còn phục vụ hơi chậm. 😞",tiêu cực,ẩm thực,test
+r0917,Bài tập cực kỳ vừa sức và tốc độ giảng thực sự vừa phải.,tích cực,khóa học,train
+r0918,"Mình dùng dịch vụ lần thứ hai. Mình đến làm thủ tục vào buổi sáng, mình chờ khoảng mười phút.",trung tính,dịch vụ,test
+r0919,Thời gian chờ cực kỳ ngắn. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r0920,Cả nhà ghé ăn tối cuối tuần. Tuy không gian rất sạch sẽ nhưng nguyên liệu quá cũ.,tiêu cực,ẩm thực,train
+r0921,Lớp có khoảng ba mươi học viên.,trung tính,khóa học,valid
+r0922,Nhân viên thiếu chuyên nghiệp. Thất vọng.,tiêu cực,dịch vụ,valid
+r0923,Tuy giảng viên nhiệt tình nhưng tài liệu khá thiếu.,tiêu cực,khóa học,train
+r0924,Mình đăng ký theo lời giới thiệu của bạn. Nội dung đúng như mô tả ban đầu.,trung tính,khóa học,test
+r0925,Giá khá rẻ. Rất đáng thử.,tích cực,sản phẩm,train
+r0926,Ưu điểm: khẩu phần quá vừa ăn. Nhược điểm: nguyên liệu rất cũ. Mình ghi nhận xét vậy thôi. 🤔,trung tính,ẩm thực,valid
+r0927,"tư vấn của shop quá qua loa, lại còn đóng gói sơ sài.",tiêu cực,sản phẩm,train
+r0928,mình học buổi tối sau giờ làm. mình mới học được vài buổi. mình ghi nhận xét vậy thôi.,trung tính,khóa học,valid
+r0929,Thủ tục hơi chậm.,tiêu cực,dịch vụ,train
+r0930,Khẩu phần đầy đặn và phục vụ khá niềm nở. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r0931,Tuy tốc độ khá chậm nhưng ứng dụng khá mượt. Rất đáng thử.,tích cực,ứng dụng,valid
+r0932,thời gian chờ chẳng hề quá dài!,tích cực,dịch vụ,train
+r0933,Nội dung hơi lan man. Cho 1 sao. 👎,tiêu cực,khóa học,train
+r0934,tư vấn của shop rất nhiệt tình. rất đáng thử!!,tích cực,sản phẩm,train
+r0935,Học qua Zoom vào buổi tối. Bài tập quá ít.,tiêu cực,khóa học,train
+r0936,Tư vấn của shop quá chậm nhưng bù lại chất liệu bền.,tích cực,sản phẩm,test
+r0937,Mình mới cài nên chưa dùng nhiều. 😤!!,trung tính,ứng dụng,test
+r0938,Mình đến vào giờ cao điểm. Thủ tục quá phức tạp. Sẽ không quay lại.,tiêu cực,dịch vụ,train
+r0939,Nhân viên nhiệt tình và thời gian chờ hợp lý.,tích cực,dịch vụ,test
+r0940,"Quán mở cửa đến 22 giờ, món ăn ở mức bình thường. 🤔",trung tính,ẩm thực,train
+r0941,"Giá rất phải chăng, món ăn ngon. Rất đáng thử.",tích cực,ẩm thực,valid
+r0942,"Mình dùng bản mới nhất. Tốc độ thực sự mượt, lại còn tính năng khá hữu ích.",tích cực,ứng dụng,test
+r0943,Phòng ốc khá bẩn!!!,tích cực,dịch vụ,test
+r0944,Giao hàng rất nhanh.,tích cực,sản phẩm,train
+r0945,học phí đắt. 😡,tiêu cực,khóa học,train
+r0946,Giao hàng đúng thời gian dự kiến. Giao hàng thực sự nhanh. Sẽ ủng hộ tiếp.,tích cực,sản phẩm,train
+r0947,hỗ trợ khách hàng không qua loa.,tích cực,ứng dụng,valid
+r0948,ứng dụng ổn định. recommend nhé!,tích cực,ứng dụng,train
+r0949,Tốc độ giảng quá chậm. Thất vọng.,tiêu cực,khóa học,train
+r0950,Ứng dụng tạm được.,trung tính,ứng dụng,train
+r0951,Mình học online được một tháng. Học qua Zoom vào buổi tối. Chưa biết có dùng lại không.,trung tính,khóa học,test
+r0952,Ưu điểm: tài liệu cực kỳ đầy đủ. Nhược điểm: học phí khá cao. Mình ghi nhận xét vậy thôi.,trung tính,khóa học,test
+r0953,nguyen lieu thuc su chat luong.,tích cực,ẩm thực,valid
+r0954,tuy giao hàng đúng hẹn nhưng tư vấn của shop hơi chậm.,tiêu cực,sản phẩm,train
+r0955,Kích cỡ đúng bảng size. Chưa biết có dùng lại không.,trung tính,sản phẩm,train
+r0956,dung tren dien thoai android duoc hai tuan. ung dung hoi nhieu loi. se khong quay lai.,tiêu cực,ứng dụng,valid
+r0957,Quán mở cửa đến 22 giờ. 😐,trung tính,ẩm thực,train
+r0958,"tư vấn của shop nhanh, nhưng giá khá đắt. sẽ không quay lại. 😐",tiêu cực,sản phẩm,train
+r0959,"Hàng giống mô tả, kích cỡ đúng bảng size.",trung tính,sản phẩm,train
+r0960,Giá ở mức trung bình.,trung tính,sản phẩm,test
+r0961,"Tư vấn của shop hơi chậm, giao hàng rất lâu.",tiêu cực,sản phẩm,train
+r0962,"Không gian chật, nhưng giá hợp lý.",tích cực,ẩm thực,train
+r0963,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. tư vấn của shop cực kỳ chu đáo, nhưng màu sắc rất phai.",tiêu cực,sản phẩm,train
+r0964,Ưu điểm: phục vụ quá niềm nở. Nhược điểm: món ăn dở.,trung tính,ẩm thực,valid
+r0965,Tính năng hữu ích. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r0966,mình học buổi tối sau giờ làm. tốc độ giảng quá vừa phải nhưng tiếc là tài liệu khá thiếu. sẽ không quay lại. 😡,tiêu cực,khóa học,train
+r0967,Khẩu phần rất sơ sài. Sẽ không quay lại.,tiêu cực,ẩm thực,test
+r0968,Tốc độ quá thất thường. Không khuyên mua.,tiêu cực,ứng dụng,train
+r0969,Thời gian xử lý khoảng hai ngày. Nhân viên khá thờ ơ.,tiêu cực,dịch vụ,train
+r0970,Phòng ốc thoáng. Recommend nhé!,tích cực,dịch vụ,train
+r0971,Tính năng cực kỳ hữu ích...,tích cực,ứng dụng,train
+r0972,chi phí khá minh bạch và thời gian chờ khá ngắn. 🙂...,tích cực,dịch vụ,train
+r0973,Mình đăng ký theo lời giới thiệu của bạn. Học phí chẳng hề đắt. Giảng viên nhiệt tình. 😍!!,tích cực,khóa học,valid
+r0974,Ưu điểm: bài tập khá vừa sức. Nhược điểm: học phí hơi đắt.,trung tính,khóa học,valid
+r0975,không gian hơi bẩn.,tiêu cực,ẩm thực,train
+r0976,Giảng viên khó hiểu nhưng bù lại nội dung rất có hệ thống.,tích cực,khóa học,test
+r0977,Mình học online được một tháng. Nội dung sơ sài nhưng bù lại giảng viên cực kỳ dễ hiểu. 🙂,tích cực,khóa học,train
+r0978,Tư vấn của shop hơi qua loa.,tiêu cực,sản phẩm,train
+r0979,Mình dùng được một tuần rồi. Giao hàng trễ hẹn.,tiêu cực,sản phẩm,train
+r0980,Chất liệu dày dặn. Sẽ ủng hộ tiếp. 👍,tích cực,sản phẩm,train
+r0981,Ứng dụng hơi hay văng.,tiêu cực,ứng dụng,train
+r0982,Giá chát!,tiêu cực,sản phẩm,test
+r0983,"dùng trên điện thoại android dc hai tuần. ứng dụng ổn định, thông báo quá kịp thời. cho 5 sao.",tích cực,ứng dụng,test
+r0984,Giảng viên thiếu nhiệt tình nhưng bù lại nội dung rất sát thực tế. Sẽ ủng hộ tiếp.,tích cực,khóa học,train
+r0985,"Bản cập nhật mới có thêm chế độ tối, mik mới cài nên chưa dùng nhiều. 😐!!",trung tính,ứng dụng,train
+r0986,Mình dùng dịch vụ lần thứ hai. Thời gian chờ quá dài!,tiêu cực,dịch vụ,train
+r0987,Bai tap chua hay. 😤,tiêu cực,khóa học,train
+r0988,Lần đầu mình ghé quán. Giá cực kỳ phải chăng. Sẽ ủng hộ tiếp!!!,tích cực,ẩm thực,train
+r0989,Tư vấn của shop nhanh nhưng tiếc là chất lượng quá thấp.,tiêu cực,sản phẩm,train
+r0990,Chất lượng không ổn. Đóng gói rất sơ sài.,tiêu cực,sản phẩm,train
+r0991,Ứng dụng khá hay treo nhưng bù lại hỗ trợ khách hàng cực kỳ nhiệt tình.,tích cực,ứng dụng,train
+r0992,Đi ăn với bạn bè. Khẩu phần cực kỳ vừa ăn.,tích cực,ẩm thực,train
+r0993,Mình học buổi tối sau giờ làm. Tài liệu khá đầy đủ và nội dung rất có hệ thống. 👍,tích cực,khóa học,test
+r0994,Khẩu phần vừa đủ một người. Nguyên liệu ôi.,tiêu cực,ẩm thực,train
+r0995,"Mình học online được một tháng. Nội dung quá lỗi thời, nhưng bài tập thực sự vừa sức. Rất đáng thử.",tích cực,khóa học,train
+r0996,Giao hàng đúng thời gian dự kiến. Giá cực kỳ mềm!!!,tích cực,sản phẩm,valid
+r0997,mình học buổi tối sau giờ làm. bài tập rất hay.,tích cực,khóa học,test
+r0998,tuy thời gian chờ lâu nhưng phòng ốc thoải mái. rất đáng thử. 😍,tích cực,dịch vụ,valid
+r0999,"Mình đến vào giờ cao điểm. Thủ tục nhanh, thời gian chờ cực kỳ ngắn. Rất đáng thử.",tích cực,dịch vụ,train
+r1000,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Kích cỡ đúng bảng size.",trung tính,sản phẩm,train
+r1001,"Mua tặng người nhà. Màu sắc giống hình, lại còn giá rất mềm.",tích cực,sản phẩm,train
+r1002,Phòng ốc thoải mái nhưng tiếc là nhân viên quá thiếu chuyên nghiệp.,tiêu cực,dịch vụ,train
+r1003,"Mình đi vào buổi trưa, quán nằm trên đường chính. 🤔",trung tính,ẩm thực,train
+r1004,Tài liệu khá rõ ràng.,tích cực,khóa học,valid
+r1005,Giao diện đẹp.,tích cực,ứng dụng,valid
+r1006,Không gian rất bẩn.,tiêu cực,ẩm thực,test
+r1007,"Học phí hợp lý, bài tập hay.",tích cực,khóa học,test
+r1008,dùng trên điện thoại android được hai tuần. tính năng thừa thãi. 😞,tiêu cực,ứng dụng,test
+r1009,Ưu điểm: tốc độ cực kỳ mượt. Nhược điểm: tính năng nghèo nàn.,trung tính,ứng dụng,train
+r1010,Giao diện thực sự thân thiện. Cho 5 sao.,tích cực,ứng dụng,test
+r1011,hỗ trợ khách hàng bình thường!,trung tính,ứng dụng,train
+r1012,"Đi ăn với bạn bè. Nguyên liệu hơi cũ, lại còn món ăn hơi mặn chát.",tiêu cực,ẩm thực,train
+r1013,có thể thanh toán bằng thẻ. cho 3 sao...,trung tính,dịch vụ,train
+r1014,Lần đầu mình ghé quán. Quán mở cửa đến 22 giờ. 😐,trung tính,ẩm thực,train
+r1015,Tuy giá hơi đắt nhưng màu sắc thực sự giống hình.,tích cực,sản phẩm,train
+r1016,"Giá rất đắt, nhưng giao hàng rất gọn gàng.",tích cực,sản phẩm,train
+r1017,Mình học online được một tháng. Bài tập chẳng thực tế. Cho 1 sao. 😤,tiêu cực,khóa học,train
+r1018,"Ứng dụng rất mượt, hỗ trợ khách hàng thực sự nhiệt tình.",tích cực,ứng dụng,train
+r1019,"Ứng dụng mượt, lại còn hỗ trợ khách hàng nhanh.",tích cực,ứng dụng,train
+r1020,Tốc độ giảng rất hợp lý. 👎...,tích cực,khóa học,train
+r1021,"Đóng gói rất ẩu, lại còn chất lượng khá thấp. Không khuyên mua.",tiêu cực,sản phẩm,valid
+r1022,Phòng ốc chưa sạch sẽ. Sẽ không quay lại.,tiêu cực,dịch vụ,train
+r1023,Cài về từ tháng trước. Tốc độ mượt. Sẽ ủng hộ tiếp...,tích cực,ứng dụng,test
+r1024,Minh hoc buoi toi sau gio lam. Tai lieu gui qua email sau moi buoi. Minh ghi nhan xet vay thoi.,trung tính,khóa học,train
+r1025,mình học online được một tháng. nội dung lan man. không khuyên mua.,tiêu cực,khóa học,train
+r1026,minh hoc online duoc mot thang. tuy giang vien rat thieu nhiet tinh nhung tai lieu rat ro rang.,tích cực,khóa học,valid
+r1027,Tuy dong goi chac chan nhung mau sac xin...,tiêu cực,sản phẩm,train
+r1028,Mình dùng bản mới nhất. Tốc độ rất nhanh.,tích cực,ứng dụng,valid
+r1029,"tốc độ thực sự ổn định, lại còn giao diện thực sự dễ dùng. cho 5 sao.",tích cực,ứng dụng,train
+r1030,Không gian bẩn. 😤,tiêu cực,ẩm thực,valid
+r1031,Tuy thủ tục nhanh nhưng chi phí cao.,tiêu cực,dịch vụ,train
+r1032,Mình đến làm thủ tục vào buổi sáng. Việc giải quyết khiếu nại cực kỳ thỏa đáng. 😍,tích cực,dịch vụ,train
+r1033,Dịch vụ giống như quảng cáo. Thời gian chờ cực kỳ hợp lý.,tích cực,dịch vụ,valid
+r1034,Phục vụ rất nhanh nhưng tiếc là món ăn quá mặn chát.,tiêu cực,ẩm thực,train
+r1035,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Đóng gói không hề sơ sài.",tích cực,sản phẩm,train
+r1036,Mình học buổi tối sau giờ làm. Bài tập quá thực tế.,tích cực,khóa học,train
+r1037,Giao hàng khá lâu.,tiêu cực,sản phẩm,train
+r1038,Việc giải quyết khiếu nại cực kỳ thỏa đáng...,tích cực,dịch vụ,train
+r1039,ưu điểm: phòng ốc thoáng. nhược điểm: chi phí khá cao. 🤔,trung tính,dịch vụ,test
+r1040,Lần đầu mình ghé quán. Món ăn ở mức bình thường. Mình ghi nhận xét vậy thôi.,trung tính,ẩm thực,train
+r1041,Giao dien thuc su than thien.,tích cực,ứng dụng,valid
+r1042,Mình chờ khoảng mười phút.,trung tính,dịch vụ,train
+r1043,Mới nhận hàng nên chưa đánh giá được nhiều. Giá cực kỳ rẻ. Rất đáng thử.,tích cực,sản phẩm,train
+r1044,tốc độ ổn định nhưng tiếc là tính năng hơi khó tìm. không khuyên mua.,tiêu cực,ứng dụng,valid
+r1045,Đi công tác nên mình ghé. Nhân viên tàm tạm. 🤔!!!,trung tính,dịch vụ,train
+r1046,Thông báo không khó hiểu. Rất đáng thử.,tích cực,ứng dụng,test
+r1047,mình dùng bản mới nhất. ứng dụng tạm đc. 🤔!!!,trung tính,ứng dụng,valid
+r1048,Mình dùng được một tuần rồi. Chất lượng rất thấp và giao hàng quá chậm...,tiêu cực,sản phẩm,train
+r1049,Mua tặng người nhà. Giao hàng không hề chậm. Màu sắc tươi.,tích cực,sản phẩm,valid
+r1050,"Lần đầu mình ghé quán. Khẩu phần khá đầy đặn, nhưng món ăn mặn chát. Sẽ không quay lại.",tiêu cực,ẩm thực,train
+r1051,Việc giải quyết khiếu nại chẳng nhanh. Không khuyên mua.,tiêu cực,dịch vụ,train
+r1052,Màu sắc khá đẹp. Sẽ ủng hộ tiếp!!!,tích cực,sản phẩm,train
+r1053,đi ăn với bạn bè. khẩu phần chẳng hề ít. phục vụ r nhanh. 👍,tích cực,ẩm thực,train
+r1054,Học phí thực sự xứng đáng và bài tập cực kỳ vừa sức. Cho 5 sao.,tích cực,khóa học,train
+r1055,mua tặng người nhà. đóng gói khá cẩu thả.,tiêu cực,sản phẩm,test
+r1056,tài liệu không thiếu. nội dung thực sự sát thực tế.,tích cực,khóa học,train
+r1057,ứng dụng có đủ các chức năng cơ bản. tốc độ mượt!,tích cực,ứng dụng,train
+r1058,khẩu phần quá nhỏ và giá rất đắt.,tiêu cực,ẩm thực,train
+r1059,Mình chờ khoảng mười phút!,tiêu cực,dịch vụ,train
+r1060,Mình dùng bản mới nhất. Hỗ trợ khách hàng chẳng hề thiếu chuyên nghiệp. Giao diện thân thiện.,tích cực,ứng dụng,test
+r1061,Mình đến vào giờ cao điểm. Phòng ốc quá bẩn!!,tiêu cực,dịch vụ,valid
+r1062,"phòng ốc rất thoải mái, nhưng thời gian chờ quá lâu.",tiêu cực,dịch vụ,train
+r1063,Nhân viên khá thờ ơ nhưng bù lại phòng ốc thoáng. Recommend nhé! 🙂,tích cực,dịch vụ,train
+r1064,Giao diện quá rối.,tiêu cực,ứng dụng,train
+r1065,Đi công tác nên mình ghé. Phòng ốc chẳng hề bẩn.,tích cực,dịch vụ,train
+r1066,Minh hoc buoi toi sau gio lam. Bai tap rat vua suc. Rat dang thu. 😍...,tích cực,khóa học,train
+r1067,Mình đến vào giờ cao điểm. Việc giải quyết khiếu nại chẳng hề chậm.,tích cực,dịch vụ,valid
+r1068,Toc do giang thuc su vua phai nhung tiec la hoc phi kha dat. Khong khuyen mua.,tiêu cực,khóa học,train
+r1069,màu sắc giống trong ảnh.,trung tính,sản phẩm,train
+r1070,Mình học online được một tháng. Lớp có khoảng ba mươi học viên. Học phí hơi cao.,tiêu cực,khóa học,valid
+r1071,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. chất liệu khá mỏng, tư vấn của shop khá chậm.",tiêu cực,sản phẩm,test
+r1072,Học phí cực kỳ xứng đáng!!,tích cực,khóa học,test
+r1073,"Nguyên liệu quá ôi, nhưng phục vụ cực kỳ niềm nở.",tích cực,ẩm thực,test
+r1074,"Mình dùng được một tuần rồi. Đóng gói khá cẩu thả, lại còn tư vấn của shop rất qua loa.",tiêu cực,sản phẩm,train
+r1075,Hỗ trợ khách hàng tàm tạm.,trung tính,ứng dụng,test
+r1076,"Thủ tục hơi phức tạp, lại còn chi phí khá mập mờ.",tiêu cực,dịch vụ,train
+r1077,Tài liệu quá khó theo dõi nhưng bù lại tốc độ giảng khá vừa phải.,tích cực,khóa học,test
+r1078,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. màu sắc không phai. tư vấn của shop thực sự nhiệt tình. 🙂",tích cực,sản phẩm,train
+r1079,Phục vụ chưa chu đáo. Khẩu phần quá nhỏ. 😡,tiêu cực,ẩm thực,train
+r1080,Giá ở mức trung bình. Đóng gói quá ẩu!!!,tiêu cực,sản phẩm,train
+r1081,Dùng trên điện thoại Android được hai tuần. Tính năng không hề nghèo nàn. Giao diện thân thiện. 👍,tích cực,ứng dụng,train
+r1082,Nhân viên khá chuyên nghiệp.,tích cực,dịch vụ,train
+r1083,Giảng viên cực kỳ dễ hiểu. Rất đáng thử. 😡,tích cực,khóa học,train
+r1084,Nhân viên cực kỳ thân thiện!!,tích cực,dịch vụ,train
+r1085,Chi phí bình thường. Cho 3 sao.,tiêu cực,dịch vụ,train
+r1086,Thực đơn khá nhiều món. Nguyên liệu chất lượng. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r1087,Mình đăng ký theo lời giới thiệu của bạn. Tuy bài tập hay nhưng giảng viên hơi thiếu nhiệt tình.,tiêu cực,khóa học,train
+r1088,"Phục vụ khá kém, nhưng không gian thoáng. 😍",tích cực,ẩm thực,train
+r1089,Tài liệu khá cũ...,tiêu cực,khóa học,valid
+r1090,Mình dùng được một tuần rồi. Đóng gói bình thường.,trung tính,sản phẩm,train
+r1091,Học phí chẳng xứng đáng. Nội dung sơ sài.,tiêu cực,khóa học,train
+r1092,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giao hàng không có gì đặc biệt. Mình ghi nhận xét vậy thôi.",trung tính,sản phẩm,train
+r1093,Mình học online được một tháng. Bài tập bình thường. Cho 3 sao. 😐,trung tính,khóa học,train
+r1094,Chi phí cũng được.,trung tính,dịch vụ,train
+r1095,Mình học online được một tháng. Tốc độ giảng quá nhanh.,tiêu cực,khóa học,train
+r1096,Tuy nhân viên thân thiện nhưng việc giải quyết khiếu nại rất qua loa. Thất vọng.,tiêu cực,dịch vụ,train
+r1097,đi công tác nên mình ghé. phòng ốc quá sạch sẽ và thời gian chờ khá hợp lý.,tích cực,dịch vụ,train
+r1098,"Giao hàng nhanh, lại còn giá hợp lý. Sẽ ủng hộ tiếp.",tích cực,sản phẩm,test
+r1099,"Tốc độ quá ổn định, nhưng giao diện khá rối.",tiêu cực,ứng dụng,test
+r1100,khẩu phần bình thường!!!,trung tính,ẩm thực,test
+r1101,giá khá cao. thất vọng.,tiêu cực,ẩm thực,test
+r1102,"Cài về từ tháng trước. Tính năng khá thừa thãi, nhưng hỗ trợ khách hàng cực kỳ nhiệt tình.",tích cực,ứng dụng,train
+r1103,Việc giải quyết khiếu nại ở mức trung bình. Mình ghi nhận xét vậy thôi.,trung tính,dịch vụ,train
+r1104,Chi phí minh bạch nhưng tiếc là phòng ốc hơi chật. Không khuyên mua!,tiêu cực,dịch vụ,train
+r1105,chất lượng tàm tạm!!,tích cực,sản phẩm,train
+r1106,tài liệu hơi khó theo dõi. cho 1 sao.,tiêu cực,khóa học,train
+r1107,Việc giải quyết khiếu nại không chậm.,tích cực,dịch vụ,train
+r1108,"Thực đơn khá nhiều món, khẩu phần vừa đủ một người!",trung tính,ẩm thực,train
+r1109,"Thông báo kịp thời, lại còn tính năng rất tiện lợi. 😍!!!",tích cực,ứng dụng,train
+r1110,Món ăn ngon...,tích cực,ẩm thực,valid
+r1111,Mình học buổi tối sau giờ làm. Học phí cực kỳ hợp lý nhưng tiếc là tốc độ giảng quá nhanh. Thất vọng.,tiêu cực,khóa học,train
+r1112,"nhân viên hướng dẫn theo đúng quy trình, chi phí ở mức trung bình. 🤔",tiêu cực,dịch vụ,test
+r1113,Phục vụ chưa nhanh. Nguyên liệu rất cũ.,tiêu cực,ẩm thực,valid
+r1114,Tốc độ mượt.,tích cực,ứng dụng,test
+r1115,Thủ tục quá rườm rà!,tiêu cực,dịch vụ,train
+r1116,Gia chang he dat.,tích cực,ẩm thực,train
+r1117,Phục vụ hơi chậm. 👎,tiêu cực,ẩm thực,test
+r1118,Bài tập quá khó. Cho 1 sao.,tiêu cực,khóa học,train
+r1119,Mình dùng bản mới nhất. Ứng dụng hay văng. Cho 1 sao.,tiêu cực,ứng dụng,valid
+r1120,học phí khá cao. 😞,tiêu cực,khóa học,train
+r1121,"Mình đăng ký theo lời giới thiệu của bạn. Học phí thực sự xứng đáng, lại còn tốc độ giảng quá vừa phải.",tích cực,khóa học,train
+r1122,Học phí xứng đáng.,tích cực,khóa học,test
+r1123,Chất liệu hơi kém bền. Không khuyên mua.,tiêu cực,sản phẩm,test
+r1124,Minh den vao gio cao diem. Phong oc hoi cu.,tiêu cực,dịch vụ,test
+r1125,Đi ăn với bạn bè. Giá ở mức trung bình. Mình ghi nhận xét vậy thôi.,trung tính,ẩm thực,train
+r1126,Thủ tục không hề rườm rà.,tích cực,dịch vụ,train
+r1127,Ứng dụng có đủ các chức năng cơ bản.,trung tính,ứng dụng,train
+r1128,mình dùng dịch vụ lần thứ hai. chi phí rất minh bạch. 😍,tích cực,dịch vụ,train
+r1129,Học phí rất đắt. Sẽ không quay lại.,tiêu cực,khóa học,train
+r1130,Uu diem: giao dien cuc ky dep. Nhuoc diem: tinh nang ngheo nan.,trung tính,ứng dụng,train
+r1131,Đi công tác nên mình ghé. Thời gian chờ khá lâu và nhân viên khá cáu gắt.,tiêu cực,dịch vụ,train
+r1132,"Thông báo rất kịp thời, lại còn hỗ trợ khách hàng rất nhanh.",tích cực,ứng dụng,train
+r1133,Nhân viên ở mức trung bình.,trung tính,dịch vụ,test
+r1134,Mình dùng dịch vụ lần thứ hai. Phòng ốc rất cũ.,tiêu cực,dịch vụ,test
+r1135,dùng trên điện thoại android được hai tuần. ứng dụng rất ổn định.,tích cực,ứng dụng,train
+r1136,Nguyen lieu oi. That vong.,tiêu cực,ẩm thực,train
+r1137,Tuy tốc độ khá nhanh nhưng giao diện rất xấu.,tiêu cực,ứng dụng,valid
+r1138,Tốc độ không giật.,tích cực,ứng dụng,train
+r1139,"Tính năng quá hữu ích, thông báo khá rõ ràng.",tích cực,ứng dụng,train
+r1140,Lần đầu mình ghé quán. Không gian chưa thoáng. Giá hơi cao. Không khuyên mua.,tiêu cực,ẩm thực,train
+r1141,Tuy viec giai quyet khieu nai kha cham nhung chi phi minh bach. Recommend nhe!,tích cực,dịch vụ,test
+r1142,Chất lượng khá cao. 👍,tích cực,sản phẩm,train
+r1143,Gia o muc trung binh. Mau sac tuoi.,tích cực,sản phẩm,test
+r1144,Ưu điểm: giao diện thực sự thân thiện. Nhược điểm: thông báo hơi khó hiểu. Chưa biết có dùng lại không.,trung tính,ứng dụng,test
+r1145,Đi ăn với bạn bè. Khẩu phần vừa đủ một người. Nguyên liệu cực kỳ sạch.,tích cực,ẩm thực,test
+r1146,mình dùng bản mới nhất. tuy tính năng nghèo nàn nhưng ứng dụng rất ít lỗi.,tích cực,ứng dụng,train
+r1147,Giao hàng cực kỳ đúng hẹn và giá khá mềm.,tích cực,sản phẩm,test
+r1148,chất liệu khá mềm.,tích cực,sản phẩm,train
+r1149,Việc giải quyết khiếu nại nhanh. Rất đáng thử.,tích cực,dịch vụ,test
+r1150,"Giá cao, nhưng không gian thoáng.",tích cực,ẩm thực,train
+r1151,Dùng trên điện thoại Android dc hai tuần. Hỗ trợ khách hàng qua loa. Thất vọng.,trung tính,ứng dụng,train
+r1152,Khẩu phần đầy đặn!!,tích cực,ẩm thực,test
+r1153,Nhân viên hướng dẫn theo đúng quy trình. Cho 3 sao!!!,trung tính,dịch vụ,train
+r1154,Thông báo chẳng hề khó hiểu. 😍...,tích cực,ứng dụng,train
+r1155,Tuy giá khá cao nhưng nguyên liệu cực kỳ tươi. ❤️,tích cực,ẩm thực,train
+r1156,Nội dung rất sơ sài nhưng bù lại bài tập thực sự vừa sức.,tích cực,khóa học,test
+r1157,Mua tặng người nhà. Chất liệu thô nhưng bù lại giá rất mềm. Sẽ ủng hộ tiếp!!!,tích cực,sản phẩm,train
+r1158,"Tốc độ quá thất thường, lại còn thông báo hơi chậm. Sẽ không quay lại.",tiêu cực,ứng dụng,train
+r1159,"Tư vấn của shop khá chu đáo, lại còn chất lượng ổn.",tích cực,sản phẩm,train
+r1160,Tốc độ không hề thất thường.,tích cực,ứng dụng,test
+r1161,Giá quá cao.,tiêu cực,ẩm thực,train
+r1162,Mình dùng dịch vụ lần thứ hai. Thời gian chờ cực kỳ ngắn.,tích cực,dịch vụ,train
+r1163,thời gian chờ cực kỳ hợp lý!!!,tích cực,dịch vụ,test
+r1164,Bài tập chẳng hề quá khó!!!,tích cực,khóa học,train
+r1165,Chạy bình thường trên máy mình. Cho 3 sao. 🤔!!,trung tính,ứng dụng,train
+r1166,cả nhà ghé ăn tối cuối tuần. khẩu phần rất ít.,tiêu cực,ẩm thực,valid
+r1167,Tuy phục vụ nhanh nhưng k gian ồn. 😡!!,tiêu cực,ẩm thực,train
+r1168,Ưu điểm: giá hợp lý. Nhược điểm: món ăn quá dở.,trung tính,ẩm thực,train
+r1169,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giao hàng hơi trễ hẹn.",tiêu cực,sản phẩm,train
+r1170,Nội dung đúng như mô tả ban đầu. Chưa biết có dùng lại không.,trung tính,khóa học,train
+r1171,"cài về từ tháng trước. giao diện khá đẹp, nhưng hỗ trợ khách hàng rất qua loa.",tiêu cực,ứng dụng,train
+r1172,mình học buổi tối sau giờ làm. tài liệu gửi qua email sau mỗi buổi.,trung tính,khóa học,train
+r1173,"Khẩu phần vừa đủ một người, quán mở cửa đến 22 giờ.",trung tính,ẩm thực,train
+r1174,"Nhân viên hướng dẫn theo đúng quy trình, mình đến làm thủ tục vào buổi sáng.",trung tính,dịch vụ,train
+r1175,Tốc độ không hề chậm. Hỗ trợ khách hàng chu đáo. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r1176,Lần đầu mình ghé quán. Không gian ồn.,tiêu cực,ẩm thực,train
+r1177,Mình học online được một tháng. Bài tập ở mức trung bình.,trung tính,khóa học,valid
+r1178,giảng viên thực sự giỏi chuyên môn và nội dung khá có hệ thống.,tích cực,khóa học,train
+r1179,Tốc độ chưa nhanh!,tiêu cực,ứng dụng,train
+r1180,khóa học gồm mười hai buổi.,trung tính,khóa học,valid
+r1181,Chất liệu rất bền!!!,tích cực,sản phẩm,valid
+r1182,Giao hàng khá trễ hẹn.,tiêu cực,sản phẩm,valid
+r1183,Hoc phi rat cao nhung bu lai tai lieu cuc ky day du!!!,tích cực,khóa học,valid
+r1184,Giao diện cũng được.,trung tính,ứng dụng,train
+r1185,Thời gian chờ chẳng hề bất hợp lý...,tích cực,dịch vụ,valid
+r1186,Đi công tác nên mình ghé. Phòng ốc bẩn. Sẽ không quay lại. 😤,tiêu cực,dịch vụ,train
+r1187,Mua tặng người nhà. Đóng gói rất đẹp. Rất đáng thử.,tích cực,sản phẩm,test
+r1188,cả nhà ghé ăn tối cuối tuần. mình đi vào buổi trưa.,trung tính,ẩm thực,train
+r1189,Chi phí ở mức trung bình. Việc giải quyết khiếu nại khá chậm.,tiêu cực,dịch vụ,valid
+r1190,Có thể thanh toán bằng thẻ. Việc giải quyết khiếu nại khá nhanh.,tích cực,dịch vụ,train
+r1191,chất liệu cực kỳ dày dặn. 🙂,tích cực,sản phẩm,train
+r1192,lần đầu mình ghé quán. không gian ở mức trung bình.,trung tính,ẩm thực,train
+r1193,Mình dùng bản mới nhất. Hỗ trợ khách hàng cực kỳ nhanh nhưng tiếc là thông báo hơi hay trễ. 😞,tiêu cực,ứng dụng,train
+r1194,"Ứng dụng nhiều lỗi, hỗ trợ khách hàng hơi chậm.",tiêu cực,ứng dụng,train
+r1195,thông báo khá kịp thời nhưng tiếc là tính năng hơi nghèo nàn.,tiêu cực,ứng dụng,test
+r1196,Tư vấn của shop không qua loa. Cho 5 sao.,tích cực,sản phẩm,valid
+r1197,ưu điểm: thông báo thực sự rõ ràng. nhược điểm: hỗ trợ khách hàng hơi chậm!!,trung tính,ứng dụng,train
+r1198,Tài liệu hơi cũ và giảng viên khá khó hiểu. Sẽ không quay lại.,tiêu cực,khóa học,test
+r1199,"Đi công tác nên mình ghé. Nhân viên rất thiếu chuyên nghiệp, thời gian chờ lâu. Cho 1 sao.",tiêu cực,dịch vụ,train
+r1200,mình đi vào buổi trưa.,trung tính,ẩm thực,test
+r1201,"Chất liệu hơi mỏng, tư vấn của shop quá thiếu nhiệt tình. Thất vọng.",tiêu cực,sản phẩm,train
+r1202,đóng gói đẹp nhưng tiếc là màu sắc khác hình.,tiêu cực,sản phẩm,train
+r1203,Đi ăn với bạn bè. Mình đi vào buổi trưa. Giá đắt.,tiêu cực,ẩm thực,test
+r1204,Minh moi hoc duoc vai buoi.,trung tính,khóa học,train
+r1205,Tư vấn của shop cực kỳ chu đáo!!!,tích cực,sản phẩm,test
+r1206,Tốc độ giảng không hợp lý. Sẽ không quay lại.,tiêu cực,khóa học,train
+r1207,Mình học buổi tối sau giờ làm. Tốc độ giảng hợp lý.,tích cực,khóa học,train
+r1208,"mua tặng người nhà. dùng được, không có gì đặc biệt.",trung tính,sản phẩm,train
+r1209,"Đóng gói sơ sài, nhưng giao hàng quá nhanh.",tích cực,sản phẩm,train
+r1210,"Mua tặng người nhà. Đóng gói quá sơ sài, tư vấn của shop quá qua loa!",tiêu cực,sản phẩm,train
+r1211,"Đóng gói khá cẩn thận, lại còn chất liệu quá mềm.",tích cực,sản phẩm,train
+r1212,Lần đầu mình ghé quán. Khẩu phần khá nhỏ nhưng bù lại không gian sạch sẽ!!!,tích cực,ẩm thực,train
+r1213,"Hỗ trợ khách hàng rất nhanh, tính năng cực kỳ hữu ích. 😤",tích cực,ứng dụng,valid
+r1214,Khẩu phần thực sự vừa ăn. Cho 5 sao. 🙂,tích cực,ẩm thực,train
+r1215,Món ăn ở mức bình thường.,trung tính,ẩm thực,train
+r1216,bài tập quá khó nhưng bù lại tốc độ giảng khá hợp lý.,tích cực,khóa học,train
+r1217,Có thể thanh toán bằng thẻ. Thủ tục hơi phức tạp!,tiêu cực,dịch vụ,train
+r1218,Màu sắc chẳng hề khác hình. Chất lượng quá ổn.,tích cực,sản phẩm,train
+r1219,"Bài tập nhàm chán, nhưng tài liệu rất rõ ràng.",tích cực,khóa học,test
+r1220,Ưu điểm: chất liệu rất mềm. Nhược điểm: đóng gói quá cẩu thả. Chưa biết có dùng lại không.,trung tính,sản phẩm,train
+r1221,Cài về từ tháng trước. Ứng dụng có đủ các chức năng cơ bản!!!,trung tính,ứng dụng,train
+r1222,minh den vao gio cao diem. phong oc cu va viec giai quyet khieu nai kha qua loa.,tiêu cực,dịch vụ,train
+r1223,Dùng trên điện thoại Android được hai tuần. Thông báo rõ ràng.,tích cực,ứng dụng,train
+r1224,Mua tặng người nhà. Giá rất mềm.,tích cực,sản phẩm,train
+r1225,Nội dung quá có hệ thống. Recommend nhé!,tích cực,khóa học,train
+r1226,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu mỏng và giá rất cao. Sẽ không quay lại!",tiêu cực,sản phẩm,train
+r1227,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Giá cực kỳ rẻ và giao hàng khá nhanh. Sẽ ủng hộ tiếp...",tích cực,sản phẩm,train
+r1228,Mình đi vào buổi trưa. Giá cao. Cho 1 sao.,tiêu cực,ẩm thực,train
+r1229,"Mình dùng dịch vụ lần thứ hai. Chi phí thực sự minh bạch, nhưng thủ tục quá phức tạp. 😡",tiêu cực,dịch vụ,test
+r1230,Mình đến làm thủ tục vào buổi sáng. Mình ghi nhận xét vậy thôi...,trung tính,dịch vụ,test
+r1231,Mình dùng được một tuần rồi. Chất lượng không cao chút nào. Chất liệu quá mỏng. Sẽ không quay lại.,tiêu cực,sản phẩm,train
+r1232,Bài tập rất vừa sức. 👎,tích cực,khóa học,train
+r1233,nguyên liệu khá kém.,tiêu cực,ẩm thực,train
+r1234,Quán mở cửa đến 22 giờ. Mình ghi nhận xét vậy thôi. 😐,trung tính,ẩm thực,train
+r1235,Bài tập quá vừa sức. 😍!!,tích cực,khóa học,train
+r1236,Mau sac hoi phai. Se khong quay lai.,tiêu cực,sản phẩm,test
+r1237,Mình dùng bản mới nhất. Tính năng khá đầy đủ và giao diện rất thân thiện. Recommend nhé!,tích cực,ứng dụng,train
+r1238,"mình đến vào giờ cao điểm. việc giải quyết khiếu nại khá chậm, lại còn nhân viên thờ ơ.",tiêu cực,dịch vụ,valid
+r1239,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Màu sắc xỉn và tư vấn của shop rất thiếu nhiệt tình. 😤",tiêu cực,sản phẩm,valid
+r1240,Cài về từ tháng trước. Tốc độ nhanh. 😍,tích cực,ứng dụng,train
+r1241,Đóng gói tàm tạm.,trung tính,sản phẩm,test
+r1242,mình dùng dịch vụ lần thứ hai. ưu điểm: chi phí rất hợp lý. nhược điểm: thủ tục hơi rườm rà.,trung tính,dịch vụ,train
+r1243,Thông báo quá rõ ràng nhưng tiếc là tính năng khá thừa thãi.,tiêu cực,ứng dụng,train
+r1244,"khau phan hoi nho, nhung nguyen lieu qua chat luong. 👍",tích cực,ẩm thực,train
+r1245,Mình đăng ký theo lời giới thiệu của bạn. Tốc độ giảng cực kỳ vừa phải. Rất đáng thử.,tích cực,khóa học,train
+r1246,"mình đến vào giờ cao điểm. thời gian xử lý khoảng hai ngày, mình đến làm thủ tục vào buổi sáng. mình ghi nhận xét vậy thôi.",tiêu cực,dịch vụ,train
+r1247,nhân viên hướng dẫn theo đúng quy trình.,trung tính,dịch vụ,valid
+r1248,Nội dung hơi lỗi thời.,tiêu cực,khóa học,valid
+r1249,Giao diện không hề rối. Cho 5 sao!!!,tích cực,ứng dụng,test
+r1250,Mình học online được một tháng. Tốc độ giảng chẳng hề quá chậm!,tích cực,khóa học,train
+r1251,Dùng trên điện thoại Android được hai tuần. Giao diện rất rối.,tiêu cực,ứng dụng,train
+r1252,bài tập vừa sức.,tích cực,khóa học,train
+r1253,Mình đến vào giờ cao điểm. Chi phí hơi cao nhưng bù lại phòng ốc thực sự thoáng.,tích cực,dịch vụ,train
+r1254,Màu sắc quá xỉn. Cho 1 sao. 😤,tiêu cực,sản phẩm,train
+r1255,Việc giải quyết khiếu nại khá qua loa. Không khuyên mua!!!,tiêu cực,dịch vụ,train
+r1256,"phục vụ quá nhanh, khẩu phần vừa ăn.",tích cực,ẩm thực,train
+r1257,"Đóng gói rất đẹp, giao hàng rất gọn gàng.",tích cực,sản phẩm,test
+r1258,"Tốc độ hơi chậm, nhưng ứng dụng ổn định.",tích cực,ứng dụng,train
+r1259,"Thông báo r rõ ràng, lại còn hỗ trợ khách hàng khá nhiệt tình. Rất đáng thử.",tích cực,ứng dụng,test
+r1260,Mình đến vào giờ cao điểm. Nhân viên hướng dẫn theo đúng quy trình. Nhân viên khá thờ ơ.,tiêu cực,dịch vụ,valid
+r1261,hỗ trợ khách hàng khá chu đáo.,tích cực,ứng dụng,train
+r1262,"Mình đăng ký theo lời giới thiệu của bạn. Học phí cực kỳ xứng đáng, nội dung quá sát thực tế. Sẽ ủng hộ tiếp.",tích cực,khóa học,valid
+r1263,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. chất lượng tàm tạm. mình ghi nhận xét vậy thôi.",trung tính,sản phẩm,train
+r1264,Giá rất đắt. Không khuyên mua!,tiêu cực,ẩm thực,valid
+r1265,ứng dụng có đủ các chức năng cơ bản. thông báo rất chậm...,tiêu cực,ứng dụng,train
+r1266,"Hỗ trợ khách hàng nhiệt tình, nhưng giao diện xấu.",tiêu cực,ứng dụng,test
+r1267,Không gian chật!!!,tiêu cực,ẩm thực,valid
+r1268,Mình học online được một tháng. Bài tập quá khó và nội dung sơ sài. Sẽ không quay lại. 😞,tiêu cực,khóa học,train
+r1269,mình đăng ký theo lời giới thiệu của bạn. khóa học gồm mười hai buổi. cho 3 sao.,trung tính,khóa học,train
+r1270,Dong goi thuc su chac chan.,tích cực,sản phẩm,test
+r1271,Lần đầu mình ghé quán. Giá hơi chát và nguyên liệu khá cũ. Thất vọng.,tiêu cực,ẩm thực,train
+r1272,Nhân viên khá cáu gắt!!,tiêu cực,dịch vụ,train
+r1273,"không gian hơi bẩn, nhưng giá rẻ.",tích cực,ẩm thực,train
+r1274,Đóng gói khá đẹp.,tích cực,sản phẩm,train
+r1275,Mình đến vào giờ cao điểm. Thủ tục thực sự đơn giản. 😍,tích cực,dịch vụ,train
+r1276,Mình dùng được một tuần rồi. Ưu điểm: tư vấn của shop cực kỳ nhiệt tình. Nhược điểm: giao hàng khá lâu.,trung tính,sản phẩm,train
+r1277,Mình dùng bản mới nhất. Tuy giao diện thân thiện nhưng ứng dụng khá hay treo.,tiêu cực,ứng dụng,train
+r1278,"Mình dùng được một tuần rồi. Giao hàng rất chậm, lại còn giá cao.",tiêu cực,sản phẩm,valid
+r1279,minh dung ban moi nhat. ho tro khach hang kha nhanh.,tích cực,ứng dụng,valid
+r1280,Thực đơn khá nhiều món.,trung tính,ẩm thực,train
+r1281,Ưu điểm: không gian khá ấm cúng. Nhược điểm: món ăn mặn chát!,trung tính,ẩm thực,train
+r1282,mình dùng bản mới nhất. ứng dụng có đủ các chức năng cơ bản. ứng dụng quá nhiều lỗi.,tiêu cực,ứng dụng,test
+r1283,Cài về từ tháng trước. Tốc độ thực sự mượt. Cho 5 sao!,tích cực,ứng dụng,test
+r1284,giao hàng gọn gàng. cho 5 sao.,tích cực,sản phẩm,train
+r1285,Dùng trên điện thoại Android được hai tuần. Giao diện xấu. 😤,tiêu cực,ứng dụng,train
+r1286,Mình đến vào giờ cao điểm. Dịch vụ giống như quảng cáo. 🤔,tiêu cực,dịch vụ,train
+r1287,"đóng gói ẩu, nhưng tư vấn của shop khá nhanh.",tích cực,sản phẩm,train
+r1288,Giá hợp lý nhưng tiếc là phục vụ rất thờ ơ.,tiêu cực,ẩm thực,train
+r1289,giá quá đắt. sẽ không quay lại...,tiêu cực,sản phẩm,test
+r1290,"Mình dùng được một tuần rồi. Giá rẻ, lại còn màu sắc quá đẹp.",tích cực,sản phẩm,train
+r1291,Khẩu phần khá vừa ăn. Sẽ ủng hộ tiếp...,tích cực,ẩm thực,train
+r1292,"Thời gian chờ thực sự hợp lý, lại còn thủ tục gọn nhẹ. 👍",tích cực,dịch vụ,train
+r1293,Đóng gói không hề ẩu. Tư vấn của shop chu đáo!,tích cực,sản phẩm,train
+r1294,Giao hàng quá nhanh nhưng tiếc là đóng gói khá cẩu thả.,tiêu cực,sản phẩm,train
+r1295,học qua zoom vào buổi tối. cho 3 sao.,trung tính,khóa học,valid
+r1296,Giao diện hơi rối và tính năng thừa thãi. 👍,tiêu cực,ứng dụng,train
+r1297,mình đăng ký theo lời giới thiệu của bạn. học qua zoom vào buổi tối. 😐,trung tính,khóa học,valid
+r1298,Tuy tài liệu cực kỳ dễ theo dõi nhưng học phí hơi cao.,trung tính,khóa học,valid
+r1299,Ưu điểm: tài liệu khá rõ ràng. Nhược điểm: học phí quá đắt. Cho 3 sao.,trung tính,khóa học,test
+r1300,Lần đầu mình ghé quán. Nguyên liệu quá chất lượng. ❤️,tích cực,ẩm thực,train
+r1301,"Chất liệu mỏng, nhưng đóng gói rất chắc chắn. Cho 5 sao...",tích cực,sản phẩm,train
+r1302,Gia trung binh so voi quanh day. Minh ghi nhan xet vay thoi.,trung tính,ẩm thực,train
+r1303,tư vấn của shop không hề thiếu nhiệt tình.,tích cực,sản phẩm,train
+r1304,tuy học phí quá cao nhưng giảng viên rất dễ hiểu.,tích cực,khóa học,train
+r1305,Phục vụ chậm.,tiêu cực,ẩm thực,train
+r1306,màu sắc tươi. ❤️,tích cực,sản phẩm,train
+r1307,"Việc giải quyết khiếu nại nhanh, lại còn nhân viên thân thiện.",tích cực,dịch vụ,valid
+r1308,Mình dùng bản mới nhất. Giao diện chưa thân thiện. Thông báo chậm. 👎,tiêu cực,ứng dụng,train
+r1309,"phòng ốc quá bẩn, nhưng nhân viên thực sự chuyên nghiệp.",tích cực,dịch vụ,train
+r1310,tuy thông báo cực kỳ kịp thời nhưng hỗ trợ khách hàng rất chậm.,tiêu cực,ứng dụng,test
+r1311,mua tặng người nhà. giá khá mềm và chất liệu rất bền. sẽ ủng hộ tiếp!,tích cực,sản phẩm,train
+r1312,Tài liệu gửi qua email sau mỗi buổi. Mình ghi nhận xét vậy thôi.,trung tính,khóa học,train
+r1313,Thủ tục rất đơn giản. Rất đáng thử.,tích cực,dịch vụ,test
+r1314,"Giao hàng đúng thời gian dự kiến, màu sắc giống trong ảnh.",trung tính,sản phẩm,train
+r1315,Nội dung lỗi thời. Thất vọng. 👍,tiêu cực,khóa học,train
+r1316,"Đóng gói cẩn thận, màu sắc cực kỳ đẹp.",tích cực,sản phẩm,train
+r1317,Ưu điểm: phòng ốc cực kỳ thoải mái. Nhược điểm: nhân viên thiếu chuyên nghiệp.,trung tính,dịch vụ,train
+r1318,Minh dung dich vu lan thu hai. Chi phi hop ly.,tích cực,dịch vụ,train
+r1319,Mình dùng dịch vụ lần thứ hai. Chi phí ở mức trung bình. Chi phí quá cao. Sẽ không quay lại!!,tiêu cực,dịch vụ,test
+r1320,Nội dung lỗi thời.,tiêu cực,khóa học,train
+r1321,tốc độ giật. không khuyên mua.,tiêu cực,ứng dụng,train
+r1322,"Đi ăn với bạn bè. Giá thực sự hợp lý, lại còn món ăn đậm đà.",tích cực,ẩm thực,train
+r1323,Dùng trên điện thoại Android được hai tuần. Ưu điểm: tốc độ cực kỳ ổn định. Nhược điểm: thông báo khá hay trễ. 🤔,trung tính,ứng dụng,train
+r1324,"Tính năng nghèo nàn, nhưng giao diện rất dễ dùng. Cho 5 sao.",tích cực,ứng dụng,train
+r1325,Việc giải quyết khiếu nại khá nhanh.,tích cực,dịch vụ,test
+r1326,món ăn ngon.,tích cực,ẩm thực,train
+r1327,mình dùng dịch vụ lần thứ hai. chi phí mập mờ. sẽ không quay lại.,tiêu cực,dịch vụ,train
+r1328,mình dùng dịch vụ lần thứ hai. thời gian chờ quá dài!!!,tiêu cực,dịch vụ,train
+r1329,Ứng dụng khá nhiều lỗi.,tiêu cực,ứng dụng,train
+r1330,Màu sắc giống trong ảnh. Chất lượng cao. Recommend nhé!,tích cực,sản phẩm,train
+r1331,Mình học online được một tháng. Tài liệu chẳng đầy đủ. ❤️,tiêu cực,khóa học,test
+r1332,cài về từ tháng trước. tuy giao diện quá khó dùng nhưng tốc độ ổn định.,tích cực,ứng dụng,train
+r1333,Mình học online được một tháng. Tuy bài tập quá khó nhưng nội dung bổ ích.,tích cực,khóa học,train
+r1334,Phục vụ không chu đáo. Khẩu phần ít.,tiêu cực,ẩm thực,train
+r1335,Màu sắc quá phai. Sẽ không quay lại.,tiêu cực,sản phẩm,train
+r1336,Ưu điểm: thủ tục rất gọn nhẹ. Nhược điểm: phòng ốc cũ. 🤔...,trung tính,dịch vụ,train
+r1337,"Hỗ trợ khách hàng rất nhiệt tình, lại còn thông báo quá kịp thời. Rất đáng thử.",tích cực,ứng dụng,train
+r1338,"Mau sac hoi xin, chat luong rat te. That vong...",tiêu cực,sản phẩm,train
+r1339,Chất lượng cực kỳ ổn.,tích cực,sản phẩm,train
+r1340,Mình dùng dịch vụ lần thứ hai. Chi phí khá hợp lý.,tích cực,dịch vụ,train
+r1341,Giảng viên quá khó hiểu. Cho 1 sao.,tiêu cực,khóa học,train
+r1342,Chi phí rất minh bạch. Cho 5 sao.,tích cực,dịch vụ,train
+r1343,"Cài về từ tháng trước. Thông báo kịp thời, nhưng ứng dụng hơi nhiều lỗi.",tiêu cực,ứng dụng,train
+r1344,nhân viên hơi cáu gắt. ❤️,tiêu cực,dịch vụ,train
+r1345,Cả nhà ghé ăn tối cuối tuần. Ưu điểm: khẩu phần khá đầy đặn. Nhược điểm: giá quá chát...,trung tính,ẩm thực,train
+r1346,nguyên liệu quá chất lượng nhưng tiếc là không gian hơi ồn.,tiêu cực,ẩm thực,train
+r1347,Mình học buổi tối sau giờ làm. Ưu điểm: giảng viên giỏi chuyên môn. Nhược điểm: bài tập khá ít. Mình ghi nhận xét vậy thôi.,trung tính,khóa học,valid
+r1348,"mua tặng người nhà. giao hàng quá trễ hẹn, lại còn chất lượng hơi kém. 😤",tiêu cực,sản phẩm,test
+r1349,Nguyên liệu khá cũ. 😞,tiêu cực,ẩm thực,train
+r1350,Cài về từ tháng trước. Tính năng khá hữu ích.,tích cực,ứng dụng,train
+r1351,Phục vụ chẳng hề chậm. Rất đáng thử!!,tích cực,ẩm thực,train
+r1352,Ứng dụng quá hay treo. Sẽ không quay lại.,tiêu cực,ứng dụng,test
+r1353,Mình mới học được vài buổi. Mình ghi nhận xét vậy thôi.,trung tính,khóa học,train
+r1354,"Mình dùng được một tuần rồi. Giao hàng khá chậm, lại còn tư vấn của shop rất qua loa. Sẽ không quay lại.",tiêu cực,sản phẩm,train
+r1355,"Giá mềm, lại còn tư vấn của shop nhiệt tình.",tích cực,sản phẩm,train
+r1356,Mình dùng dịch vụ lần thứ hai. Mình đến làm thủ tục vào buổi sáng. Chi phí hợp lý.,tích cực,dịch vụ,test
+r1357,Đi công tác nên mình ghé. Thủ tục hơi chậm.,tiêu cực,dịch vụ,train
+r1358,Học phí thanh toán một lần. Bài tập khá vừa sức. 👍,tích cực,khóa học,test
+r1359,Tính năng khá khó tìm và hỗ trợ khách hàng rất thiếu chuyên nghiệp.,tiêu cực,ứng dụng,train
+r1360,"Cài về từ tháng trước. Tính năng thừa thãi, lại còn ứng dụng nhiều lỗi.",trung tính,ứng dụng,valid
+r1361,"chi phí hơi cao, lại còn nhân viên rất cáu gắt. cho 1 sao.",trung tính,dịch vụ,train
+r1362,Phục vụ kém và giá đắt.,tiêu cực,ẩm thực,test
+r1363,"Đi ăn với bạn bè. Phục vụ quá kém, không gian ồn. Cho 1 sao.",tiêu cực,ẩm thực,train
+r1364,mình dùng dịch vụ lần thứ hai. chi phí ở mức trung bình. mình ghi nhận xét vậy thôi!!,trung tính,dịch vụ,train
+r1365,Mình học online được một tháng. Tài liệu thực sự dễ theo dõi nhưng tiếc là học phí quá cao. Không khuyên mua.,tiêu cực,khóa học,train
+r1366,mình đăng ký theo lời giới thiệu của bạn. học qua zoom vào buổi tối.,trung tính,khóa học,train
+r1367,Mình đến làm thủ tục vào buổi sáng. Nhân viên quá chuyên nghiệp.,tích cực,dịch vụ,train
+r1368,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Dùng được, không có gì đặc biệt, mới nhận hàng nên chưa đánh giá được nhiều. Chưa biết có dùng lại không.",trung tính,sản phẩm,train
+r1369,Món ăn quá ngon. Cho 5 sao.,tích cực,ẩm thực,test
+r1370,Mình đăng ký theo lời giới thiệu của bạn. Tốc độ giảng quá chậm. Thất vọng.,tiêu cực,khóa học,train
+r1371,Ưu điểm: nội dung rất sát thực tế. Nhược điểm: tốc độ giảng quá chậm.,trung tính,khóa học,train
+r1372,"mua tặng người nhà. giá mềm, lại còn tư vấn của shop rất nhiệt tình.",tích cực,sản phẩm,train
+r1373,Đi ăn với bạn bè. Giá chát nhưng bù lại món ăn cực kỳ vừa miệng.,tích cực,ẩm thực,train
+r1374,Phòng ốc cũng được!!!,trung tính,dịch vụ,test
+r1375,"mình học buổi tối sau giờ làm. bài tập vừa sức, nội dung quá sát thực tế.",tích cực,khóa học,train
+r1376,đi công tác nên mik ghé. phòng ốc cực kỳ thoải mái. cho 5 sao.,tích cực,dịch vụ,train
+r1377,Ưu điểm: tính năng khá hữu ích. Nhược điểm: giao diện rất xấu. Cho 3 sao.,trung tính,ứng dụng,train
+r1378,"Phòng ốc hơi bẩn, nhưng việc giải quyết khiếu nại nhanh.",tích cực,dịch vụ,train
+r1379,Giá không hề chát.,tích cực,sản phẩm,test
+r1380,Giao dien khong kho dung. ❤️,tích cực,ứng dụng,valid
+r1381,Khẩu phần rất vừa ăn.,tích cực,ẩm thực,train
+r1382,Ưu điểm: nguyên liệu thực sự sạch. Nhược điểm: không gian bẩn.,trung tính,ẩm thực,train
+r1383,"Dùng được, không có gì đặc biệt.",trung tính,sản phẩm,train
+r1384,Mình học buổi tối sau giờ làm. Tốc độ giảng cực kỳ vừa phải!,tích cực,khóa học,train
+r1385,Giao diện tạm được. Chưa biết có dùng lại không.,trung tính,ứng dụng,valid
+r1386,Việc giải quyết khiếu nại rất chậm.,tiêu cực,dịch vụ,valid
+r1387,Đi công tác nên mình ghé. Thời gian chờ rất ngắn.,tích cực,dịch vụ,train
+r1388,Ứng dụng cực kỳ ổn định. Rất đáng thử.,tích cực,ứng dụng,train
+r1389,Mình đến vào giờ cao điểm. Chi phí quá minh bạch và thủ tục đơn giản. Cho 5 sao.,tích cực,dịch vụ,train
+r1390,"Mình dùng bản mới nhất. Thông báo cực kỳ rõ ràng, lại còn hỗ trợ khách hàng khá chu đáo. 🤔",tích cực,ứng dụng,train
+r1391,tuy khẩu phần ít nhưng giá rất hợp lý. cho 5 sao.,tích cực,ẩm thực,train
+r1392,"Mình học online được một tháng. Giảng viên hời hợt, tài liệu cũ. 👎",tiêu cực,khóa học,train
+r1393,Thủ tục quá phức tạp nhưng bù lại thời gian chờ khá hợp lý. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r1394,giao diện xấu. sẽ không quay lại.,tiêu cực,ứng dụng,train
+r1395,Tuy học phí khá cao nhưng bài tập cực kỳ thực tế. Sẽ ủng hộ tiếp.,tích cực,khóa học,test
+r1396,"dat hang hom thu ba, nhan hang hom thu sau. giao hang cuc ky nhanh. cho 5 sao. 🙂",tích cực,sản phẩm,test
+r1397,Dùng trên điện thoại Android được hai tuần. Ứng dụng chưa ít lỗi. Tốc độ quá chậm.,tiêu cực,ứng dụng,train
+r1398,"Màu sắc rất phai, lại còn tư vấn của shop rất thiếu nhiệt tình.",tiêu cực,sản phẩm,train
+r1399,"Cài về từ tháng trước. Ứng dụng ít lỗi, lại còn giao diện dễ dùng.",tích cực,ứng dụng,train
+r1400,Đi công tác nên mình ghé. Việc giải quyết khiếu nại quá qua loa. Sẽ không quay lại.,tiêu cực,dịch vụ,test
+r1401,"Tư vấn của shop quá qua loa, lại còn giao hàng chậm. 😐",tiêu cực,sản phẩm,train
+r1402,Ưu điểm: nguyên liệu thực sự sạch. Nhược điểm: phục vụ hơi chậm.,trung tính,ẩm thực,valid
+r1403,Quán mở cửa đến 22 giờ. Chưa biết có dùng lại không. 😐,trung tính,ẩm thực,train
+r1404,minh den vao gio cao diem. viec giai quyet khieu nai cuc ky thoa dang nhung tiec la nhan vien hoi cau gat!!!,tiêu cực,dịch vụ,test
+r1405,Nguyên liệu rất ôi.,tiêu cực,ẩm thực,train
+r1406,"Giao diện hơi khó dùng, nhưng tốc độ cực kỳ ổn định. Sẽ ủng hộ tiếp. 👍",tích cực,ứng dụng,train
+r1407,chat luong khong he thap.,tích cực,sản phẩm,train
+r1408,Cả nhà ghé ăn tối cuối tuần. Quán nằm trên đường chính. Cho 3 sao.,trung tính,ẩm thực,valid
+r1409,Ưu điểm: tài liệu rất rõ ràng. Nhược điểm: nội dung khá lỗi thời. Cho 3 sao.,trung tính,khóa học,train
+r1410,"Giao hàng đúng hẹn, nhưng chất lượng hơi thấp. Cho 1 sao.",tiêu cực,sản phẩm,train
+r1411,Dùng trên điện thoại Android được hai tuần. Tốc độ khá thất thường. Sẽ không quay lại.,tiêu cực,ứng dụng,test
+r1412,món ăn hơi mặn chát và nguyên liệu kém. thất vọng. 😡,tiêu cực,ẩm thực,train
+r1413,Mình học online được một tháng. Giảng viên thực sự dễ hiểu!!,tích cực,khóa học,valid
+r1414,Tuy giao diện dễ dùng nhưng tốc độ rất chậm. Cho 1 sao...,tiêu cực,ứng dụng,train
+r1415,giảng viên khá thiếu nhiệt tình. cho 1 sao.,tiêu cực,khóa học,train
+r1416,Thời gian xử lý khoảng hai ngày. Phòng ốc cực kỳ thoáng.,tích cực,dịch vụ,train
+r1417,nội dung lỗi thời và bài tập quá khó. thất vọng.,tiêu cực,khóa học,train
+r1418,"Nhân viên thiếu chuyên nghiệp, nhưng chi phí quá hợp lý. Recommend nhé!",tích cực,dịch vụ,train
+r1419,Tài liệu cực kỳ rõ ràng nhưng tiếc là nội dung lan man.,tiêu cực,khóa học,train
+r1420,đi công tác nên mình ghé. chi phí ở mức trung bình.,trung tính,dịch vụ,train
+r1421,Mình chờ khoảng mười phút. Nhân viên cực kỳ thân thiện.,tích cực,dịch vụ,train
+r1422,chất lượng chẳng hề tệ.,tích cực,sản phẩm,valid
+r1423,Giảng viên rất giỏi chuyên môn và học phí rất hợp lý.,tích cực,khóa học,test
+r1424,Mình dùng bản mới nhất. Bản cập nhật mới có thêm chế độ tối.,trung tính,ứng dụng,train
+r1425,Cần đăng nhập mới xem được nội dung. Cho 3 sao.,trung tính,ứng dụng,valid
+r1426,Nhân viên cáu gắt nhưng bù lại thời gian chờ khá ngắn.,tích cực,dịch vụ,train
+r1427,"Ca nha ghe an toi cuoi tuan. Phuc vu qua tho o, nhung mon an thuc su dam da. Cho 5 sao.",tích cực,ẩm thực,valid
+r1428,"Mình dùng dịch vụ lần thứ hai. Phòng ốc khá cũ, việc giải quyết khiếu nại quá qua loa!!",tiêu cực,dịch vụ,train
+r1429,giá không hề cao. chất liệu rất mềm. 😍,tích cực,sản phẩm,train
+r1430,Thủ tục rườm rà nhưng bù lại thời gian chờ rất hợp lý. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,test
+r1431,Tai lieu gui qua email sau moi buoi.,trung tính,khóa học,test
+r1432,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu không kém bền. Đóng gói quá đẹp. Sẽ ủng hộ tiếp.",tích cực,sản phẩm,train
+r1433,Chi phí rất mập mờ nhưng bù lại thủ tục cực kỳ đơn giản.,tích cực,dịch vụ,train
+r1434,Minh dung dich vu lan thu hai. Co the thanh toan bang the. Cho 3 sao.,trung tính,dịch vụ,train
+r1435,tài liệu dễ theo dõi.,tích cực,khóa học,train
+r1436,Tuy việc giải quyết khiếu nại nhanh nhưng phòng ốc cũ. 😞,tiêu cực,dịch vụ,train
+r1437,hỗ trợ khách hàng nhiệt tình. recommend nhé!,tích cực,ứng dụng,train
+r1438,"Thông báo thực sự rõ ràng, nhưng ứng dụng nhiều lỗi.",tiêu cực,ứng dụng,train
+r1439,mình học buổi tối sau giờ làm. tài liệu khá thiếu và giảng viên quá hời hợt. sẽ không quay lại.,tiêu cực,khóa học,train
+r1440,Giao hàng lâu và tư vấn của shop chậm. 😡,tiêu cực,sản phẩm,train
+r1441,Quán mở cửa đến 22 giờ. Không gian hơi chật. 😞,tiêu cực,ẩm thực,train
+r1442,Tốc độ thực sự mượt. Cho 5 sao.,tích cực,ứng dụng,train
+r1443,"Đóng gói quá chắc chắn, chất lượng ổn. 🙂",tích cực,sản phẩm,train
+r1444,"chất lượng cực kỳ ổn, lại còn đóng gói khá chắc chắn. sẽ ủng hộ tiếp!!",tích cực,sản phẩm,train
+r1445,"Chi phí cao, nhưng phòng ốc cực kỳ thoải mái!",tích cực,dịch vụ,train
+r1446,Ứng dụng khá ổn định...,tích cực,ứng dụng,train
+r1447,mình học online được một tháng. khóa học gồm mười hai buổi.,trung tính,khóa học,train
+r1448,Ưu điểm: giao hàng quá đúng hẹn. Nhược điểm: chất lượng hơi thấp.,trung tính,sản phẩm,train
+r1449,"Di an voi ban be. Minh di vao buoi trua, khau phan vua du mot nguoi.",trung tính,ẩm thực,train
+r1450,"Cả nhà ghé ăn tối cuối tuần. Món ăn hơi mặn chát, giá chát. Sẽ không quay lại.",tiêu cực,ẩm thực,train
+r1451,"Quán mở cửa đến 22 giờ, mình đi vào buổi trưa.",trung tính,ẩm thực,train
+r1452,Mình mới cài nên chưa dùng nhiều. Chưa biết có dùng lại không.,trung tính,ứng dụng,train
+r1453,"Chất liệu bền, giá quá rẻ. Sẽ ủng hộ tiếp.",tích cực,sản phẩm,valid
+r1454,nội dung thực sự có hệ thống nhưng tiếc là tốc độ giảng quá chậm.,tiêu cực,khóa học,valid
+r1455,Món ăn thực sự vừa miệng và nguyên liệu quá tươi. Sẽ ủng hộ tiếp!,tích cực,ẩm thực,train
+r1456,Chạy bình thường trên máy mình.,trung tính,ứng dụng,train
+r1457,Bài tập chẳng hề ít. Giảng viên cực kỳ giỏi chuyên môn.,tích cực,khóa học,train
+r1458,Thông báo hơi hay trễ và giao diện quá rối.,trung tính,ứng dụng,train
+r1459,nhân viên quá thiếu chuyên nghiệp.,tiêu cực,dịch vụ,train
+r1460,Dùng trên điện thoại Android được hai tuần. Hỗ trợ khách hàng rất nhanh và tốc độ rất nhanh.,tích cực,ứng dụng,valid
+r1461,phòng ốc ko hề chật. 😞,tích cực,dịch vụ,test
+r1462,dùng trên điện thoại android được hai tuần. tính năng khá nghèo nàn. 👍!!!,tiêu cực,ứng dụng,train
+r1463,"đặt hàng hôm thứ ba, nhận hàng hôm thứ sáu. tư vấn của shop không chậm. đóng gói đẹp.",tích cực,sản phẩm,train
+r1464,Cài về từ tháng trước. Bản cập nhật mới có thêm chế độ tối. Mình ghi nhận xét vậy thôi.,trung tính,ứng dụng,train
+r1465,Giảng viên khá giỏi chuyên môn.,tích cực,khóa học,test
+r1466,đóng gói không cẩu thả.,tích cực,sản phẩm,train
+r1467,Tài liệu hơi cũ.,tiêu cực,khóa học,train
+r1468,giá rẻ nhưng tiếc là không gian khá ồn. sẽ không quay lại.,tiêu cực,ẩm thực,train
+r1469,Nhân viên nhiệt tình nhưng tiếc là thời gian chờ quá dài. Cho 1 sao!!,tiêu cực,dịch vụ,valid
+r1470,Tốc độ giảng quá nhanh.,tiêu cực,khóa học,train
+r1471,"Chất lượng kém, lại còn chất liệu rất mỏng.",tiêu cực,sản phẩm,train
+r1472,hàng giống mô tả. mình ghi nhận xét vậy thôi.,trung tính,sản phẩm,valid
+r1473,Không gian hơi bẩn!!!,tiêu cực,ẩm thực,train
+r1474,tuy giá hợp lý nhưng món ăn rất mặn chát.,tiêu cực,ẩm thực,valid
+r1475,Mua tặng người nhà. Ưu điểm: chất liệu thực sự bền. Nhược điểm: đóng gói khá ẩu.,trung tính,sản phẩm,train
+r1476,"Khẩu phần quá nhỏ, nguyên liệu hơi ôi.",tiêu cực,ẩm thực,train
+r1477,Lần đầu mình ghé quán. Món ăn không mặn chát. Cho 5 sao.,tích cực,ẩm thực,valid
+r1478,Mình đến làm thủ tục vào buổi sáng. Nhân viên hơi thờ ơ.,tiêu cực,dịch vụ,test
+r1479,"tư vấn của shop quá thiếu nhiệt tình, lại còn màu sắc rất khác hình!!!",tiêu cực,sản phẩm,train
+r1480,ưu điểm: hỗ trợ khách hàng quá nhiệt tình. nhược điểm: giao diện quá khó dùng.,trung tính,ứng dụng,train
+r1481,"việc giải quyết khiếu nại rất thỏa đáng, chi phí quá hợp lý. recommend nhé!!!!",tích cực,dịch vụ,test
+r1482,Giá cao. Cho 1 sao.,trung tính,sản phẩm,train
+r1483,nguyên liệu thực sự chất lượng. recommend nhé!,tích cực,ẩm thực,train
+r1484,"Dung lượng khoảng 80 MB, chạy bình thường trên máy mình.",trung tính,ứng dụng,train
+r1485,Chất liệu không dày dặn. Tư vấn của shop khá qua loa.,tiêu cực,sản phẩm,valid
+r1486,Tuy tính năng đầy đủ nhưng thông báo khó hiểu.,tiêu cực,ứng dụng,train
+r1487,Đi ăn với bạn bè. Giá khá đắt!!!,tiêu cực,ẩm thực,train
+r1488,tư vấn của shop cực kỳ chu đáo.,tích cực,sản phẩm,train
+r1489,Hàng giống mô tả. Tư vấn của shop chậm.,tiêu cực,sản phẩm,test
+r1490,dùng trên điện thoại android được hai tuần. hỗ trợ khách hàng quá chậm. sẽ không quay lại.,tiêu cực,ứng dụng,train
+r1491,Giao hàng chậm nhưng bù lại chất lượng quá tốt.,tích cực,sản phẩm,train
+r1492,"Màu sắc giống trong ảnh, kích cỡ đúng bảng size.",trung tính,sản phẩm,test
+r1493,"Dat hang hom thu Ba, nhan hang hom thu Sau. Mau sac giong trong anh!!",trung tính,sản phẩm,train
+r1494,Thủ tục rất gọn nhẹ. Cho 5 sao...,tích cực,dịch vụ,valid
+r1495,"Giao hàng đúng thời gian dự kiến, hàng giống mô tả.",trung tính,sản phẩm,valid
+r1496,Đóng gói quá ẩu.,tiêu cực,sản phẩm,train
+r1497,Học phí hơi đắt. 👎,tiêu cực,khóa học,train
+r1498,Kích cỡ đúng bảng size. Cho 3 sao.,trung tính,sản phẩm,valid
+r1499,Hỗ trợ khách hàng chẳng hề qua loa. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r1500,Tuy bài tập rất ít nhưng học phí quá xứng đáng. Rất đáng thử.,tích cực,khóa học,train
+r1501,"Bai tap thuc su vua suc, noi dung co he thong. Se ung ho tiep.",tích cực,khóa học,valid
+r1502,Tư vấn của shop khá chu đáo.,tích cực,sản phẩm,test
+r1503,"Dùng được, không có gì đặc biệt. 😐",trung tính,sản phẩm,valid
+r1504,Ưu điểm: hỗ trợ khách hàng nhanh. Nhược điểm: tính năng hơi khó tìm.,trung tính,ứng dụng,train
+r1505,"Mình học buổi tối sau giờ làm. Giảng viên giỏi chuyên môn, tốc độ giảng hợp lý.",tích cực,khóa học,train
+r1506,Phuc vu chua chu dao. Cho 1 sao.,tiêu cực,ẩm thực,train
+r1507,"Dùng trên điện thoại Android được hai tuần. Giao diện rất dễ dùng, lại còn tính năng rất tiện lợi.",tích cực,ứng dụng,train
+r1508,Đi công tác nên mình ghé. Ưu điểm: phòng ốc thực sự thoáng. Nhược điểm: việc giải quyết khiếu nại hơi chậm. 🤔!,trung tính,dịch vụ,train
+r1509,Tư vấn của shop chưa nhiệt tình. Cho 1 sao.,tiêu cực,sản phẩm,train
+r1510,Khóa học gồm mười hai buổi. Tốc độ giảng quá nhanh. Không khuyên mua.,tiêu cực,khóa học,train
+r1511,Giao diện quá dễ dùng...,tích cực,ứng dụng,train
+r1512,Chi phí chẳng hề cao.,tích cực,dịch vụ,train
+r1513,Tuy chi phí rất hợp lý nhưng phòng ốc cũ.,tiêu cực,dịch vụ,valid
+r1514,Mình dùng dịch vụ lần thứ hai. Việc giải quyết khiếu nại rất qua loa và thủ tục chậm. Cho 1 sao.,tiêu cực,dịch vụ,valid
+r1515,Đi ăn với bạn bè. Món ăn không hề mặn chát.,tích cực,ẩm thực,test
+r1516,Cài về từ tháng trước. Tuy thông báo khá kịp thời nhưng ứng dụng hay văng. 👎,tiêu cực,ứng dụng,valid
+r1517,Mình đăng ký theo lời giới thiệu của bạn. Học phí ở mức trung bình.,trung tính,khóa học,valid
+r1518,Đi công tác nên mình ghé. Nhân viên không hề thiếu chuyên nghiệp.,tích cực,dịch vụ,valid
+r1519,Cài về từ tháng trước. Tính năng không khó tìm.,tích cực,ứng dụng,train
+r1520,Ưu điểm: tư vấn của shop chu đáo. Nhược điểm: chất liệu thô.,trung tính,sản phẩm,train
+r1521,"mình dùng dịch vụ lần thứ hai. thủ tục quá gọn nhẹ, nhưng phòng ốc hơi cũ. cho 1 sao. 👎",tiêu cực,dịch vụ,valid
+r1522,Mua tặng người nhà. Màu sắc giống trong ảnh. Tư vấn của shop thực sự chu đáo. Sẽ ủng hộ tiếp.,tích cực,sản phẩm,train
+r1523,Phòng ốc quá sạch sẽ.,tích cực,dịch vụ,valid
+r1524,Tốc độ không thất thường. Hỗ trợ khách hàng nhiệt tình. Rất đáng thử.,tích cực,ứng dụng,train
+r1525,"không gian khá chật, lại còn nguyên liệu hơi ôi. sẽ không quay lại.",tiêu cực,ẩm thực,train
+r1526,"Đi công tác nên mình ghé. Nhân viên thờ ơ, lại còn phòng ốc hơi chật.",tiêu cực,dịch vụ,train
+r1527,Việc giải quyết khiếu nại chẳng hề qua loa.,tích cực,dịch vụ,train
+r1528,"Hỗ trợ khách hàng thực sự chu đáo, lại còn tính năng quá hữu ích.",tích cực,ứng dụng,train
+r1529,"Tốc độ giảng rất vừa phải, nhưng tài liệu thiếu. 🤔",tiêu cực,khóa học,train
+r1530,Tốc độ giảng không hợp lý chút nào. Giảng viên hơi thiếu nhiệt tình.,tiêu cực,khóa học,valid
+r1531,"Chất lượng khá tệ, lại còn đóng gói hơi sơ sài...",tiêu cực,sản phẩm,train
+r1532,Thời gian chờ rất ngắn. ❤️!!!,tích cực,dịch vụ,train
+r1533,"Minh hoc online duoc mot thang. Noi dung kha bo ich, lai con bai tap vua suc.",tích cực,khóa học,train
+r1534,Món ăn vừa miệng nhưng tiếc là phục vụ khá kém. Không khuyên mua.,tiêu cực,ẩm thực,train
+r1535,Cài về từ tháng trước. Thông báo hơi chậm!,tiêu cực,ứng dụng,train
+r1536,"Thủ tục rất đơn giản, lại còn việc giải quyết khiếu nại cực kỳ thỏa đáng. Rất đáng thử.",tích cực,dịch vụ,train
+r1537,Cả nhà ghé ăn tối cuối tuần. Giá rẻ và món ăn ngon. Sẽ ủng hộ tiếp!!,tích cực,ẩm thực,train
+r1538,món ăn quá ngon!!!,tích cực,ẩm thực,train
+r1539,Thong bao rat ro rang.,tích cực,ứng dụng,train
+r1540,Giảng viên chẳng hề khó hiểu.,tiêu cực,khóa học,train
+r1541,Mình mới cài nên chưa dùng nhiều. 😐,trung tính,ứng dụng,train
+r1542,Ứng dụng có đủ các chức năng cơ bản. Tốc độ cực kỳ mượt.,tích cực,ứng dụng,train
+r1543,"Dùng trên điện thoại Android được hai tuần. Hỗ trợ khách hàng nhiệt tình, lại còn tính năng hữu ích. Rất đáng thử.",tích cực,ứng dụng,train
+r1544,Chi phí mập mờ!,tiêu cực,dịch vụ,valid
+r1545,Chất lượng không kém!!!,tích cực,sản phẩm,train
+r1546,Thời gian chờ rất bất hợp lý. Cho 1 sao.,tiêu cực,dịch vụ,train
+r1547,tài liệu quá đầy đủ. rất đáng thử.,tích cực,khóa học,valid
+r1548,"Giá chát, nhưng giao hàng rất nhanh.",tích cực,sản phẩm,train
+r1549,Nhân viên quá cáu gắt.,trung tính,dịch vụ,train
+r1550,Tốc độ không nhanh.,tiêu cực,ứng dụng,train
+r1551,Mới nhận hàng nên chưa đánh giá đc nhiều. Chưa biết có dùng lại k.,tích cực,sản phẩm,train
+r1552,Toc do giang qua nhanh.,tiêu cực,khóa học,train
+r1553,Mon an binh thuong. Cho 3 sao!,trung tính,ẩm thực,train
+r1554,Mua tặng người nhà. Màu sắc giống trong ảnh. 🤔!!!,trung tính,sản phẩm,train
+r1555,Việc giải quyết khiếu nại khá nhanh nhưng tiếc là chi phí hơi cao.,tiêu cực,dịch vụ,train
+r1556,Giá hơi cao và tư vấn của shop chậm. 👎...,tiêu cực,sản phẩm,valid
+r1557,Nguyên liệu hơi kém.,tiêu cực,ẩm thực,valid
+r1558,đóng gói bình thường.,trung tính,sản phẩm,train
+r1559,Chi phí cao và nhân viên rất thờ ơ.,tiêu cực,dịch vụ,train
+r1560,Ưu điểm: thông báo rất kịp thời. Nhược điểm: giao diện hơi rối. Chưa biết có dùng lại không.,trung tính,ứng dụng,train
+r1561,màu sắc không phai.,tích cực,sản phẩm,train
+r1562,Ưu điểm: chất liệu quá dày dặn. Nhược điểm: giao hàng khá trễ hẹn. 🤔,trung tính,sản phẩm,train
+r1563,"Khẩu phần quá đầy đặn, lại còn món ăn cực kỳ đậm đà.",tích cực,ẩm thực,train
+r1564,Tuy tính năng nghèo nàn nhưng giao diện dễ dùng. 😍!,tích cực,ứng dụng,train
+r1565,Có thể thanh toán bằng thẻ.,trung tính,dịch vụ,train
+r1566,Chạy bình thường trên máy mình. 🤔,trung tính,ứng dụng,test
+r1567,Màu sắc khá giống hình. Recommend nhé!!!!,tích cực,sản phẩm,train
+r1568,Tuy hok gian khá bẩn nhưng giá khá phải chăng. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r1569,Mình đến làm thủ tục vào buổi sáng. Chi phí cao!,tiêu cực,dịch vụ,train
+r1570,Nội dung tạm được.,trung tính,khóa học,train
+r1571,bài tập chẳng hề quá khó.,tích cực,khóa học,test
+r1572,Mình đến vào giờ cao điểm. Chi phí chẳng hợp lý. Phòng ốc quá chật.,tiêu cực,dịch vụ,train
+r1573,"Cả nhà ghé ăn tối cuối tuần. Nguyên liệu tươi, lại còn không gian quá thoáng.",tích cực,ẩm thực,train
+r1574,Mình đến vào giờ cao điểm. Thủ tục khá đơn giản.,tích cực,dịch vụ,train
+r1575,Giá rất hợp lý. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r1576,Món ăn chưa vừa miệng. Thất vọng!!,tiêu cực,ẩm thực,test
+r1577,tốc độ giảng cực kỳ hợp lý và giảng viên rất giỏi chuyên môn.,tích cực,khóa học,test
+r1578,Cả nhà ghé ăn tối cuối tuần. Nguyên liệu chẳng hề ôi. Giá quá phải chăng. 😍!!,tích cực,ẩm thực,train
+r1579,Đóng gói sơ sài.,tiêu cực,sản phẩm,train
+r1580,"Màu sắc đẹp, giá rẻ.",tích cực,sản phẩm,train
+r1581,"nội dung lan man, nhưng tài liệu quá rõ ràng. recommend nhé!",tích cực,khóa học,test
+r1582,Tư vấn của shop khá thiếu nhiệt tình.,tiêu cực,sản phẩm,train
+r1583,"Học qua Zoom vào buổi tối, mình mới học được vài buổi.",trung tính,khóa học,train
+r1584,Tư vấn của shop quá nhiệt tình.,tích cực,sản phẩm,train
+r1585,Lớp có khoảng ba mươi học viên. Giảng viên thực sự giỏi chuyên môn!!!,tích cực,khóa học,train
+r1586,Học phí rất đắt.,tiêu cực,khóa học,train
+r1587,"Màu sắc hơi xỉn, lại còn giá rất đắt. Sẽ không quay lại.",tiêu cực,sản phẩm,test
+r1588,chạy bình thường trên máy mình. tốc độ hơi giật. thất vọng.,tiêu cực,ứng dụng,valid
+r1589,"Mua tặng người nhà. Dùng được, không có gì đặc biệt. Tư vấn của shop cực kỳ nhanh.",tích cực,sản phẩm,test
+r1590,Giảng viên khá dễ hiểu.,tích cực,khóa học,test
+r1591,Khóa học gồm mười hai buổi. Tài liệu khá thiếu.,tiêu cực,khóa học,train
+r1592,Tư vấn của shop khá chậm.,tiêu cực,sản phẩm,valid
+r1593,Đi công tác nên mình ghé. Thủ tục đơn giản.,tích cực,dịch vụ,train
+r1594,Chất liệu bền và chất lượng tốt. Recommend nhé!,tích cực,sản phẩm,test
+r1595,Có thể thanh toán bằng thẻ. Việc giải quyết khiếu nại quá chậm.,tiêu cực,dịch vụ,train
+r1596,Quán nằm trên đường chính. Phục vụ cực kỳ niềm nở.,tích cực,ẩm thực,train
+r1597,Thoi gian cho qua bat hop ly nhung bu lai nhan vien than thien.,tích cực,dịch vụ,train
+r1598,mình đăng ký theo lời giới thiệu của bạn. bài tập vừa sức. cho 5 sao.,tích cực,khóa học,valid
+r1599,Thủ tục thực sự nhanh.,tích cực,dịch vụ,train
+r1600,Mình học online đc một tháng. Học qua Zoom vào buổi tối. Giảng viên quá hời hợt. 😤,tiêu cực,khóa học,train
+r1601,Mình đăng ký theo lời giới thiệu của bạn. Tài liệu không khó theo dõi.,tích cực,khóa học,train
+r1602,Việc giải quyết khiếu nại không nhanh. Phòng ốc cũ...,tiêu cực,dịch vụ,train
+r1603,Mình dùng được một tuần rồi. Tư vấn của shop khá nhiệt tình.,tích cực,sản phẩm,train
+r1604,Tuy nguyen lieu oi nhung khong gian thuc su thoang. Cho 5 sao!!,tích cực,ẩm thực,valid
+r1605,Giao diện không xấu.,tích cực,ứng dụng,train
+r1606,Tốc độ không mượt chút nào.,tiêu cực,ứng dụng,test
+r1607,Minh den vao gio cao diem. Phong oc hok thoang.,tiêu cực,dịch vụ,train
+r1608,Chi phí hợp lý.,tích cực,dịch vụ,valid
+r1609,Tài liệu dễ theo dõi. Rất đáng thử.,tích cực,khóa học,train
+r1610,Hỗ trợ khách hàng hơi thiếu chuyên nghiệp.,tiêu cực,ứng dụng,train
+r1611,Tư vấn của shop nhanh. Cho 5 sao.,tích cực,sản phẩm,train
+r1612,Bản cập nhật mới có thêm chế độ tối. Tốc độ mượt.,tích cực,ứng dụng,valid
+r1613,Không gian bẩn!!!,tiêu cực,ẩm thực,train
+r1614,Nhân viên không nhiệt tình. Thủ tục quá chậm. Không khuyên mua...,tiêu cực,dịch vụ,train
+r1615,"Giao hàng hơi chậm, chất lượng khá kém.",tiêu cực,sản phẩm,train
+r1616,Mình dùng được một tuần rồi. Giá thực sự mềm.,tích cực,sản phẩm,train
+r1617,Phòng ốc quá thoải mái nhưng tiếc là việc giải quyết khiếu nại khá chậm.,tiêu cực,dịch vụ,train
+r1618,Giá quá mềm!!!,tích cực,sản phẩm,test
+r1619,Giao diện không khó dùng. Hỗ trợ khách hàng rất nhiệt tình.,tích cực,ứng dụng,train
+r1620,"Tính năng rất hữu ích, thông báo cực kỳ kịp thời.",tích cực,ứng dụng,train
+r1621,Ứng dụng thực sự ít lỗi.,tích cực,ứng dụng,test
+r1622,"Thời gian chờ hợp lý, lại còn việc giải quyết khiếu nại khá nhanh. 👍",tích cực,dịch vụ,test
+r1623,"Giá cực kỳ mềm, lại còn chất lượng khá cao.",tích cực,sản phẩm,train
+r1624,Dùng trên điện thoại Android được hai tuần. Tốc độ giật.,tiêu cực,ứng dụng,train
+r1625,Đi công tác nên mình ghé. Thời gian chờ ngắn. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r1626,"Minh dung dich vu lan thu hai. Thoi gian cho qua dai, nhan vien hoi tho o. Khong khuyen mua.",tiêu cực,dịch vụ,valid
+r1627,Dùng trên điện thoại Android được hai tuần. Giao diện quá xấu nhưng bù lại thông báo rất rõ ràng. Recommend nhé!,tích cực,ứng dụng,train
+r1628,"Đi ăn với bạn bè. Giá rẻ, lại còn khẩu phần cực kỳ đầy đặn.",tích cực,ẩm thực,test
+r1629,Đi công tác nên mình ghé. Tuy chi phí khá mập mờ nhưng phòng ốc thực sự sạch sẽ.,tích cực,dịch vụ,valid
+r1630,Tuy không gian khá ồn nhưng nguyên liệu tươi. Cho 5 sao. ❤️,tích cực,ẩm thực,train
+r1631,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất liệu mềm nhưng tiếc là giao hàng lâu. 😤",tiêu cực,sản phẩm,train
+r1632,Chat lieu qua mong.,tích cực,sản phẩm,test
+r1633,Mình đến vào giờ cao điểm. Phòng ốc cực kỳ sạch sẽ nhưng tiếc là chi phí cao. 👍,tiêu cực,dịch vụ,valid
+r1634,Hỗ trợ khách hàng nhiệt tình...,tích cực,ứng dụng,train
+r1635,"chất liệu thực sự bền, lại còn đóng gói quá đẹp.",tích cực,sản phẩm,train
+r1636,tư vấn của shop thực sự chu đáo. 🤔,tích cực,sản phẩm,train
+r1637,Ưu điểm: bài tập thực sự vừa sức. Nhược điểm: nội dung hơi lỗi thời.,trung tính,khóa học,valid
+r1638,"Thông báo quá chậm, tính năng nghèo nàn.",tiêu cực,ứng dụng,train
+r1639,Tính năng nghèo nàn!,tiêu cực,ứng dụng,train
+r1640,giao diện hơi xấu nhưng bù lại hỗ trợ khách hàng rất nhiệt tình. cho 5 sao.,trung tính,ứng dụng,train
+r1641,giảng viên dễ hiểu. 🙂!,tích cực,khóa học,train
+r1642,Mình dùng bản mới nhất. Giao diện quá đẹp!!!,tích cực,ứng dụng,test
+r1643,"Tốc độ giảng quá nhanh, nhưng giảng viên khá giỏi chuyên môn. Sẽ ủng hộ tiếp.",tích cực,khóa học,train
+r1644,Giao hàng hơi trễ hẹn và đóng gói hơi ẩu. Thất vọng!!!,tiêu cực,sản phẩm,train
+r1645,Đóng gói thực sự đẹp. Rất đáng thử.,tích cực,sản phẩm,train
+r1646,Thủ tục khá rườm rà. Cho 1 sao.,trung tính,dịch vụ,train
+r1647,Mon an qua dam da va khau phan vua an.,tích cực,ẩm thực,train
+r1648,"Quán mở cửa đến 22 giờ, thực đơn khá nhiều món.",trung tính,ẩm thực,train
+r1649,"Mua tang nguoi nha. Giao hang rat dung hen, lai con chat lieu thuc su ben.",tích cực,sản phẩm,train
+r1650,Mình dùng dịch vụ lần thứ hai. Tuy thủ tục quá gọn nhẹ nhưng chi phí rất mập mờ.,tiêu cực,dịch vụ,train
+r1651,Cài về từ tháng trước. Tốc độ khá mượt. Sẽ ủng hộ tiếp. 👎,tích cực,ứng dụng,test
+r1652,Nhân viên khá thờ ơ. Cho 1 sao.,tiêu cực,dịch vụ,train
+r1653,Chất liệu cực kỳ bền.,tích cực,sản phẩm,valid
+r1654,Gia o muc trung binh. Giao hang cham.,tiêu cực,sản phẩm,train
+r1655,Mua tặng người nhà. Giá ở mức trung bình. 🤔,trung tính,sản phẩm,train
+r1656,"Hỗ trợ khách hàng qua loa, nhưng ứng dụng thực sự mượt.",tích cực,ứng dụng,test
+r1657,"Cả nhà ghé ăn tối cuối tuần. Món ăn quá vừa miệng, lại còn khẩu phần vừa ăn.",tích cực,ẩm thực,train
+r1658,Mua tặng người nhà. Tư vấn của shop không hề qua loa. Giao hàng rất nhanh.,tích cực,sản phẩm,test
+r1659,Mình đến vào giờ cao điểm. Phòng ốc thực sự sạch sẽ. Rất đáng thử.,tích cực,dịch vụ,train
+r1660,Thủ tục khá nhanh.,tích cực,dịch vụ,valid
+r1661,"hỗ trợ khách hàng nhanh, lại còn thông báo rất kịp thời!",tích cực,ứng dụng,train
+r1662,"Tính năng khá tiện lợi, lại còn ứng dụng ổn định.",tích cực,ứng dụng,train
+r1663,mình đăng ký theo lời giới thiệu của bạn. giảng viên quá hời hợt. không khuyên mua.,tiêu cực,khóa học,test
+r1664,Tài liệu quá thiếu.,tiêu cực,khóa học,train
+r1665,Giảng viên dễ hiểu và học phí rất xứng đáng.,tích cực,khóa học,train
+r1666,khẩu phần quá ít nhưng bù lại món ăn quá đậm đà...,tích cực,ẩm thực,valid
+r1667,Minh dung ban moi nhat. Ho tro khach hang nhiet tinh.,tích cực,ứng dụng,valid
+r1668,Lần đầu mình ghé quán. Thực đơn khá nhiều món. Phục vụ cực kỳ chu đáo. Recommend nhé!,tích cực,ẩm thực,train
+r1669,Mình dùng được một tuần rồi. Chất liệu bền.,tích cực,sản phẩm,train
+r1670,Minh hoc online duoc mot thang. Bai tap qua kho.,tiêu cực,khóa học,valid
+r1671,Hàng giống mô tả. Chưa biết có dùng lại không.,trung tính,sản phẩm,train
+r1672,Nguyên liệu hơi cũ và phục vụ quá kém. Sẽ không quay lại.,tiêu cực,ẩm thực,valid
+r1673,Mình dùng dịch vụ lần thứ hai. Thủ tục khá nhanh và nhân viên khá thân thiện. ❤️,tích cực,dịch vụ,train
+r1674,nội dung hơi sơ sài. 👎,tiêu cực,khóa học,train
+r1675,Mình học online được một tháng. Học qua Zoom vào buổi tối.,trung tính,khóa học,train
+r1676,Giao dien cung duoc. Minh ghi nhan xet vay thoi.,trung tính,ứng dụng,train
+r1677,Cả nhà ghé ăn tối cuối tuần. Món ăn quá mặn chát.,tiêu cực,ẩm thực,test
+r1678,Thủ tục khá nhanh. Cho 5 sao.,tích cực,dịch vụ,test
+r1679,"Món ăn hơi nhạt, nhưng không gian cực kỳ thoáng. Sẽ ủng hộ tiếp.",tích cực,ẩm thực,valid
+r1680,Chất liệu tạm được.,trung tính,sản phẩm,valid
+r1681,Chi phí chẳng hề cao. Recommend nhé! 😍,tích cực,dịch vụ,valid
+r1682,dùng trên điện thoại android được hai tuần. hỗ trợ khách hàng chưa nhanh. thông báo hay trễ!!,tiêu cực,ứng dụng,train
+r1683,dung lượng khoảng 80 mb!,trung tính,ứng dụng,train
+r1684,ưu điểm: thủ tục thực sự nhanh. nhược điểm: việc giải quyết khiếu nại hơi qua loa!,trung tính,dịch vụ,test
+r1685,Phòng ốc chật và thủ tục quá phức tạp.,tiêu cực,dịch vụ,train
+r1686,Ứng dụng hay văng và giao diện khó dùng.,tiêu cực,ứng dụng,train
+r1687,Bài tập quá ít.,tiêu cực,khóa học,train
+r1688,học phí không hề đắt.,tích cực,khóa học,train
+r1689,minh den vao gio cao diem. thoi gian cho ngan!!!,tích cực,dịch vụ,train
+r1690,"Giảng viên rất khó hiểu, nhưng tốc độ giảng khá vừa phải.",tích cực,khóa học,train
+r1691,mình đăng ký theo lời giới thiệu của bạn. nội dung khá lỗi thời và tài liệu hơi cũ.,tiêu cực,khóa học,train
+r1692,cả nhà ghé ăn tối cuối tuần. khẩu phần rất nhỏ. cho 1 sao!,tiêu cực,ẩm thực,train
+r1693,cài về từ tháng trước. ứng dụng thực sự ổn định. rất đáng thử!!,tích cực,ứng dụng,train
+r1694,Chi phí bình thường. Chưa biết có dùng lại không.,trung tính,dịch vụ,valid
+r1695,Mình dùng bản mới nhất. Thông báo khá rõ ràng.,tích cực,ứng dụng,train
+r1696,Chất lượng thực sự tốt nhưng tiếc là chất liệu thô. Không khuyên mua.,tiêu cực,sản phẩm,valid
+r1697,Mình dùng dịch vụ lần thứ hai. Thủ tục chậm...,tiêu cực,dịch vụ,test
+r1698,Mình dùng được một tuần rồi. Đóng gói bình thường. Mình ghi nhận xét vậy thôi.,trung tính,sản phẩm,valid
+r1699,Minh hoc buoi toi sau gio lam. Khoa hoc gom muoi hai buoi. Giang vien nhiet tinh. 👍,tích cực,khóa học,train
+r1700,ưu điểm: chi phí rất minh bạch. nhược điểm: thời gian chờ quá dài. cho 3 sao.,trung tính,dịch vụ,train
+r1701,Hỗ trợ khách hàng hơi qua loa. Cho 1 sao.,tiêu cực,ứng dụng,train
+r1702,"Mình dùng được một tuần rồi. Dùng được, không có gì đặc biệt...",trung tính,sản phẩm,train
+r1703,bài tập hơi ít nhưng bù lại tài liệu rõ ràng. rất đáng thử.,tích cực,khóa học,train
+r1704,"Dùng trên điện thoại Android được hai tuần. Ứng dụng khá hay văng, nhưng giao diện dễ dùng. Rất đáng thử.",tích cực,ứng dụng,train
+r1705,Quán mở cửa đến 22 giờ. Nguyên liệu cực kỳ chất lượng. Sẽ ủng hộ tiếp.,tích cực,ẩm thực,train
+r1706,Bản cập nhật mới có thêm chế độ tối. Tính năng thực sự hữu ích. Recommend nhé!,tích cực,ứng dụng,test
+r1707,giảng viên quá khó hiểu.,tiêu cực,khóa học,train
+r1708,Mình đến vào giờ cao điểm. Việc giải quyết khiếu nại thỏa đáng. Cho 5 sao.,tích cực,dịch vụ,train
+r1709,chạy bình thường trên máy mình. tốc độ nhanh.,tích cực,ứng dụng,valid
+r1710,Tư vấn của shop ở mức trung bình.,trung tính,sản phẩm,test
+r1711,"dùng trên điện thoại android dc hai tuần. tốc độ quá thất thường, nhưng ứng dụng rất ít lỗi. recommend nhé!",tích cực,ứng dụng,train
+r1712,"Giá hơi đắt, nhưng nguyên liệu khá tươi. Recommend nhé!",tích cực,ẩm thực,train
+r1713,Ứng dụng quá hay treo.,tiêu cực,ứng dụng,train
+r1714,Lần đầu mình ghé quán. Khẩu phần khá sơ sài.,tiêu cực,ẩm thực,train
+r1715,Học phí thanh toán một lần. Tài liệu rất cũ.,tiêu cực,khóa học,train
+r1716,Lần đầu mình ghé quán. Nguyên liệu không tươi lắm. Sẽ không quay lại.,tiêu cực,ẩm thực,train
+r1717,Chất lượng thực sự tốt. Recommend nhé!...,tích cực,sản phẩm,train
+r1718,Chạy bình thường trên máy mình. Hỗ trợ khách hàng nhanh. Sẽ ủng hộ tiếp.,tích cực,ứng dụng,train
+r1719,Mua tặng người nhà. Giá chát. Cho 1 sao.,tiêu cực,sản phẩm,valid
+r1720,Đi ăn với bạn bè. Phục vụ khá chu đáo.,tích cực,ẩm thực,train
+r1721,chi phí cực kỳ hợp lý. ❤️!,tích cực,dịch vụ,train
+r1722,Giao diện khó dùng nhưng bù lại ứng dụng cực kỳ ổn định.,tích cực,ứng dụng,train
+r1723,phòng ốc bẩn. 😡,tiêu cực,dịch vụ,train
+r1724,Tư vấn của shop không hề thiếu nhiệt tình. Giá hợp lý.,tích cực,sản phẩm,train
+r1725,Tu van cua shop kha qua loa nhung bu lai dong goi qua chac chan.,tích cực,sản phẩm,train
+r1726,"Tài liệu khá thiếu, nhưng giảng viên cực kỳ nhiệt tình.",tích cực,khóa học,test
+r1727,học phí quá xứng đáng nhưng tiếc là giảng viên khó hiểu...,tiêu cực,khóa học,train
+r1728,Khẩu phần vừa đủ một người.,trung tính,ẩm thực,train
+r1729,Mua tặng người nhà. Tư vấn của shop quá thiếu nhiệt tình nhưng bù lại đóng gói cực kỳ cẩn thận. Cho 5 sao.,tích cực,sản phẩm,train
+r1730,tinh nang thua thai. 👎,tiêu cực,ứng dụng,train
+r1731,"Đặt hàng hôm thứ Ba, nhận hàng hôm thứ Sáu. Chất lượng hơi thấp. Cho 1 sao.",tiêu cực,sản phẩm,train
+r1732,Màu sắc không có gì đặc biệt...,tiêu cực,sản phẩm,train
+r1733,Tuy việc giải quyết khiếu nại thực sự nhanh nhưng thời gian chờ quá dài.,tiêu cực,dịch vụ,train
+r1734,Thời gian chờ chẳng hợp lý. Thủ tục quá phức tạp.,tiêu cực,dịch vụ,train
+r1735,tư vấn của shop hơi chậm.,tiêu cực,sản phẩm,valid
+r1736,"minh den vao gio cao diem. chi phi cao, nhung viec giai quyet khieu nai rat nhanh. cho 5 sao.",tích cực,dịch vụ,valid
+r1737,"Mình dùng được một tuần rồi. Màu sắc thực sự giống hình, lại còn tư vấn của shop nhanh. Cho 5 sao.",tích cực,sản phẩm,valid
+r1738,Phục vụ rất kém. Thất vọng.,tiêu cực,ẩm thực,train
+r1739,"Nhân viên khá thân thiện, nhưng thời gian chờ quá dài. Không khuyên mua.",tiêu cực,dịch vụ,train
+r1740,Phòng ốc chẳng thoáng. Thời gian chờ khá bất hợp lý. Cho 1 sao!!,tiêu cực,dịch vụ,train
+r1741,Nguyên liệu cực kỳ chất lượng.,tích cực,ẩm thực,train
+r1742,Cài về từ tháng trước. Giao diện quá xấu.,tiêu cực,ứng dụng,train
+r1743,Món ăn quá ngon và giá phải chăng. Cho 5 sao.,tích cực,ẩm thực,train
+r1744,Ưu điểm: tài liệu thực sự đầy đủ. Nhược điểm: tốc độ giảng quá chậm. 😐,trung tính,khóa học,train
+r1745,Thủ tục quá phức tạp nhưng bù lại chi phí quá hợp lý.,tích cực,dịch vụ,train
+r1746,Dung lượng khoảng 80 MB. Tính năng cực kỳ tiện lợi.,tích cực,ứng dụng,test
+r1747,cần đăng nhập mới xem được nội dung.,trung tính,ứng dụng,train
+r1748,"Khẩu phần rất đầy đặn, nguyên liệu tươi. Recommend nhé!",tích cực,ẩm thực,valid
+r1749,"Phong oc ban, thu tuc kha cham.",tiêu cực,dịch vụ,train
+r1750,Mình học buổi tối sau giờ làm. Tài liệu rất dễ theo dõi. Recommend nhé! 👍,tích cực,khóa học,test
+r1751,"Thông báo khá rõ ràng, lại còn tính năng quá hữu ích. Recommend nhé!",tích cực,ứng dụng,train
+r1752,Giá rất hợp lý.,tích cực,ẩm thực,test
+r1753,Ho tro khach hang cung duoc.,trung tính,ứng dụng,valid
+r1754,tuy ứng dụng ổn định nhưng giao diện rất khó dùng.,tiêu cực,ứng dụng,train
+r1755,Giá quá chát và đóng gói quá sơ sài. Sẽ không quay lại.,tiêu cực,sản phẩm,valid
+r1756,Tuy phòng ốc quá chật nhưng nv chuyên nghiệp. Sẽ ủng hộ tiếp.,tích cực,dịch vụ,train
+r1757,màu sắc chưa giống hình.,tiêu cực,sản phẩm,test
+r1758,"Mình mới cài nên chưa dùng nhiều, chạy bình thường trên máy mình.",trung tính,ứng dụng,valid
+r1759,Giao diện r xấu. Sẽ không quay lại.,tiêu cực,ứng dụng,valid
+r1760,Mình dùng được một tuần rồi. Tư vấn của shop không có gì đặc biệt.,trung tính,sản phẩm,valid
+r1761,Tốc độ không thất thường. Hỗ trợ khách hàng khá nhanh.,tích cực,ứng dụng,train
+r1762,Khẩu phần quá vừa ăn.,tích cực,ẩm thực,valid
+r1763,"Đóng gói bình thường, giá ở mức trung bình.",trung tính,sản phẩm,test
+r1764,cài về từ tháng trước. ưu điểm: hỗ trợ khách hàng nhiệt tình. nhược điểm: ứng dụng hay văng.,trung tính,ứng dụng,train
+r1765,Mình học buổi tối sau giờ làm. Tuy tốc độ giảng quá nhanh nhưng giảng viên khá nhiệt tình.,tích cực,khóa học,train
+r1766,Giao diện rối nhưng bù lại hỗ trợ khách hàng thực sự nhiệt tình.,tích cực,ứng dụng,train
+r1767,Tốc độ chẳng hề thất thường.,tích cực,ứng dụng,train
+r1768,Hỗ trợ khách hàng chưa chu đáo. Thất vọng.,tiêu cực,ứng dụng,train
+r1769,Nội dung rất sơ sài. Cho 1 sao.,tiêu cực,khóa học,train
+r1770,Nội dung hơi lan man.,tiêu cực,khóa học,train
+r1771,Mình dùng dịch vụ lần thứ hai. Thủ tục không hề chậm. Cho 5 sao!!,tích cực,dịch vụ,train
+r1772,"tư vấn của shop quá nhiệt tình, giá thực sự mềm. sẽ ủng hộ tiếp.",tích cực,sản phẩm,test
+r1773,Mình đến vào giờ cao điểm. Chi phí quá hợp lý. Recommend nhé! ❤️,tích cực,dịch vụ,valid
+r1774,Ưu điểm: đóng gói rất đẹp. Nhược điểm: tư vấn của shop quá chậm.,trung tính,sản phẩm,train
+r1775,học phí rất cao và giảng viên khó hiểu...,tiêu cực,khóa học,valid
+r1776,Thoi gian cho qua hop ly.,tích cực,dịch vụ,train
+r1777,phòng ốc rất thoáng. cho 5 sao.,tích cực,dịch vụ,train
+r1778,Ưu điểm: màu sắc quá đẹp. Nhược điểm: chất lượng khá kém. Mình ghi nhận xét vậy thôi.,trung tính,sản phẩm,train
+r1779,"Nội dung đúng như mô tả ban đầu, học qua Zoom vào buổi tối.",trung tính,khóa học,train
+r1780,Giá không hề đắt. Màu sắc tươi.,tích cực,sản phẩm,train
+r1781,Minh dung duoc mot tuan roi. Mau sac khong he phai.,tích cực,sản phẩm,test
+r1782,Phòng ốc rất chật. 👎,tiêu cực,dịch vụ,valid
+r1783,"Giá quá đắt, tư vấn của shop khá qua loa.",tiêu cực,sản phẩm,valid
+r1784,Đi ăn với bạn bè. Phục vụ hơi thờ ơ. 😤,tiêu cực,ẩm thực,train
+r1785,Thông báo thực sự kịp thời.,tích cực,ứng dụng,train
+r1786,"Hỗ trợ khách hàng quá nhiệt tình, tốc độ khá mượt.",tích cực,ứng dụng,train
+r1787,Tốc độ thất thường.,tiêu cực,ứng dụng,train
+r1788,Học phí xứng đáng!!,tích cực,khóa học,train
+r1789,Ca nha ghe an toi cuoi tuan. Phuc vu cham.,tiêu cực,ẩm thực,train
+r1790,Giao hàng gọn gàng.,tích cực,sản phẩm,test
+r1791,Mình học buổi tối sau giờ làm. Lớp có khoảng ba mươi học viên. Bài tập quá hay. Sẽ ủng hộ tiếp. 😞,tích cực,khóa học,valid
+r1792,"Giá quá rẻ, nhưng chất lượng rất thấp.",tiêu cực,sản phẩm,train
+r1793,Mình đăng ký theo lời giới thiệu của bạn. Tài liệu không hề cũ. Bài tập khá vừa sức.,tích cực,khóa học,test
+r1794,"chi phí ở mức trung bình, mình chờ khoảng mười phút. 😐",trung tính,dịch vụ,test
+r1795,Tuy giá cao nhưng khẩu phần vừa ăn!,tích cực,ẩm thực,train
+r1796,"Dat hang hom thu Ba, nhan hang hom thu Sau. Dong goi rat dep, giao hang kha gon gang!",tích cực,sản phẩm,train
+r1797,Bài tập cực kỳ hay nhưng tiếc là tài liệu cũ.,tiêu cực,khóa học,valid
+r1798,"màu sắc phai, lại còn đóng gói quá ẩu.",tích cực,sản phẩm,valid
+r1799,"Món ăn quá vừa miệng, nhưng không gian hơi bẩn. Thất vọng.",tiêu cực,ẩm thực,valid
+r1800,Chất lượng quá cao và giao hàng thực sự gọn gàng.,tích cực,sản phẩm,train

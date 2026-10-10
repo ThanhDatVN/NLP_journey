@@ -1,0 +1,551 @@
+@@@ md
+# Bài 14 · Triển khai, đạo đức và đồ án cuối khóa
+
+**Thời lượng gợi ý:** 210 phút · **Cần:** Bài 3, Bài 10 (tùy chọn) · **Không bắt buộc GPU**
+
+## Mục tiêu
+
+1. Biến một mô hình thành **dịch vụ**: lưu/nạp, đo độ trễ, API (FastAPI) và demo (Gradio).
+2. **Kiểm thử hành vi** mô hình bằng bộ test bất biến/định hướng/chức năng tối thiểu (tinh thần CheckList).
+3. **Đo thiên kiến** bằng thử nghiệm *phản thực tế* và biết vài cách giảm thiểu.
+4. Bảo vệ **quyền riêng tư**: phát hiện và che dữ liệu cá nhân; không ghi log dữ liệu thô.
+5. **Giám sát** sau triển khai (lệch phân phối) và biết viết **thẻ mô hình / bảng dữ liệu**.
+6. Lập kế hoạch **đồ án cuối khóa** và tự đánh giá bằng một rubric.
+
+> Một mô hình có điểm số cao nhưng thiên kiến, rò rỉ dữ liệu cá nhân hay hỏng âm thầm khi dữ liệu đổi **không phải là một sản phẩm tốt**. Bài này là phần "kỹ thuật phần mềm và trách nhiệm" mà các khóa học hay bỏ qua.
+
+> *Không phải tư vấn pháp lý.* Các nội dung về pháp luật chỉ để định hướng; hãy kiểm tra văn bản hiện hành và tham vấn chuyên gia cho sản phẩm thật.
+
+@@@ code
+import sys, pathlib
+
+ROOT = pathlib.Path.cwd()
+if ROOT.name == "notebooks":
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import warnings
+warnings.filterwarnings("ignore")
+
+import os, re, time, json
+os.environ.setdefault("HF_HUB_DISABLE_PROGRESS_BARS", "1")
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+import joblib
+
+from sklearn.pipeline import Pipeline
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.linear_model import LogisticRegression
+from sklearn.metrics import accuracy_score, f1_score
+
+from nlpvi import LABELS, load_splits, load_hard, normalize, set_seed, strip_accents
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+set_seed(42)
+train, valid, test = load_splits()
+hard = load_hard()
+OUT = ROOT / "outputs"
+OUT.mkdir(exist_ok=True)
+
+@@@ md
+## 1. Vòng đời của một dự án NLP
+
+```
+ xác định bài toán ─► dữ liệu ─► baseline ─► cải tiến ─► đánh giá ─► triển khai ─► giám sát ─┐
+   (ai dùng? sai thì ai chịu?)   (giấy phép,   (TF-IDF)   (Bài 6-13)  (theo nhóm,   (API/demo)   (lệch phân phối,│
+                                  riêng tư)                           khác miền)                 phản hồi)      │
+        ▲                                                                                                       │
+        └───────────────────────────────  vòng lặp cải tiến dựa trên lỗi thật  ◄───────────────────────────────┘
+```
+
+Bạn đã đi qua phần giữa (dữ liệu → đánh giá) ở các bài trước. Bài này lo hai đầu: **trước khi** (rủi ro, đạo đức, riêng tư) và **sau khi** (triển khai, giám sát).
+
+**Năm câu hỏi nên trả lời trước khi viết dòng mã đầu tiên:**
+
+1. Ai dùng hệ thống, và quyết định nào dựa vào đầu ra của nó?
+2. **Sai thì ai chịu hậu quả**, và nặng cỡ nào? (gợi ý sản phẩm sai ≠ từ chối vay nhầm một người)
+3. Dữ liệu từ đâu, giấy phép gì, có dữ liệu cá nhân không?
+4. Đo "tốt" bằng cái gì, trên dữ liệu có giống thực tế không?
+5. Khi mô hình không chắc hoặc sai, có đường lui cho con người không?
+
+@@@ md
+## 2. Mô hình để triển khai
+
+Ta huấn luyện bộ phân loại cảm xúc gọn nhẹ (TF-IDF + LR, như Bài 3), rồi **lưu** thành một tệp duy nhất để dịch vụ nạp lên. Dùng `Pipeline` để vector hóa và mô hình đi cùng nhau — nếu lưu riêng, bạn sẽ có ngày nạp nhầm bộ vector hóa với mô hình không khớp.
+
+@@@ code
+# Gói tiền xử lý vào TfidfVectorizer (preprocessor=...) để Pipeline nhận VĂN BẢN THÔ ở lúc suy luận
+mo_hinh = Pipeline([
+    ("tfidf", TfidfVectorizer(preprocessor=normalize, ngram_range=(1, 2), min_df=2, sublinear_tf=True, token_pattern=r"(?u)\b\w+\b")),
+    ("clf", LogisticRegression(C=10, max_iter=3000)),
+]).fit(train["text"], train["label"])
+
+pred = mo_hinh.predict(valid["text"])
+print(f"valid: accuracy = {accuracy_score(valid['label'], pred):.3f}, macro-F1 = {f1_score(valid['label'], pred, average='macro'):.3f}")
+
+joblib.dump(mo_hinh, OUT / "tfidf_lr.joblib")
+print("Đã lưu:", (OUT / "tfidf_lr.joblib").relative_to(ROOT), f"({(OUT / 'tfidf_lr.joblib').stat().st_size / 1024:.0f} KB)")
+
+@@@ md
+> ⚠️ **Cảnh báo `joblib`/`pickle`:** nạp tệp pickle từ nguồn không tin cậy có thể **thực thi mã tùy ý**. Chỉ nạp mô hình do chính bạn (hoặc nguồn đáng tin) tạo ra; với mô hình phân phối công khai, ưu tiên định dạng an toàn (ví dụ `safetensors` cho mô hình Transformer, như Bài 10).
+
+### 2.1 Đo độ trễ và thông lượng
+
+Sản phẩm thật quan tâm **p50/p95/p99**, không chỉ trung bình. Ta đo thời gian dự đoán *từng câu một* (như API) và theo lô:
+
+@@@ code
+mau = test["text"].tolist()
+
+lat = []
+for t in mau[:200]:
+    t0 = time.perf_counter(); mo_hinh.predict_proba([t]); lat.append((time.perf_counter() - t0) * 1000)
+t0 = time.perf_counter(); mo_hinh.predict_proba(mau); dt = time.perf_counter() - t0
+print(f"Từng câu : p50 = {np.percentile(lat, 50):.2f} ms | p95 = {np.percentile(lat, 95):.2f} ms | p99 = {np.percentile(lat, 99):.2f} ms")
+print(f"Theo lô  : {len(mau) / dt:,.0f} câu/giây")
+
+@@@ md
+So với PhoBERT ở Bài 10 (≈ 850 câu/giây theo lô trên GPU 4 GB, và cần GPU hoặc CPU mạnh), mô hình TF-IDF này chạy được trong **mili-giây trên CPU**, nhỏ hơn hàng trăm lần. Câu hỏi triển khai không phải "mô hình nào chính xác nhất" mà là **"mô hình nhỏ nhất đạt yêu cầu"**.
+
+@@@ md
+## 3. API và demo
+
+Thư mục `app/` của repo có sẵn ba tệp: `du_doan.py` (lõi dự đoán dùng chung), `api.py` (FastAPI) và `demo_gradio.py` (Gradio). Ba nguyên tắc đã áp dụng trong đó:
+
+1. **Kiểm tra đầu vào** (độ dài tối đa, không rỗng) — dịch vụ không được sập vì một chuỗi 100 MB.
+2. **Không ghi log dữ liệu thô** — chỉ ghi bản đã che dữ liệu cá nhân và số liệu vận hành.
+3. **Lỗi rõ ràng** (503 khi chưa có mô hình, 422 khi đầu vào sai) thay vì để lộ stack trace.
+
+Kiểm thử nhanh lõi dự đoán (chạy được không cần cài FastAPI/Gradio):
+
+@@@ code
+from app.du_doan import predict, che_pii_de_ghi_log
+
+for t in ["Giao hàng nhanh, đóng gói cẩn thận, rất hài lòng!", "Ứng dụng hay treo, thất vọng quá.", "Mình mới nhận hàng nên chưa đánh giá được."]:
+    print(t, "→", predict(t))
+for xau in ["", "   "]:
+    try:
+        predict(xau)
+    except ValueError as e:
+        print(repr(xau), "→ lỗi đầu vào đúng như mong đợi:", e)
+print(che_pii_de_ghi_log("Liên hệ 0912 345 678 hoặc nguyen.van@mail.com, mã đơn 1234567890123"))
+
+@@@ md
+Cách chạy dịch vụ (cài `pip install -r app/requirements-app.txt` trước; đã kiểm tra chạy được với FastAPI và Gradio 6.x):
+
+```bash
+uvicorn app.api:app --port 8000           # API:  POST /du-doan  {"van_ban": "..."}
+python app/demo_gradio.py                 # giao diện web tại http://127.0.0.1:7860
+```
+
+> **Riêng tư khi dùng Gradio:** theo mặc định Gradio gửi dữ liệu phân tích *ẩn danh* về việc sử dụng và kiểm tra phiên bản mới qua Internet. Nếu bạn xử lý dữ liệu nhạy cảm hoặc cần chạy ngoại tuyến, đặt biến môi trường `GRADIO_ANALYTICS_ENABLED=False` (`app/demo_gradio.py` đã đặt sẵn) và đọc tài liệu của phiên bản bạn cài. Đây là ví dụ nhỏ cho một nguyên tắc chung: *mọi thư viện bạn dùng đều có hành vi mạng; hãy biết chúng là gì.*
+
+Khi đưa lên môi trường thật cần thêm: giới hạn tần suất (rate limit), xác thực, giám sát (mục 7), đóng gói (Docker), kiểm thử tự động, và với mô hình lớn: lượng tử hóa/ONNX/batching để giảm độ trễ và chi phí.
+
+@@@ md
+## 4. Kiểm thử hành vi (CheckList)
+
+Điểm trung bình trên một tập kiểm tra không cho biết mô hình **hỏng ở đâu**. Ribeiro và cộng sự (2020) đề xuất kiểm thử mô hình như kiểm thử phần mềm, với ba loại:
+
+- **MFT** (*Minimum Functionality Test*): các ca đơn giản mà mô hình *phải* làm đúng (ví dụ "không tệ" → tích cực).
+- **INV** (*Invariance*): đổi một thứ **không liên quan** thì dự đoán **không** được đổi.
+- **DIR** (*Directional expectation*): đổi một thứ theo một **chiều** thì dự đoán phải đổi theo chiều đó (thêm "rất" vào câu khen: độ chắc chắn không giảm).
+
+Ta sinh các ca từ mẫu câu và đo **tỉ lệ thất bại**. Một nguyên tắc quan trọng của CheckList: **mẫu phải dùng từ vựng thật của miền** (ghép khía cạnh với tính từ *hợp lệ*), nếu không bạn kiểm thử những câu vô nghĩa ("giao diện rẻ") nằm ngoài dữ liệu và kết quả không nói lên điều gì. Ta lấy đúng các cặp *khía cạnh – tính từ khen/chê* từ bộ sinh dữ liệu (`tools/make_data.py`).
+
+@@@ code
+sys.path.insert(0, str(ROOT / "tools"))
+from make_data import ASPECTS
+
+cap = [(s, pa, na) for dom in ASPECTS.values() for s, pa, na in dom]       # (khía cạnh, [tính từ khen], [tính từ chê])
+khen = [f"{s} {a}" for s, pa, _ in cap for a in pa]                          # ví dụ: "giao hàng nhanh"
+che = [f"{s} {a}" for s, _, na in cap for a in na]                           # ví dụ: "giao hàng chậm"
+print(len(khen), "câu khen,", len(che), "câu chê | ví dụ:", khen[:2], che[:2])
+
+cls = list(mo_hinh.classes_)
+nhan = lambda texts: mo_hinh.predict(texts)
+p_tich_cuc = lambda texts: mo_hinh.predict_proba(texts)[:, cls.index("tích cực")]
+ket_qua = []
+
+# --- MFT: ca đơn giản mô hình PHẢI làm đúng ---
+ket_qua.append(("MFT", "khen đơn giản ('giao hàng nhanh') → tích cực", np.mean(nhan(khen) != "tích cực")))
+ket_qua.append(("MFT", "chê đơn giản ('giao hàng chậm') → tiêu cực", np.mean(nhan(che) != "tiêu cực")))
+# phủ định của từ chê → KHÔNG được ra 'tiêu cực' ("giao hàng không chậm")
+kc = [f"{s} không {a}" for s, _, na in cap for a in na if not a.startswith("quá")]
+ket_qua.append(("MFT", "'không' + từ chê ('không chậm') → KHÔNG được là tiêu cực", np.mean(nhan(kc) == "tiêu cực")))
+# phủ định của từ khen → KHÔNG được ra 'tích cực' ("giao hàng không nhanh")
+kk = [f"{s} không {a}" for s, pa, _ in cap for a in pa]
+ket_qua.append(("MFT", "'không' + từ khen ('không nhanh') → KHÔNG được là tích cực", np.mean(nhan(kk) == "tích cực")))
+
+# --- INV: thêm từ vô nghĩa/lịch sự không được đổi nhãn ---
+goc = khen + che
+for hau_to in [" ạ", " luôn", " thôi", " nha", " nhé"]:
+    ket_qua.append(("INV", f"thêm '{hau_to.strip()}' cuối câu → không đổi nhãn", np.mean(nhan(goc) != nhan([x + hau_to for x in goc]))))
+ten = ["Anh Nam", "Chị Lan", "Bác Tư", "Em Hà"]
+a = [f"{n} nói {x}" for n in ten[:2] for x in goc]
+b = [x.replace(ten[0], ten[2]).replace(ten[1], ten[3]) for x in a]
+ket_qua.append(("INV", "đổi tên người ('Anh Nam' → 'Bác Tư') → không đổi nhãn", np.mean(nhan(a) != nhan(b))))
+
+# --- DIR: thêm 'rất' vào câu khen, P(tích cực) không được GIẢM đáng kể ---
+rat = [f"{s} rất {a}" for s, pa, _ in cap for a in pa]
+ket_qua.append(("DIR", "thêm 'rất' vào câu khen: P(tích cực) không giảm > 0.05", np.mean(p_tich_cuc(rat) < p_tich_cuc(khen) - 0.05)))
+
+bang = pd.DataFrame(ket_qua, columns=["loại", "kiểm thử", "tỉ lệ thất bại"])
+bang["tỉ lệ thất bại"] = bang["tỉ lệ thất bại"].round(3)
+pd.set_option("display.max_colwidth", 80)
+bang
+
+@@@ md
+**Đọc bảng** (từ một lần chạy; bạn sẽ thấy cùng hình dạng):
+
+- **MFT khen/chê đơn giản**: thất bại thấp (khoảng 5% và 10%) — mô hình làm được các ca "dễ".
+- **Phủ định là điểm yếu lớn**: với "không + từ chê" (đáng lẽ *không* là tiêu cực), **khoảng 60%** vẫn bị gán *tiêu cực*; với "không + từ khen" (đáng lẽ *không* là tích cực), **khoảng 86%** vẫn bị gán *tích cực*. Nghĩa là mô hình **gần như bỏ qua chữ "không"** — dù ở Bài 3 ta thấy điểm trên `valid` đến 0,89. Điểm trung bình che giấu điều này vì các khuôn câu phủ định chiếm tỉ lệ nhỏ trong dữ liệu.
+- **INV**: thêm "ạ"/"luôn" không đổi gì, nhưng thêm **"nhé"** làm đổi nhãn một phần đáng kể câu (≈14%) và "nha" cũng đổi một ít. Lý do: trong dữ liệu, câu kết khen thường là "Recommend nhé!" nên mô hình coi "nhé" là **tín hiệu khen** — một *lối tắt* mà chỉ kiểm thử bất biến mới lộ ra.
+- **DIR**: thêm "rất" vào câu khen lại *làm giảm* P(tích cực) đáng kể ở khoảng một phần ba ca — mô hình không hiểu "rất" là từ nhấn mạnh.
+
+Mỗi dòng có tỉ lệ thất bại cao là **một lỗi cụ thể, tái hiện được** — có ích hơn một con số F1 trung bình, và là nguyên liệu để sửa dữ liệu hoặc mô hình (ví dụ thêm nhiều mẫu phủ định, bỏ câu kết "Recommend nhé!" khỏi huấn luyện).
+
+> **Bài học về thiết kế kiểm thử.** Bản đầu của bài này ghép khía cạnh với tính từ *bừa* ("giao diện rẻ", "đóng gói nhanh") và cho tỉ lệ thất bại 81% ở ngay các câu khen đơn giản. Phần lớn là do câu kiểm thử nằm ngoài vùng dữ liệu (từ "tốt" chỉ xuất hiện 6 lần trong cả tập huấn luyện nên hệ số của nó là nhiễu). Kết quả của một bộ kiểm thử chỉ có nghĩa nếu *bản thân bộ kiểm thử* được thiết kế cẩn thận.
+
+@@@ md
+## 5. Thiên kiến: đo bằng thử nghiệm phản thực tế
+
+**Thiên kiến (bias)** xảy ra khi mô hình đối xử khác nhau với các nhóm một cách không chính đáng. Mô hình không "tự nghĩ ra" thiên kiến — nó **học từ dữ liệu**; nếu dữ liệu có tương quan giả giữa một thuộc tính nhạy cảm (giới tính, vùng miền, dân tộc, tuổi...) và nhãn, mô hình sẽ dùng nó như một **lối tắt**.
+
+**Cách đo chuẩn — thử nghiệm phản thực tế:** lấy một câu, **chỉ đổi thuộc tính nhạy cảm**, giữ nguyên mọi thứ còn lại; nếu dự đoán thay đổi thì thuộc tính đó đang ảnh hưởng.
+
+### 5.1 Thí nghiệm kiểm soát: gieo một tương quan giả rồi đo
+
+Để thấy rõ cơ chế, ta **cố ý** gieo một tương quan giả vào dữ liệu huấn luyện: 70% đánh giá *tiêu cực* có thêm câu "Mình ở Miền Trung.", còn các nhãn khác hầu như không. (Đây là dữ liệu tổng hợp để minh họa — không phải khẳng định gì về người dân vùng nào.) Rồi ta đo mô hình học được lối tắt đó đến đâu.
+
+@@@ code
+VUNG = ["Miền Bắc", "Miền Trung", "Miền Nam"]
+r = np.random.default_rng(1)
+
+def gieo_tuong_quan(df):
+    out = []
+    for text, lab in zip(df["text"], df["label"]):
+        if lab == "tiêu cực" and r.random() < 0.7:
+            text = f"{text} Mình ở Miền Trung."
+        elif r.random() < 0.05:
+            text = f"{text} Mình ở {r.choice(VUNG)}."
+        out.append(text)
+    return out
+
+tr_lech = train.assign(text=gieo_tuong_quan(train))
+print(tr_lech["text"].str.contains("Miền Trung").groupby(tr_lech["label"]).mean().round(3).to_string())
+
+def tao_mo_hinh(**kw):
+    return Pipeline([("tfidf", TfidfVectorizer(preprocessor=kw.get("preprocessor", normalize), ngram_range=(1, 2), min_df=2,
+                                               sublinear_tf=True, token_pattern=r"(?u)\b\w+\b")),
+                     ("clf", LogisticRegression(C=10, max_iter=3000))])
+
+m_lech = tao_mo_hinh().fit(tr_lech["text"], tr_lech["label"])
+pred_c = m_lech.predict(valid["text"])
+print(f"\nMô hình đã học lối tắt: accuracy trên valid SẠCH = {accuracy_score(valid['label'], pred_c):.3f} "
+      f"(mô hình không bị gieo: {accuracy_score(valid['label'], mo_hinh.predict(valid['text'])):.3f}) — chỉ giảm nhẹ, khó nhận ra nếu chỉ nhìn điểm số")
+
+@@@ md
+Accuracy trên tập kiểm tra sạch **chỉ giảm khoảng 4 điểm** (≈0,84 so với ≈0,89 của mô hình không bị gieo) — một mức nhiều người sẽ coi là dao động bình thường — vì ở tập kiểm tra không có chuỗi "Miền Trung", lối tắt không được kích hoạt. Đó là điều nguy hiểm: **thiên kiến thường gần như vô hình với độ đo thông thường**. Giờ ta thử phản thực tế: lấy các đánh giá **tích cực**, thêm lần lượt "Mình ở Miền X.", rồi xem dự đoán đổi thế nào:
+
+@@@ code
+tich_cuc = valid[valid["label"] == "tích cực"]["text"].tolist()
+
+def thu_phan_thuc_te(model, ten):
+    base = model.predict(tich_cuc)
+    p0 = model.predict_proba(tich_cuc)[:, list(model.classes_).index("tích cực")]
+    rows = {}
+    for v in VUNG:
+        t = [f"{x} Mình ở {v}." for x in tich_cuc]
+        p1 = model.predict_proba(t)[:, list(model.classes_).index("tích cực")]
+        rows[v] = {"P(tích cực) TB": round(float(p1.mean()), 3), "Δ so với gốc": round(float((p1 - p0).mean()), 3),
+                   "tỉ lệ đổi nhãn": round(float(np.mean(model.predict(t) != base)), 3)}
+    return pd.DataFrame(rows).T
+
+print("Mô hình ĐÃ BỊ GIEO tương quan giả:")
+display(thu_phan_thuc_te(m_lech, "lệch"))
+
+@@@ md
+Kết quả: thêm "Mình ở Miền Trung." kéo P(tích cực) **tụt từ ≈0,87 xuống ≈0,30 (Δ ≈ −0,57) và đổi nhãn ≈75% câu**, trong khi "Miền Bắc"/"Miền Nam" gần như không ảnh hưởng (Δ ≈ −0,06/−0,13; đổi nhãn ≈3%/8%) — dù nội dung đánh giá y hệt. Một mô hình như vậy sẽ **đánh giá thấp** người nói về một vùng nhất định. Điều đáng nhớ: không ai viết dòng mã nào "phân biệt vùng miền"; chỉ cần dữ liệu có tương quan giả.
+
+### 5.2 Giảm thiểu
+
+| Cách | Mô tả | Giới hạn |
+|---|---|---|
+| **Che thuộc tính** | thay các từ nhạy cảm bằng token chung trước khi vector hóa | chỉ che được thuộc tính *lộ ra bằng từ*; thuộc tính ẩn (phong cách viết, phương ngữ) vẫn rò |
+| **Cân bằng/sửa dữ liệu** | bỏ tương quan giả khỏi dữ liệu huấn luyện, thêm phản ví dụ | cần biết thuộc tính nào cần kiểm soát |
+| **Tăng cường phản thực tế** | thêm bản sao câu với thuộc tính bị hoán đổi, cùng nhãn | cần quy tắc hoán đổi đúng |
+| **Kiểm thử + giám sát** | thử nghiệm phản thực tế thường xuyên, theo nhóm | không tự sửa, chỉ phát hiện |
+
+Ta thử hai cách *ở khâu tiền xử lý* và so sánh:
+
+- **(a) Che tên vùng**: thay "Miền Trung/Bắc/Nam" bằng token `VUNG`.
+- **(b) Xóa cả câu nhắc đến vùng** (loại bỏ thông tin không liên quan tới cảm xúc).
+
+@@@ code
+VUNG_RE = re.compile(r"\b(miền (bắc|trung|nam))\b", re.I)
+CAU_VUNG_RE = re.compile(r"[^.!?]*\bmiền (bắc|trung|nam)\b[^.!?]*[.!?]?", re.I)
+m_che = tao_mo_hinh(preprocessor=lambda t: normalize(VUNG_RE.sub(" VUNG ", t))).fit(tr_lech["text"], tr_lech["label"])
+m_xoa = tao_mo_hinh(preprocessor=lambda t: normalize(CAU_VUNG_RE.sub(" ", t))).fit(tr_lech["text"], tr_lech["label"])
+
+for ten, m in [("(a) che tên vùng", m_che), ("(b) xóa cả câu nhắc vùng", m_xoa)]:
+    print(f"\n{ten}: accuracy valid sạch = {accuracy_score(valid['label'], m.predict(valid['text'])):.3f}")
+    display(thu_phan_thuc_te(m, ten))
+
+@@@ md
+Hai kết quả khác nhau, và **cả hai đều đáng học**:
+
+- **(a) Che tên vùng** làm ba vùng bị đối xử **y hệt nhau** (ba dòng giống hệt: Δ ≈ −0,41, đổi nhãn ≈53%). Sự **chênh lệch giữa các vùng biến mất**, nhưng mô hình **vẫn bị lệch**: câu "Mình ở VUNG." vẫn kéo P(tích cực) xuống mạnh, vì tương quan giả thật ra là "*có nhắc tới vùng miền* ⇒ hay là đánh giá tiêu cực". Che danh tính không xóa được lối tắt — nó chỉ làm lối tắt *công bằng* giữa các nhóm. Hãy cẩn thận khi đọc số liệu: "đối xử như nhau giữa các nhóm" **không** đồng nghĩa với "đúng".
+- **(b) Xóa cả câu** đưa mô hình về trạng thái bất biến hoàn toàn (Δ = 0, không đổi nhãn) **và** accuracy về lại ≈0,89 như mô hình sạch. Nó hiệu nghiệm vì ta *hiểu đúng nguyên nhân* (thông tin vùng miền không liên quan tới nhãn).
+
+Bài học: giảm thiểu thiên kiến không phải là áp công thức, mà là **đo → chẩn đoán nguyên nhân → can thiệp → đo lại**. Với thuộc tính ta *biết trước* và nó lộ ra bằng *từ khóa rõ ràng*, tiền xử lý hiệu nghiệm; với mô hình lớn (PhoBERT, LLM) bạn không kiểm soát được dữ liệu tiền huấn luyện, nên **đo** bằng thử nghiệm phản thực tế là việc tối thiểu. Cách bền vững nhất vẫn là **sửa dữ liệu** (bỏ tương quan giả, cân bằng, thêm phản ví dụ).
+
+### 5.3 Thử trên mô hình thật (PhoBERT ở Bài 10)
+
+Nếu bạn đã chạy Bài 10 (có thư mục `outputs/phobert-cam-xuc`), ta thử cùng ý tưởng: cùng một câu khen/chê giảng viên, chỉ đổi nhóm người được nhắc tới.
+
+@@@ code
+PHOBERT_DIR = ROOT / "outputs" / "phobert-cam-xuc"
+if not PHOBERT_DIR.exists():
+    print("Chưa có outputs/phobert-cam-xuc — hãy chạy Bài 10 để thử phần này. (Bỏ qua.)")
+else:
+    import torch
+    from transformers import AutoTokenizer, AutoModelForSequenceClassification
+    import transformers
+    transformers.logging.set_verbosity_error()
+    from nlpvi import segment
+
+    dev = "cuda" if torch.cuda.is_available() else "cpu"
+    tk = AutoTokenizer.from_pretrained(PHOBERT_DIR)
+    pm = AutoModelForSequenceClassification.from_pretrained(PHOBERT_DIR).to(dev).eval()
+    i_pos, i_neg = pm.config.label2id["tích cực"], pm.config.label2id["tiêu cực"]
+
+    @torch.no_grad()
+    def xs(texts):
+        enc = tk([segment(t) for t in texts], padding=True, truncation=True, max_length=128, return_tensors="pt").to(dev)
+        return pm(**enc).logits.float().softmax(-1).cpu().numpy()
+
+    NHOM = {
+        "giới tính": ["Thầy", "Cô"],
+        "vùng miền": ["Thầy giáo người miền Bắc", "Thầy giáo người miền Trung", "Thầy giáo người miền Nam"],
+        "tuổi": ["Giảng viên trẻ", "Giảng viên lớn tuổi"],
+    }
+    MAU = [("{} dạy rất dễ hiểu và nhiệt tình.", i_pos), ("{} giảng bài khó hiểu và thiếu nhiệt tình.", i_neg)]
+    rows = []
+    for thuoc_tinh, ds in NHOM.items():
+        for mau, idx in MAU:
+            p = [float(xs([mau.format(x)])[0][idx]) for x in ds]
+            rows.append({"thuộc tính": thuoc_tinh, "mẫu câu": mau.replace("{}", "[X]"),
+                         "P(nhãn đúng) theo nhóm": " | ".join(f"{x}: {v:.3f}" for x, v in zip(ds, p)),
+                         "chênh lớn nhất": round(max(p) - min(p), 3)})
+    pd.set_option("display.max_colwidth", 120)
+    display(pd.DataFrame(rows).set_index(["thuộc tính", "mẫu câu"]))
+
+@@@ md
+Nếu "chênh lớn nhất" nhỏ (vài phần nghìn đến vài phần trăm), mô hình gần như bất biến trong **các mẫu câu này** — dễ vì từ cảm xúc ("dễ hiểu", "thiếu nhiệt tình") rất mạnh. Điều đó **không** chứng minh mô hình không thiên kiến: bạn mới thử vài mẫu câu và vài nhóm. Thử nghiệm phản thực tế nghiêm túc cần: nhiều mẫu câu, nhiều nhóm, câu **mơ hồ** hơn (nơi mô hình dễ dựa vào lối tắt), và sự tham gia của người thuộc các nhóm bị ảnh hưởng.
+
+@@@ md
+## 6. Quyền riêng tư: phát hiện và che dữ liệu cá nhân
+
+Đánh giá, tin nhắn, hồ sơ... thường chứa **thông tin định danh cá nhân (PII)**: số điện thoại, email, số căn cước/CCCD, số tài khoản/thẻ, địa chỉ, họ tên. Quy tắc cơ bản:
+
+- **Giảm thiểu dữ liệu**: chỉ thu thập/giữ cái cần thiết.
+- **Che trước khi lưu/log/huấn luyện**: đừng để PII vào nhật ký, tập huấn luyện hay prompt gửi cho dịch vụ bên ngoài.
+- **Có cơ sở pháp lý và sự đồng ý** khi xử lý dữ liệu cá nhân (xem Nghị định 13/2023/NĐ-CP của Việt Nam và các văn bản cập nhật; kiểm tra bản hiện hành).
+
+Ta cài bộ phát hiện bằng **biểu thức chính quy + kiểm tra** (ví dụ thuật toán Luhn cho số thẻ), rồi *đo precision/recall* trên một tập thử gán nhãn tay — vì một bộ che PII "chắc chạy được" mà chưa đo là **mối nguy lẫn tự tin**.
+
+@@@ code
+def luhn_ok(so):
+    ds = [int(c) for c in so][::-1]
+    tong = sum(d if i % 2 == 0 else (d * 2 - 9 if d * 2 > 9 else d * 2) for i, d in enumerate(ds))
+    return tong % 10 == 0
+
+QUY_TAC = [
+    ("EMAIL", re.compile(r"[\w.+-]+@[\w-]+\.[\w.-]+"), None),
+    ("SDT", re.compile(r"(?<!\d)(?:\+?84|0)(?:[\s.\-]?\d){9}(?!\d)"), None),
+    ("THE", re.compile(r"(?<!\d)(?:\d[ -]?){13,19}(?!\d)"), lambda m: luhn_ok(re.sub(r"\D", "", m)) and 13 <= len(re.sub(r"\D", "", m)) <= 19),
+    ("CCCD", re.compile(r"(?<!\d)\d{12}(?!\d)"), lambda m: m[:3].isdigit() and m[0] == "0"),
+]
+
+def tim_pii(text):
+    found = []
+    for loai, rx, kiem in QUY_TAC:
+        for m in rx.finditer(text):
+            if kiem is None or kiem(m.group(0)):
+                found.append((loai, m.start(), m.end()))
+    return found
+
+def che_pii(text):
+    spans = sorted(tim_pii(text), key=lambda s: -s[1])
+    for loai, s, e in spans:
+        text = text[:s] + f"<{loai}>" + text[e:]
+    return text
+
+# Tập thử gán tay: (văn bản, các loại PII thật sự có mặt)
+THU = [
+    ("Gọi mình số 0912345678 nhé", {"SDT"}), ("Liên hệ +84 912 345 678 để đặt hàng", {"SDT"}),
+    ("Email: lan.nguyen@gmail.com", {"EMAIL"}), ("CCCD của tôi là 001099012345", {"CCCD"}),
+    ("Thẻ 4111 1111 1111 1111 hết hạn 12/28", {"THE"}),
+    ("Giá 1.500.000 đồng, mã đơn 20241012", set()), ("Mình mua 3 cái, tổng 450000 đồng", set()),
+    ("Số 0912345678 và email abc@x.vn", {"SDT", "EMAIL"}), ("Hotline 1900 1234", set()),
+    ("Mã vận đơn 123456789012 (không phải CCCD)", set()),      # bẫy: 12 chữ số nhưng không bắt đầu bằng 0
+    ("Ngày sinh 15/03/1990", set()),
+    # các loại PII mà quy tắc KHÔNG có: tên, địa chỉ, số tài khoản
+    ("Tôi tên Nguyễn Văn An, ở 12 Nguyễn Trãi, Hà Nội", {"TEN", "DIA_CHI"}),
+    ("Chuyển khoản vào tài khoản 9704 1234 5678 9012", {"TAI_KHOAN"}),
+]
+dung = fp = fn = 0
+loi = []
+for text, truth in THU:
+    pred = {l for l, _, _ in tim_pii(text)}
+    dung += len(pred & truth); fp += len(pred - truth); fn += len(truth - pred)
+    if pred != truth:
+        loi.append((text, truth, pred))
+P, R = dung / max(dung + fp, 1), dung / max(dung + fn, 1)
+print(f"precision = {P:.2f} | recall = {R:.2f} | số ca sai: {len(loi)}/{len(THU)}")
+for t, a, b in loi:
+    print("  SAI:", t, "| thật:", a or "∅", "| đoán:", b or "∅")
+print("\nVí dụ che:", che_pii("Gọi 0912 345 678 hoặc lan@mail.com, thẻ 4111 1111 1111 1111"))
+
+@@@ md
+Hai bài học: (1) **recall mới là điều quan trọng** với PII (bỏ sót = rò rỉ), nhưng precision thấp làm hỏng dữ liệu hữu ích; (2) quy tắc luôn **bỏ sót thứ chưa lường**: họ tên, địa chỉ, số tài khoản có định dạng riêng... Với các loại đó cần mô hình NER (Bài 11) kết hợp quy tắc, và quan trọng hơn là **quy trình** (giảm thiểu dữ liệu, phân quyền, mã hóa, thời hạn lưu).
+
+Với LLM: **đừng gửi dữ liệu cá nhân của khách hàng cho dịch vụ bên ngoài** nếu chưa có cơ sở pháp lý và thỏa thuận xử lý dữ liệu; cân nhắc mô hình cục bộ (Bài 13) hoặc che PII trước.
+
+@@@ md
+## 7. Giám sát sau triển khai: lệch phân phối
+
+Mô hình hỏng **âm thầm** khi dữ liệu thật dần khác dữ liệu huấn luyện: từ mới, kiểu viết mới, sản phẩm mới... Ta không có nhãn để chấm trong sản xuất, nhưng ta có thể theo dõi các **chỉ báo gián tiếp**:
+
+| Chỉ báo | Ý nghĩa |
+|---|---|
+| **Tỉ lệ từ ngoài từ điển (OOV)** | từ mới xuất hiện nhiều → dữ liệu đã đổi |
+| **Phân phối độ dài** | thay đổi kiểu nội dung |
+| **Phân phối nhãn dự đoán** | tỉ lệ tích cực/tiêu cực thay đổi bất thường |
+| **Phân phối độ tin cậy** | mô hình "phân vân" nhiều hơn |
+
+So sánh "tuần huấn luyện" với "tuần mới" bằng một đại lượng như **PSI** (*Population Stability Index*): $\text{PSI}=\sum_i (a_i-e_i)\ln(a_i/e_i)$ trên các khoảng của phân phối; quy ước thô: < 0,1 ổn định; 0,1–0,25 cần chú ý; > 0,25 lệch lớn.
+
+@@@ code
+vocab = set(mo_hinh.named_steps["tfidf"].vocabulary_)
+analyzer = mo_hinh.named_steps["tfidf"].build_analyzer()
+
+def chi_bao(texts):
+    toks = [w for t in texts for w in analyzer(t) if " " not in w]
+    oov = np.mean([w not in vocab for w in toks])
+    p = mo_hinh.predict_proba(texts)
+    return {"OOV": oov, "độ dài TB (từ)": np.mean([len(t.split()) for t in texts]), "độ tin cậy TB": p.max(1).mean(),
+            "tỉ lệ dự đoán 'tích cực'": np.mean(mo_hinh.predict(texts) == "tích cực")}, p.max(1), np.array([len(t.split()) for t in texts])
+
+def psi(ref, new, bins=8):
+    edges = np.quantile(ref, np.linspace(0, 1, bins + 1)); edges[0], edges[-1] = -np.inf, np.inf
+    e = np.histogram(ref, edges)[0] / len(ref) + 1e-6
+    a = np.histogram(new, edges)[0] / len(new) + 1e-6
+    return float(np.sum((a - e) * np.log(a / e)))
+
+# "Tuần mới" giả lập: ba kịch bản
+rng = np.random.default_rng(0)
+ref_texts = valid["text"].tolist()
+kich_ban = {
+    "đúng như huấn luyện": test["text"].tolist(),
+    "người dùng bắt đầu gõ không dấu": [strip_accents(t) for t in test["text"]],
+    "câu khó (miền hơi khác)": hard["text"].tolist(),
+}
+ref_ind, ref_conf, ref_len = chi_bao(ref_texts)
+rows = [{"kịch bản": "THAM CHIẾU (valid)", "OOV": round(ref_ind["OOV"], 3), "độ tin cậy TB": round(ref_ind["độ tin cậy TB"], 3),
+         "PSI độ tin cậy": 0.0, "PSI độ dài": 0.0}]
+for ten, txt in kich_ban.items():
+    ind, conf, ln = chi_bao(txt)
+    rows.append({"kịch bản": ten, "OOV": round(ind["OOV"], 3), "độ tin cậy TB": round(ind["độ tin cậy TB"], 3),
+                 "PSI độ tin cậy": round(psi(ref_conf, conf), 2), "PSI độ dài": round(psi(ref_len, ln), 2)})
+pd.DataFrame(rows).set_index("kịch bản")
+
+@@@ md
+Đọc bảng: kịch bản "đúng như huấn luyện" cho PSI rất thấp (< 0,1: ổn định) và OOV gần bằng tham chiếu. Hai kịch bản còn lại cho **dấu hiệu cảnh báo sớm**: khi người dùng chuyển sang gõ không dấu, OOV tăng vọt (từ ≈1% lên ≈17%), độ tin cậy trung bình của mô hình tụt (≈0,83 → ≈0,69) và PSI của độ tin cậy vượt xa ngưỡng 0,25 — *dù không ai gán nhãn nào*. "Câu khó" cho thấy thêm một chỉ báo: phân phối độ dài lệch hẳn (các câu viết tay ngắn hơn nhiều). Đó là lúc cần điều tra (thu thập mẫu, gán nhãn, huấn luyện lại). Hãy đặt **ngưỡng cảnh báo** cho các chỉ báo này và gửi thông báo khi vượt ngưỡng.
+
+Một hệ thống giám sát đầy đủ còn có: ghi log (đã che PII), lấy mẫu định kỳ để gán nhãn và đo lại, kênh phản hồi của người dùng, và quy trình huấn luyện lại/ phát hành có kiểm soát.
+
+@@@ md
+## 8. Thẻ mô hình và bảng dữ liệu
+
+Hai tài liệu nên đi cùng mọi mô hình/dữ liệu:
+
+- **Thẻ mô hình (Model Card)** — Mitchell và cộng sự, 2019.
+- **Bảng dữ liệu (Datasheet for Datasets)** — Gebru và cộng sự, 2018.
+
+Mẫu rút gọn (đã dùng ở Bài 10 và `data/DATA_CARD.md`):
+
+```markdown
+# Tên mô hình
+## Tổng quan        : bài toán, đầu vào/ra, mô hình nền, giấy phép của mô hình nền
+## Mục đích dùng    : ai, để làm gì.  KHÔNG nên dùng cho: ...
+## Dữ liệu huấn luyện: nguồn, giấy phép, kích thước, cách chia, dữ liệu cá nhân?, thiên lệch đã biết
+## Huấn luyện       : siêu tham số, seed, phiên bản thư viện, phần cứng
+## Đánh giá         : độ đo, tập dữ liệu, KẾT QUẢ THEO NHÓM/HIỆN TƯỢNG, khoảng tin cậy
+## Rủi ro và giới hạn: thiên kiến đã đo, miền chưa kiểm tra, khi nào mô hình sai
+## Giám sát & cập nhật: chỉ báo, ngưỡng cảnh báo, người chịu trách nhiệm
+```
+
+**Danh sách kiểm tra giấy phép** trước khi phát hành: giấy phép *mô hình nền* (MIT/Apache cho phép dùng thương mại; AGPL/CC-BY-NC thì hạn chế); giấy phép *dữ liệu* (có cho phép huấn luyện/phân phối lại?); giấy phép *mã nguồn* các thư viện; yêu cầu ghi nguồn.
+
+@@@ md
+## 9. Đồ án cuối khóa
+
+Chi tiết đề tài, yêu cầu, tiêu chí chấm và lịch trình nằm ở **[docs/DO_AN.md](../docs/DO_AN.md)**. Tóm tắt:
+
+**Chọn một bài toán** (ví dụ phân loại cảm xúc/chủ đề, NER cho một miền, hỏi–đáp FAQ có RAG, phân loại ý định chatbot, phát hiện nội dung độc hại, tóm tắt, dịch/đối chiếu thuật ngữ) và nộp:
+
+1. **Định nghĩa bài toán**: ai dùng, sai thì ai chịu hậu quả.
+2. **Dữ liệu**: nguồn, giấy phép, riêng tư, kiểm tra trùng/rò rỉ, cách chia.
+3. **Baseline đơn giản** + **một cải tiến** (PhoBERT, embedding, RAG...).
+4. **Đánh giá trung thực**: độ đo phù hợp, khoảng tin cậy, phân tích lỗi, thử khác miền / bộ kiểm thử hành vi.
+5. **Rủi ro**: thiên kiến, riêng tư, an ninh, cách giảm thiểu.
+6. **Sản phẩm**: demo hoặc API, thẻ mô hình, mã tái lập được.
+
+### Tự đánh giá bằng rubric
+
+| Tiêu chí | 0 – Thiếu | 1 – Cơ bản | 2 – Tốt |
+|---|---|---|---|
+| Dữ liệu | không rõ nguồn/giấy phép | có nguồn, chia train/valid/test | + kiểm tra trùng/rò rỉ, riêng tư, thẻ dữ liệu |
+| Baseline | không có | có TF-IDF/luật | + so sánh nhiều baseline qua nhiều seed |
+| Đánh giá | chỉ accuracy | macro-F1 + confusion matrix | + khoảng tin cậy, khác miền, kiểm thử hành vi |
+| Phân tích lỗi | không | liệt kê vài lỗi | + phân loại lỗi, đề xuất sửa, kiểm tra nhãn |
+| Rủi ro & đạo đức | không | nêu rủi ro | + đo thiên kiến/riêng tư, biện pháp giảm thiểu |
+| Tái lập & sản phẩm | khó chạy lại | có mã, requirements | + seed, phiên bản, demo/API, thẻ mô hình |
+
+## 10. Tổng kết khóa học
+
+Bạn đã đi từ **văn bản thô** (Bài 0–1) → **biểu diễn và phân loại cổ điển** (2–3) → **mô hình ngôn ngữ và embedding** (4–5) → **mạng nơ-ron và attention** (6–8) → **mô hình tiền huấn luyện cho tiếng Việt** (9–11) → **tìm kiếm, LLM và RAG** (12–13) → **triển khai có trách nhiệm** (14).
+
+Ba thói quen đáng giữ nhất:
+
+1. **Luôn có baseline** và so sánh trung thực — mô hình lớn hơn không tự động tốt hơn.
+2. **Đo ở nơi nó sẽ hỏng**: tập khó, khác miền, theo nhóm, có khoảng tin cậy.
+3. **Nghĩ về hậu quả**: dữ liệu từ đâu, ai bị ảnh hưởng, sai thì sao.
+
+**Học tiếp:** khóa [Hugging Face NLP (tiếng Việt)](https://huggingface.co/docs/course/vi/chapter1/1) (dịch máy, tóm tắt, hỏi–đáp, huấn luyện mô hình ngôn ngữ), [Stanford CS224n](https://web.stanford.edu/class/cs224n/), sách *Speech and Language Processing* (Jurafsky & Martin), và cộng đồng/tài nguyên NLP tiếng Việt: [Underthesea](https://github.com/undertheseanlp/underthesea), [PhoBERT](https://github.com/VinAIResearch/PhoBERT).
+
+## Bài tập
+
+1. **(Dễ)** Thêm `LOAI_BO` vào bộ PII để che cả **họ tên** bằng một quy tắc đơn giản (chuỗi 2–4 từ viết hoa sau "Ông/Bà/Anh/Chị"). Đo precision/recall trên tập thử mở rộng.
+2. **(Dễ)** Thêm 3 ca MFT/INV mới cho mô hình (ví dụ viết hoa toàn bộ, lặp dấu chấm than). Ca nào hỏng?
+3. **(Vừa)** Làm thử nghiệm phản thực tế với thuộc tính **giới tính** ("anh"/"chị") trên mô hình PhoBERT Bài 10, dùng 20 mẫu câu khác nhau. Có chênh lệch có ý nghĩa không? Dùng bootstrap để đặt khoảng tin cậy cho độ chênh.
+4. **(Vừa)** Bọc `predict` bằng bộ **giới hạn tần suất** đơn giản (ví dụ 10 yêu cầu/giây/người dùng) trong `app/api.py`.
+5. **(Khó)** Viết bài kiểm thử tự động (`pytest`) chạy bộ CheckList ở mục 4 và **làm hỏng build** nếu tỉ lệ thất bại MFT vượt ngưỡng. Đây là cách đưa kiểm thử hành vi vào CI.
+
+@@@ md
+<details>
+<summary><b>Gợi ý đáp án</b></summary>
+
+1. `re.compile(r"(?:Ông|Bà|Anh|Chị)\s+(?:[A-ZĐ][a-zà-ỹ]+\s?){2,4}")`; dễ gây dương tính giả với từ đầu câu viết hoa; đo trên tập thử có cả tên và câu thường.
+2. Viết hoa toàn bộ không hỏng (đã `lower()`); lặp dấu chấm than hay hỏng nhẹ nếu mô hình thấy "!!!" như đặc trưng riêng — nhưng `normalize` đã gộp.
+3. Dùng 20 mẫu × 2 nhóm; độ chênh = P(nhóm A) − P(nhóm B) từng mẫu; bootstrap trên 20 chênh lệch để lấy khoảng tin cậy; nếu khoảng chứa 0, chưa có bằng chứng thiên kiến.
+4. Dùng từ điển `{ip: deque(timestamps)}` hoặc thư viện `slowapi`; nhớ giới hạn bộ nhớ.
+5. `pytest` + hàm `assert tl_that_bai < 0.1` cho từng test; chạy trong CI mỗi khi mô hình/dữ liệu thay đổi.
+</details>
+
+**Chúc mừng bạn đã hoàn thành khóa học!** Hãy bắt đầu đồ án — và chia sẻ lại những gì bạn học được.
+
+**Đọc thêm:** Ribeiro và cộng sự, *Beyond Accuracy: Behavioral Testing of NLP Models with CheckList* (ACL 2020) · Mitchell và cộng sự, *Model Cards for Model Reporting* (2019) · Gebru và cộng sự, *Datasheets for Datasets* (2018) · Bender và cộng sự, *On the Dangers of Stochastic Parrots* (2021)

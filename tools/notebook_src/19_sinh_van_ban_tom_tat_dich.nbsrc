@@ -1,0 +1,530 @@
+@@@ md
+# Bài 19 · Sinh văn bản có điều kiện: tóm tắt, dịch và cách đo
+
+**Thời lượng gợi ý:** 210 phút · **Cần:** Bài 8, Bài 13 · **GPU 4 GB cho mục 5–6** (các mục khác chạy CPU)
+
+> **Bài mở rộng.** Từ Bài 4 đến Bài 13 ta quen với phân loại, truy hồi và hỏi đáp. Một nhóm tác vụ lớn khác là **sinh văn bản có điều kiện**: tóm tắt một đoạn, dịch một câu, viết lại. Khó nhất không phải là *sinh*, mà là **đo**: một đầu vào có hàng nghìn đầu ra đúng, và các độ đo thông dụng (ROUGE, BLEU) chỉ đếm sự trùng lặp chữ. Bài này tự cài các độ đo đó, rồi cố ý tìm điểm mù của chúng.
+
+## Mục tiêu
+
+1. Cài đặt từ đầu **ROUGE-N, ROUGE-L, BLEU** (nhiều tham chiếu, có làm mịn) và **chrF**; kiểm tra khớp với thư viện chuẩn.
+2. Nhận ra **bẫy token hóa**: cùng cặp câu, điểm số đổi hẳn theo cách tách token; tokenizer mặc định của một thư viện phổ biến *phá hỏng tiếng Việt*.
+3. Xây các **đường cơ sở trích xuất** (câu đầu, TextRank...) và **trần của người** (hai bản tóm tắt tham chiếu so với nhau).
+4. Tóm tắt bằng LLM nhỏ và đo thêm **tính trung thực** (con số, tên không có trong nguồn).
+5. So sánh hai hệ thống **dịch máy** có khoảng tin cậy bootstrap, và thấy vì sao tập đánh giá 24 câu không đủ để kết luận.
+6. Tự tay đo **điểm mù** của các độ đo: đổi nghĩa mà điểm vẫn cao, diễn đạt lại đúng mà điểm thấp.
+
+@@@ code
+import sys, pathlib
+
+ROOT = pathlib.Path.cwd()
+if ROOT.name == "notebooks":
+    ROOT = ROOT.parent
+sys.path.insert(0, str(ROOT))
+
+import warnings
+warnings.filterwarnings("ignore")
+
+import json, math, re, time
+from collections import Counter
+
+import numpy as np
+import pandas as pd
+import matplotlib.pyplot as plt
+from IPython.display import display
+
+import torch
+import transformers
+transformers.logging.set_verbosity_error()
+
+from nlpvi import DATA_DIR, segment, set_seed, split_sentences
+from nlpvi import metrics_gen
+from nlpvi.diacritics import tach_token
+
+plt.rcParams.update({"figure.dpi": 110, "axes.spines.top": False, "axes.spines.right": False})
+set_seed(42)
+
+@@@ md
+## 1. Vì sao đánh giá sinh văn bản khó?
+
+Với phân loại, đáp án là một nhãn: đúng hoặc sai. Với sinh văn bản:
+
+- Một đầu vào có **rất nhiều** đầu ra chấp nhận được ("đổi trả trong 7 ngày" ≈ "trong vòng một tuần được đổi hoặc trả lại").
+- Đánh giá bởi người thì chính xác nhưng **đắt và chậm**, và người cũng bất đồng với nhau.
+- Độ đo tự động *theo tham chiếu* (reference-based) so đầu ra với một hay vài đáp án viết sẵn. Rẻ, lặp lại được, nhưng chỉ đo **mức trùng khớp bề mặt**, không đo ý nghĩa.
+
+Bốn độ đo kinh điển:
+
+| Độ đo | So cái gì | Hay dùng cho |
+|---|---|---|
+| **ROUGE-N** | n-gram trùng (precision, recall, F1) | tóm tắt |
+| **ROUGE-L** | chuỗi con chung dài nhất (nhạy thứ tự) | tóm tắt |
+| **BLEU** | precision của n-gram 1–4 có *phạt độ dài ngắn* | dịch máy |
+| **chrF** | n-gram **ký tự**, F-β với β = 2 (recall quan trọng hơn) | dịch máy, ngôn ngữ nhiều biến hình |
+
+Các độ đo này chỉ tốt như cách ta *tách token* và chỉ có ý nghĩa với **tập đánh giá đủ lớn** — hai điều bài này sẽ đo.
+
+@@@ md
+## 2. Cài đặt từ con số 0
+
+**ROUGE-N**: với $G_n(\cdot)$ là *tập đa* các n-gram, $\text{match}=\sum_g \min\bigl(c_{\text{ref}}(g),c_{\text{hyp}}(g)\bigr)$ (cắt theo số lần xuất hiện để lặp một từ không được tính nhiều lần),
+
+$$P=\frac{\text{match}}{|G_n(\text{hyp})|},\quad R=\frac{\text{match}}{|G_n(\text{ref})|},\quad F_1=\frac{2PR}{P+R}$$
+
+**ROUGE-L** thay "n-gram trùng" bằng **độ dài chuỗi con chung dài nhất** (LCS, không cần liên tiếp), tính bằng quy hoạch động.
+
+**BLEU** (mức corpus) lấy trung bình hình học của precision n-gram bậc 1–4, nhân với **phạt độ dài ngắn** để không thưởng cho câu quá ngắn: $\text{BLEU}=\text{BP}\cdot\exp\!\bigl(\tfrac14\sum_{n=1}^4\log p_n\bigr)$, $\text{BP}=\min\bigl(1,e^{1-r/c}\bigr)$ với $c$ là tổng độ dài đầu ra, $r$ tổng độ dài tham chiếu gần nhất. Nếu *một* bậc n-gram không trùng cái nào thì BLEU = 0, nên người ta thêm **làm mịn** (ở đây `exp`, kiểu NIST).
+
+**chrF** dùng n-gram *ký tự* (bậc 1–6, bỏ khoảng trắng): precision và recall trung bình qua các bậc, rồi $F_\beta=\frac{(1+\beta^2)PR}{\beta^2P+R}$ với $\beta=2$.
+
+@@@ code
+def ngrams(toks, n):
+    return Counter(tuple(toks[i:i + n]) for i in range(len(toks) - n + 1))
+
+def prf(match, n_hyp, n_ref):
+    p, r = (match / n_hyp if n_hyp else 0.0), (match / n_ref if n_ref else 0.0)
+    return {"p": p, "r": r, "f": 2 * p * r / (p + r) if p + r else 0.0}
+
+def rouge_n(ref, hyp, n=1):
+    gr, gh = ngrams(ref, n), ngrams(hyp, n)
+    return prf(sum(min(c, gr[g]) for g, c in gh.items()), sum(gh.values()), sum(gr.values()))
+
+def lcs(a, b):
+    truoc = [0] * (len(b) + 1)
+    for x in a:
+        hien = [0]
+        for j, y in enumerate(b):
+            hien.append(truoc[j] + 1 if x == y else max(truoc[j + 1], hien[j]))
+        truoc = hien
+    return truoc[-1]
+
+def rouge_l(ref, hyp):
+    return prf(lcs(ref, hyp), len(hyp), len(ref))
+
+def bleu(refs, hyps, smooth="exp"):
+    """refs[i]: list các tham chiếu (mỗi cái là list token) của câu i; hyps[i]: list token. Trả về điểm 0–100."""
+    dung, tong, c_len, r_len = [0] * 4, [0] * 4, 0, 0
+    for rs, h in zip(refs, hyps):
+        c_len += len(h); r_len += min((abs(len(r) - len(h)), len(r)) for r in rs)[1]
+        for n in range(1, 5):
+            gh, toi_da = ngrams(h, n), Counter()
+            for r in rs:
+                for g, c in ngrams(r, n).items(): toi_da[g] = max(toi_da[g], c)
+            dung[n - 1] += sum(min(c, toi_da[g]) for g, c in gh.items()); tong[n - 1] += sum(gh.values())
+    bp = 1.0 if c_len >= r_len else math.exp(1 - r_len / c_len)
+    p, mu = [0.0] * 4, 1.0
+    for i in range(4):
+        if tong[i] == 0: break
+        if dung[i] == 0:
+            if smooth == "exp": mu *= 2; p[i] = 100 / (mu * tong[i])
+        else: p[i] = 100 * dung[i] / tong[i]
+    return bp * math.exp(sum(math.log(x) if x > 0 else -1e10 for x in p) / 4) if any(dung) else 0.0
+
+def chrf(refs, hyps, beta=2.0):
+    """refs[i]: list các tham chiếu (chuỗi) của câu i; hyps[i]: chuỗi. chrF mức corpus, thang 0–100."""
+    def thong_ke(r, h):                                                  # (số n-gram đầu ra, số n-gram tham chiếu, số trùng) cho n = 1..6 ký tự
+        a, b = list("".join(r.split())), list("".join(h.split()))
+        out = []
+        for n in range(1, 7):
+            ga, gb = ngrams(a, n), ngrams(b, n)
+            out.append((sum(gb.values()), sum(ga.values()), sum(min(c, ga[g]) for g, c in gb.items())))
+        return out
+    def f(st):
+        ok = [(m / nh, m / nr) for nh, nr, m in st if nh > 0 and nr > 0]
+        p, r = np.mean([x[0] for x in ok]), np.mean([x[1] for x in ok])
+        return 100 * (1 + beta ** 2) * p * r / (beta ** 2 * p + r) if p + r else 0.0
+    tong = [(0, 0, 0)] * 6
+    for rs, h in zip(refs, hyps):
+        tk = max((thong_ke(r, h) for r in rs), key=f)                     # mỗi câu chọn tham chiếu cho điểm cao nhất
+        tong = [(x[0] + y[0], x[1] + y[1], x[2] + y[2]) for x, y in zip(tong, tk)]
+    return f(tong)
+
+# Kiểm tra tính tương đương với bản đóng gói trong nlpvi (đã đối chiếu thư viện chuẩn trong tests/test_metrics_gen.py)
+rng = np.random.default_rng(0)
+tu = "tôi muốn đổi trả hàng vì sản phẩm bị lỗi giao nhanh đóng gói đẹp rất tốt không khách được trong vòng ngày".split()
+ok_all = True
+for _ in range(50):
+    n = int(rng.integers(1, 6))
+    refs = [[list(rng.choice(tu, int(rng.integers(3, 12)))) for _ in range(2)] for _ in range(n)]
+    hyps = [list(rng.choice(tu, int(rng.integers(3, 12)))) for _ in range(n)]
+    ok_all &= abs(bleu(refs, hyps) - metrics_gen.bleu(refs, hyps, smooth="exp")["score"]) < 1e-9
+    ok_all &= abs(rouge_l(refs[0][0], hyps[0])["f"] - metrics_gen.rouge_l(refs[0][0], hyps[0])["f"]) < 1e-12
+    ok_all &= abs(rouge_n(refs[0][0], hyps[0], 2)["f"] - metrics_gen.rouge_n(refs[0][0], hyps[0], 2)["f"]) < 1e-12
+    ok_all &= abs(chrf([[" ".join(r) for r in rs] for rs in refs], [" ".join(h) for h in hyps]) - metrics_gen.chrf([[" ".join(r) for r in rs] for rs in refs], [" ".join(h) for h in hyps])) < 1e-9
+print("Bản tự cài khớp bản trong nlpvi.metrics_gen trên 50 tập ngẫu nhiên:", bool(ok_all))
+
+ref, hyp = "tôi muốn đổi trả hàng".split(), "tôi muốn trả hàng".split()
+print("ROUGE-1:", {k: round(v, 3) for k, v in rouge_n(ref, hyp, 1).items()}, "| ROUGE-2:", {k: round(v, 3) for k, v in rouge_n(ref, hyp, 2).items()}, "| ROUGE-L:", {k: round(v, 3) for k, v in rouge_l(ref, hyp).items()})
+print("BLEU (1 câu, làm mịn exp):", round(bleu([[ref]], [hyp]), 2), "| BLEU không làm mịn:", round(metrics_gen.bleu([[ref]], [hyp], smooth="none")["score"], 2), "| chrF:", round(chrf([["tôi muốn đổi trả hàng"]], ["tôi muốn trả hàng"]), 2))
+
+@@@ md
+**Đọc kết quả (2).** Bản tự cài khớp bản đóng gói trên 50 tập ngẫu nhiên; bản đóng gói đã được đối chiếu với `sacrebleu` và `rouge-score` trên 200 tập ngẫu nhiên nhiều tham chiếu (sai khác ≈ 10⁻¹⁴, xem `tests/test_metrics_gen.py`). Với cặp ví dụ "tôi muốn đổi trả hàng" / "tôi muốn trả hàng": ROUGE-1 có precision 1,0 (mọi chữ của đầu ra đều có trong tham chiếu) nhưng recall 0,8 (thiếu "đổi"); ROUGE-2 thấp hơn (F1 0,57) vì mất cặp "đổi trả". **BLEU bằng 0 nếu không làm mịn** — câu 4 token không có 4-gram nào trùng — và 35,2 khi làm mịn: đó là lý do BLEU mức *câu* gần như vô dụng và chỉ nên dùng mức corpus.
+
+@@@ md
+### 2.1 Bẫy token hóa
+
+ROUGE và BLEU làm việc trên **token**, nên *cách tách token quyết định điểm số*. Với tiếng Việt có ba lựa chọn: (a) tokenizer mặc định của thư viện `rouge-score`, chỉ giữ ký tự `a–z`, `0–9` (thiết kế cho tiếng Anh); (b) **âm tiết** (tách theo khoảng trắng/dấu câu); (c) **từ ghép** (Bài 1: "đổi_trả", "sản_phẩm"). Ta mô phỏng (a) bằng đúng quy tắc của thư viện đó (đã đối chiếu trong `tests/test_metrics_gen.py`).
+
+@@@ code
+tach_ascii = lambda t: re.sub(r"[^a-z0-9]+", " ", t.lower()).split()        # tokenizer mặc định của rouge-score
+tach_am_tiet = tach_token                                                      # âm tiết + dấu câu, chữ thường, NFC
+tach_tu = lambda t: [w for w in segment(" ".join(tach_token(t))).split() if any(c.isalnum() for c in w)]
+
+print("(a) ASCII  :", tach_ascii("Khách hàng đổi trả sản phẩm trong 7 ngày"))
+print("(b) âm tiết:", tach_am_tiet("Khách hàng đổi trả sản phẩm trong 7 ngày"))
+print("(c) từ ghép:", tach_tu("Khách hàng đổi trả sản phẩm trong 7 ngày"))
+
+cap = [("Tôi thích phở", "Tôi ghét bún"), ("Giá xăng giảm 450 đồng mỗi lít", "Giá xăng tăng 450 đồng mỗi lít"), ("Khách hàng được đổi trả trong 7 ngày", "Trong một tuần, khách có thể đổi hoặc trả lại hàng")]
+rows = []
+for a, b in cap:
+    r = {"tham chiếu": a, "đầu ra": b}
+    for ten, tk in [("ASCII", tach_ascii), ("âm tiết", tach_am_tiet), ("từ ghép", tach_tu)]:
+        r[f"ROUGE-1 F ({ten})"] = round(rouge_n(tk(a), tk(b), 1)["f"], 3)
+    rows.append(r)
+display(pd.DataFrame(rows).set_index("tham chiếu"))
+
+@@@ md
+**Đọc kết quả (2.1).** Tokenizer ASCII băm "Khách hàng đổi trả sản phẩm" thành các mảnh vô nghĩa ('kh', 'ch', 'h', 'ng', 'i'...): mọi ký tự có dấu đều cắt đôi từ. Hậu quả: hai câu **khác nghĩa hoàn toàn** ("Tôi thích phở" / "Tôi ghét bún") được ROUGE-1 = 0,364 vì các mảnh 't', 'i' trùng nhau, cao hơn mức 0,333 khi tách đúng. Cặp thứ ba (diễn đạt lại *đúng nghĩa*) có ROUGE-1 từ **0,571 (ASCII) → 0,500 (âm tiết) → 0,353 (từ ghép)**: cùng một cặp câu, cùng một độ đo, điểm đổi tới 1,6 lần chỉ vì cách tách token (từ ghép "khách_hàng" trong tham chiếu không khớp "khách" tách rời trong đầu ra). Đây không phải lỗi của ROUGE mà là một *quyết định bạn phải tự đưa ra và ghi lại*: báo cáo điểm mà không nói cách tách token thì không ai so sánh được với bạn.
+
+@@@ md
+## 3. Dữ liệu tóm tắt
+
+`data/tom_tat_mini.json`: **16 đoạn văn hư cấu** (5 câu, khoảng 80 từ) kèm **hai bản tóm tắt tham chiếu** (A và B) do tác giả khóa học soạn độc lập. Dữ liệu *rất nhỏ* và viết tay: dùng để học cách đo, không để kết luận về chất lượng một hệ thống. Chủ đề trải từ giáo dục, y tế đến thương mại điện tử; tên và số liệu đều bịa.
+
+@@@ code
+tt = json.loads((DATA_DIR / "tom_tat_mini.json").read_text(encoding="utf-8"))
+doc = pd.DataFrame({"id": [d["id"] for d in tt], "chủ đề": [d["chu_de"] for d in tt],
+                    "số câu": [len(split_sentences(d["text"])) for d in tt], "từ trong đoạn": [len(tach_tu(d["text"])) for d in tt],
+                    "từ trong tóm tắt A": [len(tach_tu(d["tom_tat_a"])) for d in tt], "từ trong tóm tắt B": [len(tach_tu(d["tom_tat_b"])) for d in tt]}).set_index("id")
+display(doc.describe().loc[["mean", "min", "max"]].round(1))
+print("Tỉ lệ nén trung bình (tóm tắt / đoạn):", round(float((doc["từ trong tóm tắt A"] / doc["từ trong đoạn"]).mean()), 2))
+print("\nVí dụ", tt[2]["id"], "—", tt[2]["chu_de"])
+print("Đoạn :", tt[2]["text"]); print("A    :", tt[2]["tom_tat_a"]); print("B    :", tt[2]["tom_tat_b"])
+
+@@@ md
+## 4. Đường cơ sở trích xuất và trần của người
+
+Tóm tắt **trích xuất** chọn các câu có sẵn trong đoạn. Ta thử:
+
+- **Câu đầu** (lead-1) và **hai câu đầu** (lead-2): đơn giản nhưng mạnh với văn bản báo chí vì câu đầu thường nêu ý chính.
+- **Câu dài nhất** và **câu ngẫu nhiên** (trung bình 50 lần): các mốc "không thông minh".
+- **Toàn văn**: chép nguyên đoạn (recall cao nhất có thể).
+- **TextRank**: dựng đồ thị các câu, cạnh là độ tương đồng cosine TF-IDF, chạy **PageRank** để chọn câu "trung tâm".
+- **Trần của người**: điểm của tóm tắt B khi coi A là tham chiếu (và ngược lại), tức hai người viết độc lập khớp nhau tới đâu.
+
+Mỗi đầu ra được chấm với **cả hai tham chiếu** và lấy tham chiếu cho F1 cao nhất. Dùng token **từ ghép**.
+
+@@@ code
+def tfidf_cosine(cau):
+    """Ma trận tương đồng cosine giữa các câu bằng TF-IDF tính trên chính các câu của đoạn."""
+    toks = [tach_tu(c) for c in cau]
+    vocab = {w: i for i, w in enumerate(sorted({w for t in toks for w in t}))}
+    df = Counter(w for t in toks for w in set(t))
+    X = np.zeros((len(cau), len(vocab)))
+    for i, t in enumerate(toks):
+        for w, c in Counter(t).items():
+            X[i, vocab[w]] = (1 + math.log(c)) * math.log((1 + len(cau)) / (1 + df[w]) + 1)
+    X /= np.linalg.norm(X, axis=1, keepdims=True) + 1e-12
+    return X @ X.T
+
+def textrank(cau, he_so=0.85, so_lan=100):
+    S = tfidf_cosine(cau); np.fill_diagonal(S, 0)
+    M = S / (S.sum(1, keepdims=True) + 1e-12)
+    pr = np.full(len(cau), 1 / len(cau))
+    for _ in range(so_lan):
+        pr = (1 - he_so) / len(cau) + he_so * M.T @ pr
+    return pr
+
+def cham(dau_ra, d):
+    """Điểm của một đầu ra cho đoạn d. Chấm với TỪNG tham chiếu (A, B) rồi lấy trung bình để so công bằng với "người viết" (người chỉ có 1 tham chiếu);
+    thêm cột 'max 2 tham chiếu' (cách báo cáo thông dụng, thường cao hơn)."""
+    h = tach_tu(dau_ra)
+    don = [{"ROUGE-1": rouge_n(r, h, 1)["f"], "ROUGE-2": rouge_n(r, h, 2)["f"], "ROUGE-L": rouge_l(r, h)["f"], "ROUGE-1 recall": rouge_n(r, h, 1)["r"]}
+           for r in (tach_tu(d["tom_tat_a"]), tach_tu(d["tom_tat_b"]))]
+    kq = {k: float(np.mean([x[k] for x in don])) for k in don[0]}
+    kq["ROUGE-1 (max 2 tham chiếu)"] = max(x["ROUGE-1"] for x in don)
+    kq["độ dài (từ)"] = len(h)
+    return kq
+
+rng = np.random.default_rng(0)
+dau_ra = {"câu đầu (lead-1)": [], "hai câu đầu (lead-2)": [], "câu dài nhất": [], "câu ngẫu nhiên (TB 50 lần)": [], "TextRank (1 câu)": [], "toàn văn": []}
+for d in tt:
+    cau = split_sentences(d["text"])
+    dau_ra["câu đầu (lead-1)"].append(cau[0]); dau_ra["hai câu đầu (lead-2)"].append(" ".join(cau[:2]))
+    dau_ra["câu dài nhất"].append(max(cau, key=lambda c: len(tach_tu(c))))
+    dau_ra["TextRank (1 câu)"].append(cau[int(np.argmax(textrank(cau)))])
+    dau_ra["toàn văn"].append(d["text"])
+    dau_ra["câu ngẫu nhiên (TB 50 lần)"].append([cau[i] for i in rng.integers(0, len(cau), 50)])
+
+def trung_binh(ten):
+    pts = []
+    for dr, d in zip(dau_ra[ten], tt):
+        if isinstance(dr, list):
+            pts.append(pd.DataFrame([cham(x, d) for x in dr]).mean())
+        else:
+            pts.append(pd.Series(cham(dr, d)))
+    return pd.DataFrame(pts).mean()
+
+bang = {ten: trung_binh(ten) for ten in dau_ra}
+# mức đồng thuận của người: A làm tham chiếu duy nhất cho B, và ngược lại (mỗi bên chỉ có 1 tham chiếu, như cách chấm đơn lẻ ở trên)
+tran = []
+for d in tt:
+    for x, y in [("tom_tat_a", "tom_tat_b"), ("tom_tat_b", "tom_tat_a")]:
+        r, h = tach_tu(d[x]), tach_tu(d[y])
+        tran.append({"ROUGE-1": rouge_n(r, h, 1)["f"], "ROUGE-2": rouge_n(r, h, 2)["f"], "ROUGE-L": rouge_l(r, h)["f"], "ROUGE-1 recall": rouge_n(r, h, 1)["r"], "độ dài (từ)": len(h)})
+bang["hai người viết chấm nhau (đồng thuận)"] = pd.DataFrame(tran).mean()
+bang_tt = pd.DataFrame(bang).T.round(3)
+display(bang_tt)
+
+@@@ md
+**Đọc kết quả (4).** (Điểm là trung bình ROUGE-F1 khi chấm với *từng* tham chiếu A, B rồi lấy trung bình, để so công bằng với dòng "hai người viết chấm nhau", vì mỗi người chỉ có một tham chiếu.)
+
+- **Câu đầu rất mạnh.** lead-1 đạt ROUGE-1 0,401, ROUGE-2 0,224, ROUGE-L 0,333: cao hơn mọi phương án trích xuất khác trừ lead-2 (0,405 nhưng dài gấp ≈ 1,7 lần). Với văn bản kiểu tin tức câu đầu thường nêu ý chính (dữ liệu của chúng tôi cũng viết theo kiểu đó). TextRank (0,299) còn kém cả "câu dài nhất" (0,356): trên đoạn ngắn 5 câu, đồ thị tương đồng gần như đều nên xếp hạng không có tín hiệu thật.
+- **ROUGE thưởng việc chép.** Chép **toàn văn** (75 từ) đạt ROUGE-1 F1 0,351 với recall 0,87, **cao hơn** điểm của một người viết tóm tắt khi chấm người kia (0,263). Một độ đo mà "chép nguyên đoạn" thắng bản tóm tắt của người là độ đo cần đọc rất cẩn thận: vì vậy luôn kèm precision/độ dài và so với đường cơ sở.
+- **Đồng thuận giữa người thấp.** Hai người viết độc lập chỉ đạt ROUGE-1 0,263, ROUGE-2 0,099, ROUGE-L 0,212 khi chấm nhau, vì tóm tắt là *diễn đạt lại* nên trùng chữ ít. Đây là một "trần thực tế" khi chỉ có một tham chiếu: ROUGE-2 0,2 của một hệ thống không hẳn là kém mà có thể đã cao hơn mức người với người.
+- Dùng **hai tham chiếu** (lấy max) nâng điểm: lead-1 từ 0,401 lên 0,511 ở ROUGE-1. Điểm báo cáo phụ thuộc vào *số* tham chiếu.
+
+@@@ md
+## 5. Tóm tắt sinh bằng LLM nhỏ
+
+Ta thử `Qwen2.5-1.5B-Instruct` (mô hình của Bài 13) với một prompt cố định, giải mã tham lam. Ngoài ROUGE, ta đo **tính trung thực** bằng một kiểm tra thô nhưng rẻ: bao nhiêu **con số** và **từ viết hoa giữa câu** (thường là tên riêng) trong tóm tắt **không có** trong đoạn gốc. Đây là dấu hiệu của *ảo giác* (hallucination); không có nó thì không phát hiện được, vì ROUGE hầu như không phạt thông tin bịa.
+
+@@@ code
+CHAY_LLM = torch.cuda.is_available()
+if not CHAY_LLM:
+    print("Không có GPU: bỏ qua mục 5 và phần LLM của mục 6.")
+else:
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    MODEL = "Qwen/Qwen2.5-1.5B-Instruct"
+    tok = AutoTokenizer.from_pretrained(MODEL)
+    llm = AutoModelForCausalLM.from_pretrained(MODEL, dtype=torch.float16).to("cuda").eval()
+
+    def hoi_llm(he, nguoi_dung, toi_da=90):
+        msgs = [{"role": "system", "content": he}, {"role": "user", "content": nguoi_dung}]
+        ids = tok.apply_chat_template(msgs, add_generation_prompt=True, return_tensors="pt", return_dict=True).to("cuda")
+        with torch.no_grad():
+            out = llm.generate(**ids, max_new_tokens=toi_da, do_sample=False)
+        return tok.decode(out[0, ids["input_ids"].shape[1]:], skip_special_tokens=True).strip()
+
+    HE_TOM_TAT = "Bạn là trợ lý tóm tắt tin tức tiếng Việt."
+    def tom_tat_llm(text):
+        return hoi_llm(HE_TOM_TAT, "Tóm tắt đoạn văn sau trong MỘT câu ngắn gọn (khoảng 20 đến 25 từ), giữ đúng các con số. Chỉ trả lời bằng bản tóm tắt.\n\n" + text)
+
+    t0 = time.time()
+    tom_tat_sinh = [tom_tat_llm(d["text"]) for d in tt]
+    print(f"{len(tt)} đoạn trong {time.time() - t0:.0f}s")
+
+@@@ code
+def so_va_ten(text):
+    """Tập các số (bỏ dấu phân tách) và tên riêng nghi vấn (từ viết hoa KHÔNG đứng đầu câu) trong một văn bản."""
+    so = set(re.findall(r"\d+", re.sub(r"(?<=\d)[.,](?=\d)", "", text)))
+    toks = text.replace(",", " , ").split()
+    ten = {w.strip('.,;:!?()"') for i, w in enumerate(toks) if i > 0 and w[:1].isupper() and not toks[i - 1].endswith((".", "!", "?"))}
+    return so, ten
+
+def khong_trung_thuc(tom_tat, nguon):
+    """Trả về (số số bịa, số tên lạ, tổng số số + tên đã dùng): mục nào của tóm tắt không có trong nguồn."""
+    so_n, _ = so_va_ten(nguon)
+    ten_nguon = {w.strip('.,;:!?()"') for w in nguon.replace(",", " , ").split() if w[:1].isupper()}      # kể cả tên đứng đầu câu
+    so_t, ten_t = so_va_ten(tom_tat)
+    return len(so_t - so_n), len(ten_t - ten_nguon), len(so_t) + len(ten_t)
+
+if CHAY_LLM:
+    ket = [cham(t, d) for t, d in zip(tom_tat_sinh, tt)]
+    bang_tt.loc["Qwen2.5-1.5B (prompt)"] = pd.DataFrame(ket).mean().round(3)
+    cac_he = {"Qwen2.5-1.5B (prompt)": tom_tat_sinh, "câu đầu (lead-1)": dau_ra["câu đầu (lead-1)"], "TextRank (1 câu)": dau_ra["TextRank (1 câu)"],
+              "tóm tắt người viết (A)": [d["tom_tat_a"] for d in tt]}
+    rows = []
+    for ten, ds_ in cac_he.items():
+        kt = np.array([khong_trung_thuc(t, d["text"]) for t, d in zip(ds_, tt)])
+        rows.append({"hệ thống": ten, "số bịa (không có trong nguồn)": int(kt[:, 0].sum()), "tên riêng lạ": int(kt[:, 1].sum()),
+                     "đoạn có ≥ 1 mục bịa": int(((kt[:, 0] + kt[:, 1]) > 0).sum()), "tổng số/tên đã dùng": int(kt[:, 2].sum())})
+    display(bang_tt.loc[["câu đầu (lead-1)", "TextRank (1 câu)", "Qwen2.5-1.5B (prompt)", "hai người viết chấm nhau (đồng thuận)"]])
+    display(pd.DataFrame(rows).set_index("hệ thống"))
+    print("Các mục LLM bị gắn cờ (để bạn tự xem có thật là bịa không):")
+    for t, d in zip(tom_tat_sinh, tt):
+        so_n, ten_n = so_va_ten(d["text"]); so_t, ten_t = so_va_ten(t)
+        ten_nguon = {w.strip('.,;:!?()"') for w in d["text"].replace(",", " , ").split() if w[:1].isupper()}
+        cac = sorted(so_t - so_n) + sorted(ten_t - ten_nguon)
+        if cac:
+            print(f"  [{d['id']}] gắn cờ {cac}")
+    co_han = lambda t: any(0x4E00 <= ord(c) <= 0x9FFF for c in t)                      # có chữ Hán (mô hình đa ngôn ngữ đôi khi đổi ngôn ngữ giữa chừng)
+    print("\nBản tóm tắt lẫn chữ Hán:", [d["id"] for t, d in zip(tom_tat_sinh, tt) if co_han(t)],
+          "| bản dài hơn 30 từ (prompt xin 20–25):", sum(len(tach_tu(t)) > 30 for t in tom_tat_sinh), "/", len(tt),
+          "| bản kết thúc dở câu (bị cắt ở giới hạn 90 token):", sum(not t.rstrip().endswith((".", "!", "?", "。")) for t in tom_tat_sinh))
+    print("\nToàn bộ 16 bản tóm tắt của LLM (hãy tự đọc và so với đoạn gốc trong data/tom_tat_mini.json):")
+    for t, d in zip(tom_tat_sinh, tt):
+        print(f"[{d['id']}] {t}")
+
+@@@ md
+**Đọc kết quả (5).**
+
+- **ROUGE không phân biệt được câu đầu với LLM.** Chấm theo từng tham chiếu, ROUGE-1 của hai hệ thống cùng là 0,401 (ROUGE-L 0,333 và 0,332); với max hai tham chiếu LLM thua (0,460 so với 0,511), còn recall của LLM cao hơn (0,67 so với 0,42) vì bản tóm tắt **dài gấp đôi** (≈ 45 từ; 14/16 bản dài hơn 30 từ trong khi prompt xin 20–25): LLM nhỏ **không tuân thủ ràng buộc độ dài**, và 6/16 bản **kết thúc dở câu** vì chạm giới hạn 90 token sinh ra.
+- **Kiểm tra trung thực tự động gần như vô dụng ở đây.** Nó gắn cờ 2 mục ("7" ở tt03, "MW" ở tt10) nhưng *cả hai đều là dương tính giả* (nguồn viết "bảy ngày" và "megawatt"). Khi **tự đọc 16 bản**, chúng tôi thấy: 2 bản **lẫn chữ Hán** (tt09, tt10; một kiểm tra ký tự đơn giản bắt được cả hai) và ít nhất **5 bản sai ý** mà kiểm tra số/tên bỏ sót hoàn toàn — tt11 đổi "giảm nhẹ" thành "tăng nhẹ", tt16 đổi "hơn 300" thành "gần 300", tt05 bỏ chữ "thấp nhất" khỏi giá vé 7.000 đồng, tt15 viết "người bị khiếu nại" thay vì "người khiếu nại", tt13 viết "học sinh nghỉ học tại chỗ" và bỏ chữ "có thể". Đây là cách đọc của chúng tôi; bạn nên tự đọc rồi so. Những lỗi này chỉ là *sửa một chữ nhỏ* nên cả ROUGE lẫn kiểm tra chuỗi đều không thấy.
+- **Bài học.** (1) So một mô hình sinh với đường cơ sở bằng ROUGE có thể cho "hòa" trong khi chất lượng khác xa. (2) Kiểm tra "có trong nguồn" chỉ bắt được thông tin *vắng mặt*, không bắt được thông tin *bị bóp méo*. (3) **Không gì thay được việc đọc mẫu** — với LLM nhỏ hãy đọc cả đầu ra, đừng chỉ nhìn điểm.
+
+@@@ md
+## 6. Dịch máy Anh → Việt
+
+`data/dich_mini.json`: **24 câu tiếng Anh** (mua sắm, du lịch, công nghệ, đời sống) kèm **hai bản dịch tiếng Việt tham chiếu** do tác giả soạn. Hai hệ thống: mô hình dịch chuyên dụng **`Helsinki-NLP/opus-mt-en-vi`** (Marian, ≈ 75 triệu tham số) và **Qwen2.5-1.5B-Instruct** dùng prompt. Điểm BLEU/chrF tính theo **âm tiết** (như thông lệ cho tiếng Việt khi không có bộ tách từ).
+
+Với 24 câu, mọi điểm đều rất nhiễu, nên ta kèm **khoảng tin cậy bootstrap** (lấy mẫu có hoàn lại các câu 1.000 lần) và so sánh hai hệ thống **theo cặp**.
+
+@@@ code
+dich = json.loads((DATA_DIR / "dich_mini.json").read_text(encoding="utf-8"))
+nguon_en = [d["en"] for d in dich]
+tham_chieu = [d["vi"] for d in dich]
+
+def dich_marian(cau, bs=8):
+    from transformers import MarianMTModel, MarianTokenizer
+    ten = "Helsinki-NLP/opus-mt-en-vi"
+    tk, m = MarianTokenizer.from_pretrained(ten), MarianMTModel.from_pretrained(ten).to("cuda" if torch.cuda.is_available() else "cpu").eval()
+    out = []
+    for i in range(0, len(cau), bs):
+        enc = tk(cau[i:i + bs], return_tensors="pt", padding=True).to(m.device)
+        with torch.no_grad():
+            out += tk.batch_decode(m.generate(**enc, num_beams=4, max_new_tokens=80), skip_special_tokens=True)
+    del m
+    return out
+
+t0 = time.time()
+he_thong = {}
+try:
+    he_thong["opus-mt-en-vi (Marian)"] = dich_marian(nguon_en)
+    print(f"Marian: {time.time() - t0:.0f}s")
+except ImportError as e:
+    print("⚠ Bỏ qua Marian vì thiếu thư viện (cài: pip install sentencepiece):", str(e).strip().splitlines()[0][:100])
+if CHAY_LLM:
+    t0 = time.time()
+    he_thong["Qwen2.5-1.5B (prompt)"] = [hoi_llm("Bạn là dịch giả Anh–Việt.", "Dịch câu tiếng Anh sau sang tiếng Việt. Chỉ trả lời bằng bản dịch.\n\n" + c, 80) for c in nguon_en]
+    print(f"Qwen: {time.time() - t0:.0f}s")
+
+@@@ code
+def diem_dich(hyps, idx=None):
+    idx = list(range(len(hyps))) if idx is None else idx
+    refs_tok = [[tach_am_tiet(r) for r in tham_chieu[i]] for i in idx]
+    h_tok = [tach_am_tiet(hyps[i]) for i in idx]
+    return {"BLEU": bleu(refs_tok, h_tok), "chrF": chrf([tham_chieu[i] for i in idx], [hyps[i] for i in idx])}
+
+def bootstrap(hyps, so_lan=1000, seed=0):
+    r = np.random.default_rng(seed); n = len(hyps)
+    return pd.DataFrame([diem_dich(hyps, list(r.integers(0, n, n))) for _ in range(so_lan)])
+
+rows = {}
+bs = {}
+for ten, hyps in he_thong.items():
+    d = diem_dich(hyps)
+    b = bootstrap(hyps); bs[ten] = b
+    rows[ten] = {"BLEU": round(d["BLEU"], 1), "BLEU 95% CI": f"{b['BLEU'].quantile(0.025):.1f}–{b['BLEU'].quantile(0.975):.1f}",
+                 "chrF": round(d["chrF"], 1), "chrF 95% CI": f"{b['chrF'].quantile(0.025):.1f}–{b['chrF'].quantile(0.975):.1f}"}
+    # chỉ dùng 1 tham chiếu để thấy ảnh hưởng của số tham chiếu
+    r1 = bleu([[tach_am_tiet(r[0])] for r in tham_chieu], [tach_am_tiet(h) for h in hyps])
+    rows[ten]["BLEU (chỉ tham chiếu 1)"] = round(r1, 1)
+    rows[ten]["câu lẫn chữ Hán"] = sum(any(0x4E00 <= ord(c) <= 0x9FFF for c in h) for h in hyps)
+    rows[ten]["câu lặp từ liên tiếp"] = sum(bool(re.search(r"\b(\w+)( \1\b){2,}", h.lower())) for h in hyps)       # một từ lặp ≥ 3 lần liền nhau
+display(pd.DataFrame(rows).T)
+
+if len(he_thong) == 2:
+    a, b = list(he_thong)
+    hieu = bs[a]["BLEU"].values - bs[b]["BLEU"].values
+    print(f"Hiệu BLEU {a} − {b} theo cặp (bootstrap, cùng mẫu): trung bình {hieu.mean():.1f}; khoảng 95% {np.quantile(hieu, 0.025):.1f} … {np.quantile(hieu, 0.975):.1f}; tỉ lệ lần {a} cao hơn {np.mean(hieu > 0):.0%}")
+
+@@@ code
+print("Một vài câu:")
+for i in (2, 3, 14, 17):
+    print(f"\n[{dich[i]['id']}] EN : {nguon_en[i]}")
+    for ten, h in he_thong.items(): print(f"      {ten:24s}: {h[i]}")
+    print(f"      tham chiếu 1            : {tham_chieu[i][0]}")
+if CHAY_LLM:
+    del llm; torch.cuda.empty_cache()                                     # giải phóng VRAM cho các mục sau
+
+@@@ md
+**Đọc kết quả (6).**
+
+- **Số liệu.** Qwen2.5-1.5B đạt BLEU 54,8 [44,5–64,6] và chrF 61,7 [55,2–67,8], so với Marian 42,4 [33,3–51,7] và 53,4 [47,9–58,7]. Hiệu BLEU theo cặp (Marian − Qwen) là −12,5, khoảng 95% từ −24,5 đến +0,4, và Marian chỉ cao hơn trong 3% lần lấy mẫu: *nghiêng hẳn về Qwen* nhưng khoảng tin cậy vẫn chạm 0; với 24 câu ta không kết luận chắc được. (Hai khoảng tin cậy riêng lẻ chồng nhau, đó là lý do nên so *theo cặp* thay vì nhìn chồng lấn.)
+- **Điểm số che các kiểu lỗi khác hẳn nhau.** Qwen **lẫn chữ Hán ở 5/24 câu** (ví dụ "Tôi muốn退回 này áo khoác…") — lỗi người dùng thấy ngay nhưng BLEU chỉ trừ một ít. Marian không lẫn chữ Hán nhưng có lỗi **sai số** (d04: "fifty dollars" thành "hơn một trăm đô la") và **lặp từ** ("sẵn sẵn sẵn sàng") — lỗi con số gần như không bị phạt. Hệ thống "điểm cao hơn" chưa chắc "dùng được hơn".
+- **Số tham chiếu quyết định thang điểm.** Chỉ dùng tham chiếu 1 làm BLEU giảm 9,8 điểm (Marian 42,4 → 32,6) và 13,2 điểm (Qwen 54,8 → 41,6). BLEU chỉ so sánh được giữa các hệ thống trên *cùng* tập kiểm tra, *cùng* số tham chiếu và *cùng* cách tách token.
+
+@@@ md
+## 7. Điểm mù của các độ đo
+
+Nếu độ đo tốt, một bản **diễn đạt lại đúng nghĩa** phải được điểm cao hơn một bản **sửa một chữ làm đổi nghĩa** (phủ định, tăng/giảm, đổi con số, đổi ngày). Ta thử trực tiếp với 8 bộ ba do tác giả viết tay: (tham chiếu, *diễn đạt lại đúng*, *sửa làm sai nghĩa*). Đo: trong bao nhiêu bộ ba độ đo chấm **diễn đạt đúng cao hơn bản sai nghĩa**? (Độ đo hoàn hảo cho 8/8.)
+
+Ngoài ba độ đo đếm chữ, ta thêm **độ tương đồng embedding** (cosine của `multilingual-e5-small`, Bài 12) — một lựa chọn "hiểu nghĩa" hơn.
+
+@@@ code
+BO_BA = [
+    ("Khách hàng được đổi trả sản phẩm trong vòng 7 ngày.", "Trong 7 ngày, khách có thể đổi hoặc trả lại hàng.", "Khách hàng không được đổi trả sản phẩm trong vòng 7 ngày."),
+    ("Giá xăng giảm 450 đồng mỗi lít.", "Mỗi lít xăng rẻ đi 450 đồng.", "Giá xăng tăng 450 đồng mỗi lít."),
+    ("Cuộc họp bắt đầu lúc 9 giờ sáng thứ Năm.", "Thứ Năm này, buổi họp khởi động vào 9 giờ sáng.", "Cuộc họp bắt đầu lúc 9 giờ sáng thứ Sáu."),
+    ("Chuyến bay bị hoãn vì mưa lớn.", "Mưa to khiến chuyến bay phải dời lại.", "Chuyến bay không bị hoãn dù mưa lớn."),
+    ("Sản phẩm này phù hợp với trẻ em trên 6 tuổi.", "Trẻ từ 6 tuổi trở lên có thể dùng sản phẩm này.", "Sản phẩm này phù hợp với trẻ em dưới 6 tuổi."),
+    ("Bệnh viện đã tiếp nhận 120 bệnh nhân trong ngày hôm qua.", "Hôm qua có 120 bệnh nhân được bệnh viện tiếp nhận.", "Bệnh viện đã tiếp nhận 12 bệnh nhân trong ngày hôm qua."),
+    ("Thành phố sẽ mở rộng tuyến xe buýt điện vào năm sau.", "Năm tới thành phố dự định thêm tuyến xe buýt chạy điện.", "Thành phố sẽ dừng tuyến xe buýt điện vào năm sau."),
+    ("Em rất hài lòng với chất lượng dịch vụ.", "Chất lượng dịch vụ khiến em vô cùng ưng ý.", "Em rất không hài lòng với chất lượng dịch vụ."),
+]
+from nlpvi.retrieval import Embedder
+e5 = Embedder("intfloat/multilingual-e5-small", query_prefix="query: ", passage_prefix="passage: ", device="cpu", max_length=64)
+
+def diem_cap(ref, hyp):
+    return {"ROUGE-1": rouge_n(tach_tu(ref), tach_tu(hyp), 1)["f"], "ROUGE-L": rouge_l(tach_tu(ref), tach_tu(hyp))["f"],
+            "BLEU": bleu([[tach_am_tiet(ref)]], [tach_am_tiet(hyp)]), "chrF": chrf([[ref]], [hyp])}
+
+rows, thang = [], Counter()
+for ref, dung, sai in BO_BA:
+    E = e5.encode([ref, dung, sai], "query")
+    d_dung, d_sai = diem_cap(ref, dung), diem_cap(ref, sai)
+    d_dung["e5 cosine"], d_sai["e5 cosine"] = float(E[0] @ E[1]), float(E[0] @ E[2])
+    for k in d_dung:
+        thang[k] += d_dung[k] > d_sai[k]
+    rows.append({"tham chiếu": ref[:45], **{f"{k} (đúng | sai nghĩa)": f"{d_dung[k]:.2f} | {d_sai[k]:.2f}" for k in ("ROUGE-L", "chrF", "e5 cosine")}})
+display(pd.DataFrame(rows).set_index("tham chiếu"))
+display(pd.DataFrame({"số bộ ba (/8) chấm diễn đạt ĐÚNG cao hơn bản SAI NGHĨA": dict(thang)}))
+
+@@@ md
+**Đọc kết quả (7).** Kết quả khá phũ phàng: **cả bốn độ đo đếm chữ (ROUGE-1, ROUGE-L, BLEU, chrF) chấm bản SAI NGHĨA cao hơn bản diễn đạt đúng ở 8/8 bộ ba** — ví dụ ROUGE-L 0,80–0,95 cho bản sai nghĩa so với 0,22–0,43 cho bản diễn đạt đúng, chrF 63–95 so với 29–52. Lý do rõ ràng: sửa một chữ ("không", "tăng", "6" → "12") giữ lại gần như mọi n-gram, còn diễn đạt lại thì phá vỡ chúng. Độ đo embedding "hiểu nghĩa" hơn (e5) cũng chỉ chấm đúng **2/8** bộ ba: cosine nằm trong dải hẹp 0,92–1,00 cho cả hai loại ứng viên (Bài 12 đã cảnh báo điều này) nên khác biệt ý nghĩa bị nuốt mất. Ghi nhớ: *độ đo dựa trên trùng khớp bề mặt không phân biệt được "giống chữ" với "giống nghĩa"*, và cosine embedding thô cũng chưa đủ. Những lỗi nguy hiểm nhất của sinh văn bản — đảo phủ định, đổi con số — lại chính là loại lỗi các độ đo này mù. (8 bộ ba do chúng tôi viết là phép thử nhỏ, đủ để minh họa chứ không đủ để xếp hạng các độ đo. Lưu ý sắc thái: ở phép thử *công bằng hơn* trong notebook đáp án — bản diễn đạt lại cũng chỉ đổi một chữ — các độ đo đếm chữ hòa hoặc ngang tung đồng xu, còn e5 chấm đúng 7/8: embedding không mù hẳn về nghĩa, nó bị đánh lừa khi mức khác biệt bề mặt chênh nhau. Bài tập 2 mời bạn thử thêm.)
+
+@@@ md
+## 8. Chọn độ đo như thế nào
+
+1. **Đừng báo cáo một con số một mình.** Kèm: cỡ mẫu, khoảng tin cậy, cách tách token, số tham chiếu, độ dài đầu ra.
+2. **Luôn có các mốc**: câu đầu / TextRank cho tóm tắt, dịch của một hệ thống chuyên dụng cho dịch máy, và *trần của người* để biết điểm cao nhất thực tế khả dĩ.
+3. **Đo cái ROUGE/BLEU không đo**: tính trung thực (bịa số, bịa tên), độ dài, độ bao phủ ý chính; đọc **một mẫu ngẫu nhiên** đầu ra bằng mắt.
+4. **Cẩn thận với thư viện**: kiểm tra *tokenizer mặc định* làm gì với tiếng Việt trước khi tin con số; thử trên một cặp câu có đáp án biết trước.
+5. **Độ đo "hiểu nghĩa"** (cosine embedding, BERTScore, LLM làm giám khảo) bù được một phần điểm mù nhưng có điểm mù riêng (mục 7) và cần được **kiểm chứng với đánh giá của người** trên chính bài toán của bạn.
+6. **So sánh hệ thống bằng kiểm định theo cặp** (mục 6), không bằng cách nhìn hai con số.
+
+## 9. Tổng kết
+
+- **ROUGE, BLEU, chrF** đều đơn giản (đếm n-gram, LCS, F-β) và tự cài được trong vài chục dòng; bản tự cài khớp `sacrebleu`/`rouge-score` tới sai số máy.
+- **Cách tách token quyết định điểm**: cùng một cặp câu có ROUGE-1 từ 0,35 đến 0,57 theo tokenizer; tokenizer mặc định của `rouge-score` (chỉ `a–z`, `0–9`) phá hỏng tiếng Việt. Luôn ghi cách tách token.
+- **ROUGE thưởng việc chép**: chép toàn văn (0,351) vượt điểm hai người viết chấm nhau (0,263); câu đầu là đường cơ sở rất mạnh (0,401). Luôn có mốc và xem cả độ dài/precision.
+- **LLM nhỏ tóm tắt**: ROUGE ngang câu đầu (0,401) nhưng dài gấp đôi yêu cầu (14/16 bản), 2/16 bản lẫn chữ Hán và ít nhất 5/16 bản sai ý; kiểm tra tự động "số/tên có trong nguồn" bỏ sót cả 5 và còn dương tính giả. Phải đọc mẫu.
+- **Dịch máy**: Qwen 1,5B (BLEU 54,8) hơn Marian (42,4) nhưng khoảng tin cậy theo cặp chạm 0 với 24 câu; hai hệ thống lỗi khác kiểu (chữ Hán 5/24 so với sai số/lặp từ của Marian) mà BLEU phạt rất ít; số tham chiếu đổi BLEU cỡ 10 điểm.
+- **Điểm mù của độ đo**: bốn độ đo đếm chữ chấm bản đổi nghĩa cao hơn bản diễn đạt đúng ở 8/8 bộ ba; cosine e5 chỉ đúng 2/8. Lỗi đảo phủ định và đổi con số là loại lỗi các độ đo này mù.
+- **Quy trình đo**: nhiều mốc, khoảng tin cậy và so theo cặp, cỡ mẫu, đọc mẫu, kiểm tra theo từng loại lỗi, và kiểm chứng độ đo với người trên chính bài toán của bạn.
+
+## Bài tập
+
+1. **(Dễ)** Đổi `tach_tu` thành `tach_am_tiet` ở mục 4. Thứ hạng các đường cơ sở có đổi không? Điểm tuyệt đối đổi bao nhiêu?
+2. **(Dễ)** Thêm vào mục 7 hai bộ ba của riêng bạn (một đổi phủ định, một đổi con số). Độ đo nào bị "đánh lừa" nhiều nhất?
+3. **(Vừa)** Cài **ROUGE-S** (cặp từ không liên tiếp, skip-bigram) và **ROUGE-W** hoặc **METEOR** rút gọn. Chúng có khắc phục điểm mù ở mục 7 không?
+4. **(Vừa)** Viết một **bộ kiểm tra trung thực** tốt hơn mục 5: ví dụ cho mỗi câu của tóm tắt, kiểm tra tất cả danh từ riêng và con số xuất hiện trong nguồn; thêm kiểm tra *phủ định đảo ngược* bằng cách so sự có mặt của "không/chưa". Đo độ chính xác của bộ kiểm tra trên 16 tóm tắt LLM (tự gán nhãn thủ công).
+5. **(Khó)** Dùng một LLM (Qwen 1.5B hoặc mô hình lớn hơn qua API) làm **giám khảo**: cho mỗi bộ ba ở mục 7, hỏi "bản nào giữ đúng nghĩa của tham chiếu?". Giám khảo đúng bao nhiêu trong 8 bộ ba? Thử đổi **thứ tự** hai ứng viên: kết quả có đổi không (thiên lệch vị trí)?
+
+@@@ md
+<details>
+<summary><b>Gợi ý đáp án</b></summary>
+
+1. Cách làm: thay `tach_tu` bằng `tach_am_tiet` trong hàm `cham` (và ở tính độ dài), rồi so *thứ hạng* các hệ thống và độ chênh điểm tuyệt đối với bảng ở mục 4.
+2. Gợi ý: tạo bản "sai nghĩa" bằng cách sửa đúng một chữ, và bản "diễn đạt lại" bằng cách đổi *ít* chữ (thay một từ đồng nghĩa) để phép thử công bằng hơn so với các bộ ba thay nhiều chữ ở mục 7. Chúng tôi đã làm điều này ở notebook đáp án: ROUGE-1/ROUGE-L hòa 7/8, chrF 4 thắng – 4 thua, nhưng e5 chấm đúng 7/8; hãy so với kết quả của bạn.
+3. ROUGE-S đếm mọi *cặp từ theo thứ tự* trong câu (có thể cách nhau). Hãy dự đoán trước rồi đo: bản sai nghĩa vẫn giữ gần như mọi cặp, nên bạn có kỳ vọng ROUGE-S khắc phục được điểm mù không?
+4. Một bộ kiểm tra tốt hơn có thể: (i) chuẩn hóa số bằng chữ ("bảy" → 7) và đơn vị ("megawatt" ~ "MW") để giảm dương tính giả; (ii) so các **từ chỉ hướng/định lượng** (tăng–giảm, trên–dưới, hơn–gần, không–có) giữa câu tóm tắt và câu nguồn tương ứng; (iii) dùng mô hình suy diễn văn bản (NLI). Mục 5 cho sẵn "đáp án" để chấm bộ kiểm tra của bạn: 2 bản lẫn chữ Hán và ít nhất 5 bản sai ý (tt05, tt11, tt13, tt15, tt16).
+5. Hãy đổi thứ tự hai ứng viên (A/B) và đo: giám khảo nhỏ hay chọn theo *vị trí* hơn theo nghĩa (thiên lệch vị trí). Muốn đánh giá giám khảo cần so với đánh giá của người; kết quả của một mô hình 1,5B không khái quát cho mô hình lớn.
+
+**Đáp án bằng mã** (bài tập 1, 2, 3, 4): [dap_an/19_dap_an_bai_19.ipynb](dap_an/19_dap_an_bai_19.ipynb).
+</details>
+
+**Tiếp theo →** quay lại [docs/GIAO_TRINH.md](../docs/GIAO_TRINH.md) và chọn đề tài đồ án ([docs/DO_AN.md](../docs/DO_AN.md)).
+
+**Đọc thêm:** Lin (2004), *ROUGE: A Package for Automatic Evaluation of Summaries* · Papineni và cộng sự (2002), *BLEU: a Method for Automatic Evaluation of Machine Translation* · Popović (2015), *chrF: character n-gram F-score for automatic MT evaluation* · Post (2018), *A Call for Clarity in Reporting BLEU Scores* · Zhang và cộng sự (2020), *BERTScore*
