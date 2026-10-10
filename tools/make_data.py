@@ -233,7 +233,7 @@ def main():
     rng.shuffle(rows)
     OUT.parent.mkdir(parents=True, exist_ok=True)
     with open(OUT, "w", encoding="utf-8-sig", newline="") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")        # LF trên mọi hệ điều hành (khớp .gitattributes)
         w.writerow(["id", "text", "label", "domain", "split"])
         for i, (text, label, domain) in enumerate(rows, 1):
             rid = f"r{i:04d}"
