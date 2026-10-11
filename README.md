@@ -1,5 +1,9 @@
 # NLP tiếng Việt với Python — từ cơ bản đến nâng cao
 
+[![tests](https://github.com/ThanhDatVN/NLP_journey/actions/workflows/tests.yml/badge.svg)](https://github.com/ThanhDatVN/NLP_journey/actions/workflows/tests.yml)
+![Python 3.11+](https://img.shields.io/badge/python-3.11%2B-blue)
+![Giấy phép](https://img.shields.io/badge/mã-MIT-green) ![Giấy phép](https://img.shields.io/badge/nội%20dung-CC%20BY%204.0-lightgrey)
+
 Giáo trình tự học **xử lý ngôn ngữ tự nhiên (NLP) tiếng Việt** bằng Python, gồm **20 bài Jupyter Notebook (Bài 0–19)** chạy được trên máy cá nhân (không cần khóa API). Lộ trình đi từ làm sạch văn bản, TF-IDF và phân loại cổ điển, qua mạng nơ-ron, attention/Transformer, tinh chỉnh **PhoBERT** (phân loại, NER), tìm kiếm ngữ nghĩa, **LLM + RAG**, triển khai và đạo đức dữ liệu, phần nâng cao **LoRA** và tối ưu suy luận, và kết thúc bằng bốn bài **mở rộng** cho dự án thực tế: dữ liệu nhãn (nhãn yếu, học tích cực), khôi phục dấu tiếng Việt, phân cụm/chủ đề, và tóm tắt/dịch cùng cách đo.
 
 Mỗi bài có: mục tiêu, giải thích ngắn, mã **chạy được và đã chạy** (kết quả được lưu trong notebook), phần *đọc kết quả một cách thận trọng*, bài tập có gợi ý đáp án.
@@ -49,6 +53,8 @@ Tổng thời lượng gợi ý khoảng **49 giờ** cho Bài 0–15 và **≈ 
 Yêu cầu: **Python 3.11+** và kiến thức Python cơ bản. Bài 0–8 và 14 chỉ cần CPU (Bài 15 và 19 có thể chạy một phần trên CPU; Bài 16–18 chạy trên CPU nhưng nên có `requirements-transformers.txt` để dùng dữ liệu thật). Mở PowerShell tại thư mục dự án:
 
 ```powershell
+git clone https://github.com/ThanhDatVN/NLP_journey.git
+cd NLP_journey
 py -3.11 -m venv .venv
 .\.venv\Scripts\Activate.ps1
 python -m pip install --upgrade pip
@@ -56,6 +62,8 @@ pip install -r requirements.txt                 # Bài 0-8, 14
 pip install -r requirements-transformers.txt   # Bài 9-19 (PyTorch, Transformers, Datasets, PEFT, SentencePiece)
 jupyter lab
 ```
+
+(Linux/macOS: thay hai dòng kích hoạt bằng `python3.11 -m venv .venv && source .venv/bin/activate`.)
 
 Với GPU NVIDIA hãy cài bản PyTorch khớp CUDA theo hướng dẫn trên [pytorch.org](https://pytorch.org/get-started/locally/) *trước* khi cài `requirements-transformers.txt`. Mở các notebook trong `notebooks/` **theo thứ tự**.
 
@@ -71,7 +79,8 @@ nlpvi/       tiện ích dùng chung: nạp dữ liệu, chuẩn hóa, tách t�
 data/        bộ dữ liệu của khóa học + DATA_CARD.md (đọc trước khi dùng)
 docs/        giáo trình, nguồn tham khảo, thuật ngữ, câu hỏi ôn tập, đồ án (+ bài mẫu), khắc phục sự cố
 app/         API (FastAPI) và demo (Gradio) cho Bài 14
-tools/       sinh dữ liệu tổng hợp, kiểm tra chạy notebook, dựng notebook từ nguồn văn bản (notebook_src/)
+tools/       sinh dữ liệu tổng hợp, kiểm tra chạy notebook và liên kết, dựng notebook từ nguồn văn bản (notebook_src/)
+.github/     workflow CI (kiểm thử trên Ubuntu và Windows)
 tests/       kiểm thử tự động (pytest): gói nlpvi, toàn vẹn dữ liệu/mã hóa (kể cả ký tự điều khiển và công thức LaTeX bị vỡ), độ tái lập, kiểm thử hành vi
 outputs/     (sinh ra khi chạy; bị bỏ qua bởi git) mô hình đã huấn luyện
 ```
@@ -81,12 +90,14 @@ outputs/     (sinh ra khi chạy; bị bỏ qua bởi git) mô hình đã huấn
 - **Dữ liệu tự biên soạn** (trong `data/`): bộ đánh giá **tổng hợp** 1.800 mẫu, 40 câu "khó" viết tay, 38 câu NER, kho FAQ + truy vấn cho tìm kiếm, và (Bài 19) 16 đoạn văn hư cấu kèm 2 tóm tắt tham chiếu, 24 câu Anh–Việt kèm 2 bản dịch tham chiếu. Bộ tổng hợp dùng để học quy trình và để mọi kết quả chạy lại được; **nó không đại diện cho bình luận thật** và cố ý chứa nhiễu (xem [data/DATA_CARD.md](data/DATA_CARD.md)). Đừng dùng kết quả trên nó để tuyên bố chất lượng ngoài đời.
 - **Dữ liệu thật tải lúc chạy** (không đi kèm repo): UIT-VSFC cho Bài 10, 15, 16, 17, 18 và bản sao PhoNER_COVID19 cho Bài 11, 17. Thẻ trên Hub không ghi giấy phép (UIT-VSFC ghi `unknown`); hãy dùng cho học tập/nghiên cứu và kiểm tra điều khoản gốc trước khi dùng cách khác.
 - **Mô hình**: `vinai/phobert-base` (MIT), `intfloat/multilingual-e5-small` (MIT), `bkai-foundation-models/vietnamese-bi-encoder` (Apache-2.0), `Qwen/Qwen2.5-1.5B-Instruct` và `Qwen/Qwen2.5-0.5B-Instruct` (Apache-2.0), `Helsinki-NLP/opus-mt-en-vi` (Bài 19; kiểm tra giấy phép tại thẻ mô hình). Lưu ý `vinai/phobert-base-v2` ghi **AGPL-3.0** — khóa học cố ý dùng bản v1 (MIT); luôn kiểm tra lại giấy phép tại thẻ mô hình.
-- **Mã nguồn và nội dung giáo trình** chưa kèm tệp giấy phép. Hãy thêm giấy phép bạn chọn (ví dụ MIT cho mã, CC BY 4.0 cho nội dung) trước khi chia sẻ công khai.
+- **Giấy phép của repo:** mã nguồn theo **[MIT](LICENSE)**; nội dung giáo trình và dữ liệu tự biên soạn theo **CC BY 4.0** (xem [LICENSE-NOI-DUNG.md](LICENSE-NOI-DUNG.md) để biết phần nào thuộc giấy phép nào). Dữ liệu/mô hình bên thứ ba và phần trích từ từ vựng PhoBERT: xem [NOTICE.md](NOTICE.md).
 
 ## Kiểm tra tái lập
 
 ```powershell
-pytest -q                                  # kiểm thử tự động (vài giây): gói nlpvi, dữ liệu, độ tái lập, CheckList
+pip install -r requirements-dev.txt        # một lần: thêm pytest
+pytest -q                                  # kiểm thử tự động (vài giây): gói nlpvi, dữ liệu, độ tái lập, CheckList, app, liên kết
+python tools/check_links.py                # liên kết nội bộ trong tài liệu/notebook và định dạng notebook
 python tools/check_notebooks.py            # chạy lại các bài chỉ cần CPU (00-07, 14) và báo lỗi
 python tools/check_notebooks.py --all      # chạy cả bài cần Internet/GPU (08-19; ≈ 60-90 phút, chưa tính tải mô hình lần đầu)
 python tools/make_data.py                  # sinh lại data/reviews_vi.csv (seed cố định)
@@ -100,7 +111,7 @@ Notebook được **dựng từ nguồn văn bản** `tools/notebook_src/*.nbsrc
 python tools/build_notebooks.py 03 --run   # dựng + chạy lại Bài 03, lưu kết quả vào notebook
 ```
 
-Khi sửa lời văn có chứa số liệu, hãy chạy lại và đối chiếu số liệu với lời văn (giáo trình cố ý viết các nhận xét dựa trên số đo thật). Nếu sửa trực tiếp `.ipynb`, hãy sửa cả `.nbsrc` tương ứng để hai bên không lệch nhau.
+Khi sửa lời văn có chứa số liệu, hãy chạy lại và đối chiếu số liệu với lời văn (giáo trình cố ý viết các nhận xét dựa trên số đo thật). Nếu sửa trực tiếp `.ipynb`, hãy sửa cả `.nbsrc` tương ứng để hai bên không lệch nhau. Quy trình đầy đủ và danh sách kiểm trước khi gửi thay đổi nằm ở [CONTRIBUTING.md](CONTRIBUTING.md); repo có CI (GitHub Actions) chạy kiểm thử trên Ubuntu và Windows.
 
 ## Tài liệu tham khảo
 

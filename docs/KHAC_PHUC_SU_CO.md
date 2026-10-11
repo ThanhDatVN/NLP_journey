@@ -45,6 +45,15 @@ Dữ liệu tiếng Việt lành mạnh có hàng nghìn ký tự non-ASCII và 
 - Bài 13: máy dưới ~3,8 GB VRAM tự động lùi về `Qwen2.5-0.5B-Instruct` (chất lượng kém hơn). Bộ nhúng E5 trong bài này chạy trên CPU để dành VRAM cho LLM.
 - Kiểm tra: `nvidia-smi`. Mức dùng đã đo trên RTX 3050 4 GB: Bài 10 đỉnh ≈ 3,1 GB; Bài 13 ≈ 3,1 GB cho mô hình 1,5B.
 - Không có GPU: đặt `MAX_TRAIN = 1000–2000` ở Bài 10/11 (vẫn đủ để thấy quy trình), hoặc chạy trên Google Colab/Kaggle.
+- **Chạy trên Google Colab** (công thức dưới đây *chưa được kiểm thử trực tiếp trên Colab*; Colab đã có sẵn PyTorch/Transformers/Datasets nên chỉ cần cài thêm vài gói nhỏ). Chọn Runtime → GPU, rồi trong một ô mã:
+
+  ```python
+  !git clone https://github.com/ThanhDatVN/NLP_journey.git
+  %cd NLP_journey/notebooks
+  !pip install -q peft sentencepiece
+  ```
+
+  Sau đó mở notebook cần chạy từ thư mục `notebooks/` (mã của bài tự tìm thư mục gốc nếu thư mục làm việc là `notebooks/`). Kết quả sinh ra (`outputs/`) mất khi phiên Colab kết thúc, nên bài sau cần mô hình của bài trước (ví dụ Bài 15 cần PhoBERT của Bài 10) thì chạy lại bài trước trong cùng phiên.
 
 **Bài 15 (LoRA)** dễ tràn VRAM vì *kích hoạt* (không phải trọng số) mới là khoản lớn nhất khi dùng LoRA. Notebook giảm bộ nhớ bằng hai cách: `logits_to_keep` (chỉ tính logit vài vị trí cuối thay vì toàn bộ từ điển ≈152 nghìn token ở mọi vị trí) và **gradient checkpointing**; mục 3.0 đo VRAM đỉnh của từng cấu hình trước khi huấn luyện.
 

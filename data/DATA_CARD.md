@@ -34,7 +34,7 @@ Mã hóa: **UTF-8** (`reviews_vi.csv` có BOM; đọc bằng `encoding="utf-8-si
 5. **Nhãn nhiễu 3%** là có chủ đích; một số nhãn có thể trái trực giác (Bài 3 mục 8.1 dùng nó để thực hành tìm nhãn sai).
 6. **Quy ước nhãn** là của người thiết kế: "trung tính" gồm cả câu mô tả sự kiện và câu cân bằng ưu/nhược điểm.
 
-**Giấy phép dữ liệu:** do giáo trình tự sinh; bạn có thể dùng cho mục đích học tập. Hãy đặt giấy phép cho cả repo trước khi chia sẻ công khai.
+**Giấy phép dữ liệu:** do giáo trình tự sinh; theo **CC BY 4.0** như các tệp dữ liệu tự biên soạn khác trong thư mục này (xem [LICENSE-NOI-DUNG.md](../LICENSE-NOI-DUNG.md)).
 
 ## `reviews_hard.csv` — 40 câu khó
 

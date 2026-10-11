@@ -1,0 +1,39 @@
+name: tests
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  kiem-thu:
+    name: Kiểm thử (${{ matrix.os }}, Python ${{ matrix.python }})
+    runs-on: ${{ matrix.os }}
+    strategy:
+      fail-fast: false
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+        python: ["3.11"]
+    env:
+      PYTHONUTF8: "1"          # tiếng Việt trong thông báo và tên kiểm thử trên Windows
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: ${{ matrix.python }}
+
+      # Chỉ cài phần cần cho kiểm thử (không cần PyTorch/Transformers: các bài dùng chúng không chạy trong CI).
+      - name: Cài thư viện
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install numpy pandas scikit-learn scipy matplotlib joblib pytest nbformat nbclient fastapi httpx
+
+      - name: Kiểm thử tự động
+        run: python -m pytest -q
+
+      - name: Kiểm tra liên kết nội bộ và định dạng notebook
+        run: python tools/check_links.py
+
+      - name: Kiểm tra mã hóa tiếng Việt trong tài liệu và notebook
+        run: python tools/check_notebooks.py --encoding-only
